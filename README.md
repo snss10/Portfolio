@@ -1,7 +1,7 @@
 # S Naga Surya · Portfolio
 
 Personal site of **S Naga Surya**, AI / Backend Engineer building agentic systems with LangGraph, MCP,
-RAG and FastAPI.
+RAG and FastAPI. Live at **https://nagasurya.com**.
 
 ![Preview of the portfolio](public/og/home.png)
 
@@ -49,32 +49,24 @@ handwritten `sub` go inside each box (keep `sub` under about 20 characters), `ed
 in order (`null` for none), and `notes` are the blue handwritten comments that point at a step. Flows
 with more than four steps wrap onto two rows automatically, and phones get a vertical layout.
 
-## Before you deploy: set your domain
+## Domain
 
-Link previews, canonical URLs and the sitemap need your real domain. Set it in one place, either:
-
-- in `astro.config.mjs`: `const SITE_URL = process.env.SITE_URL || 'https://your-domain.com';`, or
-- as an environment variable `SITE_URL=https://your-domain.com` on your hosting provider.
-
-Until it is set, the build prints a warning.
+The site is built for `https://nagasurya.com`, set in `astro.config.mjs`. Link previews, canonical URLs
+and the sitemap all use it. A `SITE_URL` environment variable overrides it if you ever need to.
 
 ## Deploy
 
-The build output is a plain static folder (`dist/`), so any static host works.
+The build output is a plain static folder (`dist/`). It is hosted on **Vercel**, with the domain
+registered at **Hostinger**:
 
-**Vercel, Netlify or Cloudflare Pages** (recommended, free for a personal site):
+1. In Vercel, import this repository. Build command `npm run build`, output directory `dist`.
+2. In the project's Settings → Domains, add `nagasurya.com` as the primary domain and redirect
+   `www.nagasurya.com` to it.
+3. In Hostinger (Domains → nagasurya.com → DNS / Nameservers), replace the `@` A record and the `www`
+   CNAME with the exact values Vercel shows. Leave MX and TXT records alone; they handle email.
 
-1. Import this GitHub repository in the provider's dashboard.
-2. Build command: `npm run build`. Output directory: `dist`.
-3. Add the environment variable `SITE_URL` with your domain, e.g. `https://your-domain.com`.
-4. Add your custom domain in the dashboard and create the DNS records it shows you at your domain
-   registrar.
-
-Every push to the repository then redeploys the site automatically.
-
-**GitHub Pages:** in the repository go to Settings → Pages, choose "GitHub Actions" as the source, and
-add the official [Astro deploy workflow](https://docs.astro.build/en/guides/deploy/github/). Add your
-custom domain under the same settings page.
+While the GitHub connection is on, every push to `main` redeploys the site. Without it, deploy from a
+local copy with `npx vercel --prod`. Disconnecting GitHub does not take the live site down.
 
 After deploying, paste a page URL into the [LinkedIn Post Inspector](https://www.linkedin.com/post-inspector/)
 to check the preview card.

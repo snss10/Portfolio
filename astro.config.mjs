@@ -3,22 +3,11 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
 /*
- * Your live domain. It is used for canonical URLs, the sitemap, and the
+ * The live domain. It is used for canonical URLs, the sitemap, and the
  * absolute image URLs that LinkedIn, WhatsApp and X need for link previews.
- *
- * Set it once, either by replacing the fallback below, e.g.
- *   const SITE_URL = process.env.SITE_URL ?? 'https://nagasurya.dev';
- * or by setting the SITE_URL environment variable on your hosting provider.
+ * A SITE_URL environment variable, if set, takes precedence.
  */
-const PLACEHOLDER = 'https://example.com';
-const SITE_URL = process.env.SITE_URL || PLACEHOLDER;
-
-if (SITE_URL === PLACEHOLDER) {
-  console.warn(
-    '\n[portfolio] SITE_URL is not set: canonical links, the sitemap and social preview images ' +
-      `will point to ${PLACEHOLDER}. Set it in astro.config.mjs or as an env var before deploying.\n`,
-  );
-}
+const SITE_URL = process.env.SITE_URL || 'https://nagasurya.com';
 
 export default defineConfig({
   site: SITE_URL,
