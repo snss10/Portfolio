@@ -1,0 +1,60 @@
+---
+import Sketch from './Sketch.astro';
+import { site, intro, lifecycle } from '../data/site';
+---
+
+<section class="hero page" aria-labelledby="hero-title">
+  <h1 id="hero-title">{site.name}</h1>
+  <p class="line">{intro.line}</p>
+  <p class="now">{intro.now}</p>
+  <p class="links">
+    <a class="link" href="#work">
+      Read the case studies
+    </a>
+    <a class="link" href={`mailto:${site.email}`}>
+      {site.email}
+    </a>
+    <a class="link" href={site.resume} download>
+      Download resume (PDF)
+    </a>
+  </p>
+
+  <Sketch
+    flow={lifecycle}
+    animate
+    maxScale={1.3}
+    class="hero-sketch"
+    caption="How the systems I’ve worked on connect. The blue notes mark the parts I built."
+  />
+</section>
+
+<style>
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+    padding-block: clamp(3.5rem, 2rem + 6vw, 7.5rem) clamp(2rem, 1rem + 3vw, 4rem);
+  }
+
+  .line {
+    max-width: 30ch;
+    font-size: clamp(1.375rem, 1.1rem + 1.1vw, 1.875rem);
+    line-height: 1.35;
+    letter-spacing: -0.012em;
+  }
+
+  .now {
+    color: var(--ink-2);
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 28px;
+    margin-top: 6px;
+  }
+
+  .hero :global(.hero-sketch) {
+    margin-top: clamp(2rem, 1rem + 3vw, 3.5rem);
+  }
+</style>

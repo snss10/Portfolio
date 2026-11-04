@@ -1,0 +1,177 @@
+---
+import Icon from './Icon.astro';
+import { site } from '../data/site';
+---
+
+<header class="site-header">
+  <div class="page bar">
+    <a class="name" href="/">
+      {site.name}
+    </a>
+    <nav aria-label="Primary">
+      <ul>
+        <li>
+          <a href="/#work">Work</a>
+        </li>
+        <li>
+          <a href="/#projects">Side projects</a>
+        </li>
+        <li>
+          <a href="/#about">About</a>
+        </li>
+        <li>
+          <a href={site.resume} target="_blank" rel="noopener">
+            Resume
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <button class="theme" type="button" data-theme-toggle aria-label="Dark theme">
+      <Icon name="moon" class="i-moon" />
+      <Icon name="sun" class="i-sun" />
+    </button>
+  </div>
+</header>
+
+<script>
+  const root = document.documentElement;
+  const toggle = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  const current = () => root.dataset.theme ?? (prefersDark.matches ? 'dark' : 'light');
+
+  const sync = () => {
+    toggle?.setAttribute('aria-pressed', String(current() === 'dark'));
+    const bg = getComputedStyle(root).getPropertyValue('--paper').trim();
+    document
+      .querySelectorAll('meta[name="theme-color"]')
+      .forEach((m) => m.setAttribute('content', bg));
+  };
+
+  const apply = (theme: string) => {
+    root.dataset.theme = theme;
+    try {
+      localStorage.setItem('theme', theme);
+    } catch {
+      /* storage blocked: the choice lasts for this visit */
+    }
+    sync();
+  };
+
+  toggle?.addEventListener('click', () => {
+    const next = current() === 'dark' ? 'light' : 'dark';
+    // Cross-fade the whole page where the browser supports it.
+    if (document.startViewTransition && !reduceMotion.matches) {
+      document.startViewTransition(() => apply(next));
+    } else {
+      apply(next);
+    }
+  });
+  prefersDark.addEventListener('change', sync);
+  sync();
+</script>
+
+<style>
+  .bar {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: 'name nav theme';
+    align-items: center;
+    gap: 8px 28px;
+    padding-block: 26px;
+  }
+
+  .name {
+    grid-area: name;
+    font-weight: 750;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+  }
+
+  nav {
+    grid-area: nav;
+    justify-self: end;
+  }
+
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 26px;
+    list-style: none;
+  }
+
+  nav a {
+    color: var(--ink-2);
+    font-size: 1rem;
+    text-decoration: none;
+    text-underline-offset: 6px;
+    text-decoration-thickness: 2px;
+    text-decoration-color: var(--marker);
+  }
+
+  nav a:hover {
+    color: var(--ink);
+    text-decoration-line: underline;
+  }
+
+  .theme {
+    grid-area: theme;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    margin-right: -10px;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: var(--ink-2);
+    cursor: pointer;
+  }
+
+  .theme:hover {
+    color: var(--ink);
+    background: var(--wash);
+  }
+
+  /* The icons render inside the Icon component, so they need :global(). */
+  .theme :global(.i-sun) {
+    display: none;
+  }
+
+  :global(:root[data-theme='dark']) .theme :global(.i-sun) {
+    display: block;
+  }
+
+  :global(:root[data-theme='dark']) .theme :global(.i-moon) {
+    display: none;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme='light'])) .theme :global(.i-sun) {
+      display: block;
+    }
+
+    :global(:root:not([data-theme='light'])) .theme :global(.i-moon) {
+      display: none;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .bar {
+      grid-template-columns: 1fr auto;
+      grid-template-areas:
+        'name theme'
+        'nav nav';
+      padding-block: 18px 6px;
+    }
+
+    nav {
+      justify-self: start;
+    }
+
+    ul {
+      gap: 4px 20px;
+    }
+  }
+</style>

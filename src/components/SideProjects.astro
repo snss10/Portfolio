@@ -1,0 +1,100 @@
+---
+import Sketch from './Sketch.astro';
+import { sideProjects } from '../data/projects';
+---
+
+<div class="side">
+  {sideProjects.map((p, i) => (
+    <article class="project" aria-labelledby={`side-${i}`}>
+      <div class="text">
+        <h3 id={`side-${i}`}>{p.name}</h3>
+        <p class="kind">
+          {p.kind}. {p.license ? `${p.license} licence.` : p.status}
+        </p>
+        <p class="desc">{p.description}</p>
+        <ul class="facts">
+          {p.facts.map((f) => (
+            <li>{f}</li>
+          ))}
+        </ul>
+        <p class="stack">Built with {p.stack.join(', ')}.</p>
+        <p class="links">
+          {p.caseStudy && (
+            <a class="link" href={p.caseStudy}>
+              Read the {p.name} case study
+            </a>
+          )}
+          {p.links.map((l) => (
+            <a class="link" href={l.href} target="_blank" rel="noopener">
+              {l.label}
+            </a>
+          ))}
+        </p>
+      </div>
+      <Sketch
+        class="side-sketch"
+        flow={{
+          label: p.sketch.label,
+          steps: p.sketch.steps,
+          edges: p.sketch.edges,
+          notes: p.sketch.notes,
+          seed: 31 + i * 17,
+        }}
+      />
+    </article>
+  ))}
+</div>
+
+<style>
+  .side {
+    display: grid;
+    gap: clamp(3.5rem, 2.5rem + 3vw, 5rem);
+    margin-top: clamp(2.5rem, 2rem + 2vw, 3.5rem);
+  }
+
+  .project {
+    display: grid;
+    gap: 28px;
+  }
+
+  .text {
+    display: grid;
+    gap: 12px;
+    max-width: 42rem;
+  }
+
+  h3 {
+    font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);
+    font-weight: 750;
+    letter-spacing: -0.025em;
+  }
+
+  .kind,
+  .stack {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+
+  .desc {
+    font-size: var(--fs-lead);
+    line-height: 1.5;
+  }
+
+  .facts {
+    display: grid;
+    gap: 6px;
+    padding-left: 1.1em;
+    color: var(--ink-2);
+  }
+
+  .facts li::marker {
+    color: var(--marker);
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 28px;
+    margin-top: 4px;
+  }
+</style>

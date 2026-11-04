@@ -1,0 +1,139 @@
+---
+import { workProjects } from '../data/projects';
+
+// A hand-drawn marker underline, sketched under a project name on hover.
+const underline = 'M2 7 C 40 3, 80 10, 122 6 S 200 4, 238 8';
+---
+
+<ul class="work">
+  {workProjects.map((p) => (
+    <li class="row">
+      <p class="when">{p.period}</p>
+      <div class="body">
+        <h3>
+          <a href={`/work/${p.slug}/`} class="name">
+            <span class="name-text">
+              {p.name}
+              <svg
+                class="scribble"
+                viewBox="0 0 240 12"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+              >
+                <path d={underline} pathLength="1" />
+              </svg>
+            </span>
+          </a>
+        </h3>
+        <p class="summary">{p.summary}</p>
+        <p class="role">{p.role}</p>
+      </div>
+    </li>
+  ))}
+</ul>
+
+<style>
+  .work {
+    display: grid;
+    gap: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+    margin-top: clamp(2.5rem, 2rem + 2vw, 3.5rem);
+    list-style: none;
+  }
+
+  /* Each row is one link target: the title link covers the whole row. */
+  .row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 7.5rem minmax(0, 1fr);
+    gap: 0 24px;
+    padding-block: 14px;
+  }
+
+  .name::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .when {
+    padding-top: 0.55em;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .body {
+    display: grid;
+    gap: 8px;
+    max-width: 42rem;
+  }
+
+  h3 {
+    font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);
+    font-weight: 750;
+    letter-spacing: -0.025em;
+  }
+
+  .name {
+    text-decoration: none;
+  }
+
+  .name:focus-visible {
+    outline: none;
+  }
+
+  .row:has(.name:focus-visible) {
+    outline: 2px solid var(--marker);
+    outline-offset: 4px;
+    border-radius: 4px;
+  }
+
+  .name-text {
+    position: relative;
+    display: inline-block;
+  }
+
+  .scribble {
+    position: absolute;
+    left: 0;
+    bottom: -8px;
+    width: 100%;
+    height: 12px;
+    overflow: visible;
+  }
+
+  .scribble path {
+    fill: none;
+    stroke: var(--marker);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset 0.45s var(--ease);
+  }
+
+  .row:hover .scribble path,
+  .row:has(.name:focus-visible) .scribble path {
+    stroke-dashoffset: 0;
+  }
+
+  .summary {
+    font-size: var(--fs-lead);
+    line-height: 1.5;
+  }
+
+  .role {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+
+  @media (max-width: 640px) {
+    .row {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .when {
+      padding-top: 0;
+    }
+  }
+</style>

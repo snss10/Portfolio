@@ -1,0 +1,157 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Sketch from '../../components/Sketch.astro';
+import CaseHeader from '../../components/CaseHeader.astro';
+import CasePager from '../../components/CasePager.astro';
+import { vfabit as v } from '../../data/vfabit';
+import { site } from '../../data/site';
+
+const title = `${v.name}: ${v.fullName} | ${site.name}`;
+const description = `${v.tagline} A project by ${site.name}.`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: site.name, item: new URL('/', Astro.site).href },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Side projects',
+      item: new URL('/#projects', Astro.site).href,
+    },
+    {
+      '@type': 'ListItem',
+      position: 3,
+      name: v.name,
+      item: new URL(`/projects/${v.slug}/`, Astro.site).href,
+    },
+  ],
+};
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  image={`/og/project-${v.slug}.png`}
+  imageAlt={`${v.name}: ${v.fullName}`}
+  type="article"
+  jsonLd={jsonLd}
+>
+  <article class="page">
+    <CaseHeader
+      back={{ href: '/#projects', label: 'All side projects' }}
+      name={v.name}
+      fullName={v.fullName}
+      tagline={v.tagline}
+      facts={v.facts}
+    />
+
+    <Sketch
+      class="case-sketch"
+      animate
+      flow={v.orderFlow}
+      caption="How an order runs, from request to delivery. The blue notes are rules the platform enforces."
+    />
+
+    <div class="case-body">
+      <section aria-labelledby="what">
+        <h2 id="what">What it is</h2>
+        {v.overview.map((para) => (
+          <p>{para}</p>
+        ))}
+      </section>
+
+      <section aria-labelledby="rules">
+        <h2 id="rules">Rules the platform enforces</h2>
+        <ul class="bullets">
+          {v.rules.map((r) => (
+            <li>{r}</li>
+          ))}
+        </ul>
+      </section>
+
+      <section aria-labelledby="matching">
+        <h2 id="matching">Matching a request to shops</h2>
+        <ul class="bullets">
+          {v.matching.map((m) => (
+            <li>{m}</li>
+          ))}
+        </ul>
+      </section>
+
+      <section aria-labelledby="scan">
+        <h2 id="scan">Reading 3D models</h2>
+        <Sketch
+          flow={v.scanFlow}
+          caption="How a STEP file is scanned. The 3D model is ready before measuring finishes."
+        />
+        <ul class="bullets">
+          {v.scan.map((s) => (
+            <li>{s}</li>
+          ))}
+        </ul>
+      </section>
+
+      <section aria-labelledby="drawings">
+        <h2 id="drawings">Reading drawings</h2>
+        <p>A beta feature, used by the operations team only.</p>
+        <ul class="bullets">
+          {v.drawings.map((d) => (
+            <li>{d}</li>
+          ))}
+        </ul>
+      </section>
+
+      <section aria-labelledby="engineering">
+        <h2 id="engineering">Engineering</h2>
+        <div class="groups">
+          {v.engineering.map((g) => (
+            <div>
+              <h3>{g.title}</h3>
+              <ul class="bullets">
+                {g.points.map((pt) => (
+                  <li>{pt}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section aria-labelledby="stack">
+        <h2 id="stack">Stack</h2>
+        <dl class="stack-list">
+          {v.stack.map((s) => (
+            <div>
+              <dt>{s.layer}</dt>
+              <dd>{s.tools}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+
+      <p class="ask">
+        The code is private, so this page covers what the product does and how it is built.
+        <a
+          class="link"
+          href={`mailto:${site.email}?subject=${encodeURIComponent(`About ${v.name}`)}`}
+        >
+          Email me about {v.name}
+        </a>
+      </p>
+    </div>
+
+    <CasePager
+      label="More projects"
+      start={{ dir: 'Back to', name: 'Side projects', href: '/#projects' }}
+      end={{ dir: 'See also', name: 'Work at Ideyalabs', href: '/#work' }}
+    />
+  </article>
+</BaseLayout>
+
+<style>
+  article {
+    padding-bottom: clamp(3rem, 2rem + 4vw, 5rem);
+  }
+</style>

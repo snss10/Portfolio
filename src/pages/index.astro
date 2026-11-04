@@ -1,0 +1,75 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import WorkList from '../components/WorkList.astro';
+import SideProjects from '../components/SideProjects.astro';
+import About from '../components/About.astro';
+import Contact from '../components/Contact.astro';
+import { site } from '../data/site';
+import { education } from '../data/experience';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfilePage',
+  mainEntity: {
+    '@type': 'Person',
+    name: site.name,
+    jobTitle: site.currentTitle,
+    description: site.seo.description,
+    url: Astro.site?.href,
+    email: `mailto:${site.email}`,
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'Hyderabad',
+      addressRegion: 'Telangana',
+      addressCountry: 'IN',
+    },
+    worksFor: { '@type': 'Organization', name: site.company },
+    alumniOf: { '@type': 'CollegeOrUniversity', name: education.school },
+    knowsAbout: [
+      'Agentic AI',
+      'Multi-agent systems',
+      'LangGraph',
+      'LangChain',
+      'Model Context Protocol',
+      'Retrieval-augmented generation',
+      'FastAPI',
+      'Python',
+      'PostgreSQL',
+      'Playwright',
+    ],
+    sameAs: [site.links.github, site.links.linkedin],
+  },
+};
+---
+
+<BaseLayout jsonLd={jsonLd}>
+  <Hero />
+
+  <section id="work" class="section page" aria-labelledby="work-title">
+    <h2 id="work-title">Work</h2>
+    <p class="section-intro">
+      Four systems I built at Ideyalabs. The code is private, so each case study explains what I
+      built and how it works.
+    </p>
+    <WorkList />
+  </section>
+
+  <section id="projects" class="section page" aria-labelledby="projects-title">
+    <h2 id="projects-title">Side projects</h2>
+    <p class="section-intro">
+      Things I build in my own time. DBeast and TextRecast are open source; vFABit’s code is
+      private.
+    </p>
+    <SideProjects />
+  </section>
+
+  <section id="about" class="section page" aria-labelledby="about-title">
+    <h2 id="about-title">About</h2>
+    <About />
+  </section>
+
+  <section id="contact" class="section page" aria-labelledby="contact-title">
+    <Contact />
+  </section>
+</BaseLayout>

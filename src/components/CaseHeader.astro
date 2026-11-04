@@ -1,0 +1,98 @@
+---
+/** The top of every case study: back link, name, one-line summary and key facts. */
+export interface Fact {
+  label: string;
+  value: string;
+  /** Give long values (like a tech stack) a row of their own. */
+  wide?: boolean;
+}
+
+interface Props {
+  back: { href: string; label: string };
+  name: string;
+  fullName: string;
+  tagline: string;
+  facts: Fact[];
+}
+
+const { back, name, fullName, tagline, facts } = Astro.props;
+---
+
+<header class="head">
+  <a class="back" href={back.href}>
+    {back.label}
+  </a>
+  <h1>{name}</h1>
+  <p class="full">{fullName}</p>
+  <p class="tagline">{tagline}</p>
+  <dl class="facts">
+    {facts.map((f) => (
+      <div class:list={{ wide: f.wide }}>
+        <dt>{f.label}</dt>
+        <dd>{f.value}</dd>
+      </div>
+    ))}
+  </dl>
+</header>
+
+<style>
+  .head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+    padding-block: clamp(2.5rem, 1.5rem + 4vw, 5rem) clamp(2rem, 1rem + 2vw, 3rem);
+  }
+
+  .back {
+    justify-self: start;
+    margin-bottom: 18px;
+    color: var(--ink-2);
+    text-underline-offset: 5px;
+    text-decoration-color: var(--marker);
+    text-decoration-thickness: 2px;
+  }
+
+  .back:hover {
+    color: var(--ink);
+  }
+
+  .full {
+    color: var(--ink-2);
+    font-size: var(--fs-lead);
+  }
+
+  .tagline {
+    max-width: 36ch;
+    margin-top: 10px;
+    font-size: clamp(1.375rem, 1.1rem + 1.1vw, 1.875rem);
+    line-height: 1.35;
+    letter-spacing: -0.012em;
+  }
+
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+    gap: 16px 32px;
+    max-width: 56rem;
+    margin-top: 22px;
+  }
+
+  .facts div {
+    display: grid;
+    gap: 2px;
+    align-content: start;
+  }
+
+  .facts .wide {
+    grid-column: 1 / -1;
+  }
+
+  dt {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+
+  dd {
+    font-weight: 600;
+  }
+</style>

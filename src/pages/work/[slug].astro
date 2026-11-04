@@ -1,0 +1,148 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Sketch from '../../components/Sketch.astro';
+import CaseHeader from '../../components/CaseHeader.astro';
+import CasePager from '../../components/CasePager.astro';
+import { workProjects, type WorkProject } from '../../data/projects';
+import { site } from '../../data/site';
+
+export function getStaticPaths() {
+  const n = workProjects.length;
+  return workProjects.map((project, i) => ({
+    params: { slug: project.slug },
+    props: {
+      project,
+      prev: workProjects[(i - 1 + n) % n],
+      next: workProjects[(i + 1) % n],
+    },
+  }));
+}
+
+interface Props {
+  project: WorkProject;
+  prev: WorkProject;
+  next: WorkProject;
+}
+
+const { project: p, prev, next } = Astro.props;
+
+const title = `${p.name}: ${p.fullName} | ${site.name}`;
+const description = `${p.tagline} A case study by ${site.name}, ${site.role}.`;
+
+const facts = [
+  { label: 'Role', value: p.role },
+  { label: 'When', value: p.rolePeriod },
+  ...(p.context ? [{ label: 'For', value: p.context }] : []),
+  { label: 'Built with', value: p.stack.join(', '), wide: true },
+];
+
+const flowLabel = `${p.name}, step by step: ${p.flow.map((s) => s.title).join(', then ')}.`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: site.name, item: new URL('/', Astro.site).href },
+    { '@type': 'ListItem', position: 2, name: 'Work', item: new URL('/#work', Astro.site).href },
+    {
+      '@type': 'ListItem',
+      position: 3,
+      name: p.name,
+      item: new URL(`/work/${p.slug}/`, Astro.site).href,
+    },
+  ],
+};
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  image={`/og/work-${p.slug}.png`}
+  imageAlt={`${p.name} case study: ${p.tagline}`}
+  type="article"
+  jsonLd={jsonLd}
+>
+  <article class="page">
+    <CaseHeader
+      back={{ href: '/#work', label: 'All work' }}
+      name={p.name}
+      fullName={p.fullName}
+      tagline={p.tagline}
+      facts={facts}
+    />
+
+    <Sketch
+      class="case-sketch"
+      animate
+      flow={{
+        label: flowLabel,
+        steps: p.flow.map((s) => ({ title: s.title, sub: s.sub })),
+        edges: p.edges,
+        notes: p.notes,
+        seed: p.slug.length * 7,
+      }}
+      caption={`How ${p.name} works. The blue notes are my annotations.`}
+    />
+
+    <div class="case-body">
+      <section aria-labelledby="what">
+        <h2 id="what">What it does</h2>
+        {p.overview.map((para) => (
+          <p>{para}</p>
+        ))}
+        {p.metrics.length > 0 && (
+          <ul class="bullets">
+            {p.metrics.map((m) => (
+              <li>
+                <strong>{m.value}</strong> {m.label}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section aria-labelledby="how">
+        <h2 id="how">How it works</h2>
+        <ol class="steps">
+          {p.flow.map((s) => (
+            <li>
+              <h3>{s.title}</h3>
+              <p>{s.detail}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section aria-labelledby="built">
+        <h2 id="built">What I built</h2>
+        <ul class="bullets">
+          {p.built.map((b) => (
+            <li>{b}</li>
+          ))}
+        </ul>
+      </section>
+
+      <p class="ask">
+        The code is private, so this page stays at the level of detail in my resume.
+        <a
+          class="link"
+          href={`mailto:${site.email}?subject=${encodeURIComponent(`About ${p.name}`)}`}
+        >
+          Email me about {p.name}
+        </a>
+      </p>
+    </div>
+
+    <CasePager
+      label="More case studies"
+      start={{ dir: 'Previous', name: prev.name, href: `/work/${prev.slug}/` }}
+      end={{ dir: 'Next', name: next.name, href: `/work/${next.slug}/` }}
+    />
+  </article>
+</BaseLayout>
+
+<style>
+  article {
+    padding-bottom: clamp(3rem, 2rem + 4vw, 5rem);
+  }
+</style>

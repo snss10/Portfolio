@@ -1,0 +1,32 @@
+{
+  "name": "naga-surya-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Portfolio of S Naga Surya, AI / Backend Engineer building agentic systems.",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "images": "node scripts/generate-images.mjs"
+  },
+  "engines": {
+    "node": ">=22.23.4"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.4",
+    "@fontsource-variable/schibsted-grotesk": "^5.3.0",
+    "@fontsource/kalam": "^5.3.0",
+    "astro": "^7.4.5",
+    "roughjs": "^4.6.6"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "prettier": "^3.9.10",
+    "prettier-plugin-astro": "^1.1.2",
+    "typescript": "^6.0.3"
+  }
+}
