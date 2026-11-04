@@ -28,3 +28,52 @@ jobs:
       - run: npm run format:check
       - run: npm run check
       - run: npm run build
+
+  # Deploys main to Vercel once the checks pass, without Vercel's GitHub connection.
+  # It stays switched off until the repository variable VERCEL_PROJECT_ID exists
+  # (Settings → Secrets and variables → Actions → Variables), so a push never deploys
+  # twice while Vercel's own GitHub connection is still active. See docs/DEPLOYMENT.md.
+  deploy:
+    name: Deploy to Vercel
+    needs: build
+    if: >-
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      github.ref == 'refs/heads/main' &&
+      vars.VERCEL_PROJECT_ID != ''
+    runs-on: ubuntu-latest
+    concurrency:
+      group: vercel-production
+      cancel-in-progress: false
+    env:
+      VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Check the deploy settings
+        run: |
+          missing=""
+          [ -n "$VERCEL_TOKEN" ] || missing="$missing VERCEL_TOKEN (secret)"
+          [ -n "$VERCEL_ORG_ID" ] || missing="$missing VERCEL_ORG_ID (variable)"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing:$missing. Add it under Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+
+      - name: Install the Vercel CLI
+        run: npm install --global vercel@64.7.0
+
+      - name: Pull the Vercel project settings
+        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+
+      - name: Build
+        run: vercel build --prod --token="$VERCEL_TOKEN"
+
+      - name: Deploy to production
+        run: vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"

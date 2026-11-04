@@ -56,20 +56,12 @@ and the sitemap all use it. A `SITE_URL` environment variable overrides it if yo
 
 ## Deploy
 
-The build output is a plain static folder (`dist/`). It is hosted on **Vercel**, with the domain
-registered at **Hostinger**:
+The site is hosted on **Vercel**, with the domain registered at **Hostinger**. Build settings,
+caching and security headers live in `vercel.json`.
 
-1. In Vercel, import this repository. Build command `npm run build`, output directory `dist`.
-2. In the project's Settings → Domains, add `nagasurya.com` as the primary domain and redirect
-   `www.nagasurya.com` to it.
-3. In Hostinger (Domains → nagasurya.com → DNS / Nameservers), replace the `@` A record and the `www`
-   CNAME with the exact values Vercel shows. Leave MX and TXT records alone; they handle email.
-
-While the GitHub connection is on, every push to `main` redeploys the site. Without it, deploy from a
-local copy with `npx vercel --prod`. Disconnecting GitHub does not take the live site down.
-
-After deploying, paste a page URL into the [LinkedIn Post Inspector](https://www.linkedin.com/post-inspector/)
-to check the preview card.
+**Step-by-step guide: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**. It covers the first deploy, adding
+`nagasurya.com`, the Hostinger DNS records, and switching to deploys from GitHub Actions so pushes to
+`main` keep deploying after Vercel's GitHub connection is removed.
 
 ## Scripts
 
