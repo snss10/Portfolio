@@ -1,60 +1,256 @@
 ---
 import Sketch from './Sketch.astro';
+import Icon from './Icon.astro';
 import { site, intro, lifecycle } from '../data/site';
+
+const [before, after] = intro.headline.split(intro.underline);
+// A hand-drawn marker underline under the key words of the headline.
+const scribble = 'M2 8 C 40 3, 90 10, 140 5 S 230 3, 298 9';
 ---
 
 <section class="hero page" aria-labelledby="hero-title">
-  <h1 id="hero-title">{site.name}</h1>
-  <p class="line">{intro.line}</p>
-  <p class="now">{intro.now}</p>
-  <p class="links">
-    <a class="link" href="#work">
-      Read the case studies
-    </a>
-    <a class="link" href={`mailto:${site.email}`}>
-      {site.email}
-    </a>
-    <a class="link" href={site.resume} download>
-      Download resume (PDF)
-    </a>
-  </p>
+  <div class="hero-text">
+    <p class="status">
+      <span class="badge tone-green">
+        {site.currentTitle} at {site.companyShort}
+      </span>
+      <span class="where">
+        <Icon name="pin" size={16} />
+        {site.location}
+      </span>
+    </p>
 
-  <Sketch
-    flow={lifecycle}
-    animate
-    maxScale={1.3}
-    class="hero-sketch"
-    caption="How the systems I’ve worked on connect. The blue notes mark the parts I built."
-  />
+    <h1 id="hero-title">{site.name}</h1>
+    <p class="role">{site.role}</p>
+
+    <p class="headline">
+      {before}
+      <span class="mark">
+        {intro.underline}
+        <svg viewBox="0 0 300 12" preserveAspectRatio="none" aria-hidden="true">
+          <path d={scribble} pathLength="1"></path>
+        </svg>
+      </span>
+      {after}
+    </p>
+    <p class="now">{intro.now}</p>
+
+    <ul class="chips stack" aria-label="Main tools">
+      {intro.stack.map((t) => (
+        <li class="chip">{t}</li>
+      ))}
+    </ul>
+
+    <div class="ctas">
+      <a class="btn btn-primary" href="#work">
+        See my work
+        <Icon name="arrow-down" />
+      </a>
+      <a class="btn btn-secondary" href={site.resume} download>
+        <Icon name="download" />
+        Download resume
+      </a>
+      <ul class="socials">
+        <li>
+          <a
+            class="icon-btn"
+            href={site.links.github}
+            target="_blank"
+            rel="me noopener"
+            aria-label="GitHub (opens in a new tab)"
+          >
+            <Icon name="github" />
+          </a>
+        </li>
+        <li>
+          <a
+            class="icon-btn"
+            href={site.links.linkedin}
+            target="_blank"
+            rel="me noopener"
+            aria-label="LinkedIn (opens in a new tab)"
+          >
+            <Icon name="linkedin" />
+          </a>
+        </li>
+        <li>
+          <a class="icon-btn" href={`mailto:${site.email}`} aria-label={`Email ${site.email}`}>
+            <Icon name="mail" />
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="hero-board board">
+    <p class="board-title hand" aria-hidden="true">
+      how my work connects
+    </p>
+    <Sketch flow={lifecycle} animate layout="vertical" maxScale={1.12} class="hero-sketch" />
+    <p class="board-hint">
+      <Icon name="arrow-up" size={15} />
+      Each box opens its case study
+    </p>
+  </div>
 </section>
 
 <style>
   .hero {
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 20px;
-    padding-block: clamp(3.5rem, 2rem + 6vw, 7.5rem) clamp(2rem, 1rem + 3vw, 4rem);
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+    align-items: center;
+    gap: clamp(2.5rem, 1rem + 4vw, 4.5rem);
+    padding-block: clamp(2.5rem, 1.5rem + 4vw, 5.5rem) clamp(2.5rem, 1.5rem + 3vw, 4rem);
   }
 
-  .line {
-    max-width: 30ch;
-    font-size: clamp(1.375rem, 1.1rem + 1.1vw, 1.875rem);
-    line-height: 1.35;
-    letter-spacing: -0.012em;
+  .hero-text {
+    display: grid;
+    justify-items: start;
+    gap: 18px;
   }
 
-  .now {
-    color: var(--ink-2);
-  }
-
-  .links {
+  .status {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px 28px;
+    align-items: center;
+    gap: 8px 16px;
+  }
+
+  .where {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+
+  h1 {
     margin-top: 6px;
   }
 
+  .role {
+    margin-top: -6px;
+    color: var(--ink-2);
+    font-size: clamp(1.25rem, 1.05rem + 0.8vw, 1.625rem);
+    font-weight: 620;
+    letter-spacing: -0.015em;
+  }
+
+  .headline {
+    max-width: 32ch;
+    font-size: clamp(1.25rem, 1.05rem + 0.9vw, 1.6875rem);
+    font-weight: 560;
+    line-height: 1.4;
+    letter-spacing: -0.014em;
+  }
+
+  .mark {
+    position: relative;
+    white-space: nowrap;
+  }
+
+  .mark svg {
+    position: absolute;
+    left: -2px;
+    right: -2px;
+    bottom: -7px;
+    width: calc(100% + 4px);
+    height: 12px;
+    overflow: visible;
+  }
+
+  .mark path {
+    fill: none;
+    stroke: var(--blue);
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: underline 0.8s var(--ease) 0.5s forwards;
+  }
+
+  @keyframes underline {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  .now {
+    max-width: 46ch;
+    color: var(--ink-2);
+  }
+
+  .stack {
+    margin-top: 2px;
+  }
+
+  .ctas {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .socials {
+    display: flex;
+    gap: 8px;
+    margin-left: 4px;
+    list-style: none;
+  }
+
+  .hero-board {
+    display: grid;
+    justify-items: center;
+    gap: 6px;
+    padding: 22px clamp(16px, 2vw, 28px) 20px;
+  }
+
+  .board-title {
+    justify-self: start;
+    color: var(--ink-2);
+    font-size: 1.1875rem;
+    font-weight: 700;
+    transform: rotate(-1.5deg);
+  }
+
   .hero :global(.hero-sketch) {
-    margin-top: clamp(2rem, 1rem + 3vw, 3.5rem);
+    width: 100%;
+  }
+
+  .hero :global(.hero-sketch svg) {
+    margin-inline: auto;
+  }
+
+  .board-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--ink-3);
+    font-size: var(--fs-xs);
+  }
+
+  @media (max-width: 960px) {
+    .hero {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .hero-board {
+      max-width: 560px;
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .socials {
+      margin-left: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mark path {
+      stroke-dashoffset: 0;
+      animation: none;
+    }
   }
 </style>

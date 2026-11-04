@@ -65,6 +65,10 @@ jobs:
             echo "::error::Missing:$missing. Add it under Settings → Secrets and variables → Actions."
             exit 1
           fi
+          case "$VERCEL_ORG_ID" in
+            team_*) ;;
+            *) echo "::warning::VERCEL_ORG_ID doesn't start with team_. Use the Team ID from Vercel → team Settings → General, not your user ID, or the deploy fails with 'Project not found'. See docs/DEPLOYMENT.md, step 4.2." ;;
+          esac
 
       - name: Install the Vercel CLI
         run: npm install --global vercel@64.7.0

@@ -9,33 +9,42 @@ import '@fontsource/kalam/400.css';
 import '@fontsource/kalam/700.css';
 import '../../styles/global.css';
 import Sketch from '../../components/Sketch.astro';
+import Logo from '../../components/Logo.astro';
 import { site, intro, lifecycle } from '../../data/site';
-import { workProjects } from '../../data/projects';
+import { workProjects, sideProjects } from '../../data/projects';
 import { vfabit } from '../../data/vfabit';
+import type { Tone } from '../../lib/sketch';
 
 interface CaseCard {
   by: string;
   name: string;
   fullName: string;
   tagline: string;
+  tone: Tone;
   note?: string;
 }
 
 export function getStaticPaths() {
   if (process.env.OG_CARDS !== '1') return [];
   const lastNote = (notes?: { text: string }[]) => notes?.[notes.length - 1]?.text;
+  const vfabitTone = sideProjects.find((p) => p.name === vfabit.name)?.tone ?? 'blue';
   return [
     { params: { slug: 'home' }, props: { kind: 'home' as const } },
-    { params: { slug: 'icon' }, props: { kind: 'icon' as const } },
+    // App icons: the logo on its own (favicons, "any"), on white with a safe
+    // margin for Android's masks (maskable), and on white for iOS (no transparency).
+    { params: { slug: 'icon' }, props: { kind: 'icon' as const, pad: 0 } },
+    { params: { slug: 'icon-maskable' }, props: { kind: 'icon' as const, pad: 1 } },
+    { params: { slug: 'icon-apple' }, props: { kind: 'icon' as const, pad: 2 } },
     ...workProjects.map((p) => ({
       params: { slug: `work-${p.slug}` },
       props: {
         kind: 'case' as const,
         card: {
-          by: `Case study by ${site.name}`,
+          by: `Case study · ${site.name}`,
           name: p.name,
           fullName: p.fullName,
           tagline: p.tagline,
+          tone: p.tone,
           note: lastNote(p.notes),
         },
       },
@@ -45,10 +54,11 @@ export function getStaticPaths() {
       props: {
         kind: 'case' as const,
         card: {
-          by: `A project by ${site.name}`,
+          by: `Side project · ${site.name}`,
           name: vfabit.name,
           fullName: vfabit.fullName,
           tagline: vfabit.tagline,
+          tone: vfabitTone,
           note: 'nothing ships unpaid',
         },
       },
@@ -56,10 +66,11 @@ export function getStaticPaths() {
   ];
 }
 
-type Props = { kind: 'home' } | { kind: 'icon' } | { kind: 'case'; card: CaseCard };
+type Props = { kind: 'home' } | { kind: 'icon'; pad: number } | { kind: 'case'; card: CaseCard };
 
 const props = Astro.props;
 const underline = 'M4 9 C 60 3, 140 12, 220 6 S 330 5, 396 10';
+const host = new URL(Astro.site ?? 'https://nagasurya.com').hostname;
 ---
 
 <html lang="en" data-theme="light">
@@ -70,25 +81,39 @@ const underline = 'M4 9 C 60 3, 140 12, 220 6 S 330 5, 396 10';
   </head>
   <body>
     {props.kind === 'icon' && (
-      <div class="icon">
-        <span class="s hand">S</span>
-        <svg viewBox="0 0 400 20" preserveAspectRatio="none" aria-hidden="true">
-          <path d={underline} />
-        </svg>
+      <div class:list={['icon', { padded: props.pad === 1, apple: props.pad === 2 }]}>
+        <Logo size={512} />
       </div>
     )}
 
     {props.kind === 'home' && (
-      <main class="card home">
-        <h1>{site.name}</h1>
-        <p class="line">{intro.line}</p>
-        <Sketch flow={lifecycle} class="og-sketch" />
+      <main class="og-card home">
+        <div class="text">
+          <p class="brand">
+            <Logo size={52} />
+            <span>{host}</span>
+          </p>
+          <h1>{site.name}</h1>
+          <p class="role">{site.role}</p>
+          <p class="line">{intro.headline}</p>
+          <ul class="chips">
+            {intro.stack.map((t) => (
+              <li class="chip">{t}</li>
+            ))}
+          </ul>
+        </div>
+        <div class="board og-board">
+          <Sketch flow={lifecycle} layout="vertical" class="og-sketch" />
+        </div>
       </main>
     )}
 
     {props.kind === 'case' && (
-      <main class="card work">
-        <p class="by">{props.card.by}</p>
+      <main class={`og-card work tone-${props.card.tone}`}>
+        <p class="brand">
+          <Logo size={52} />
+          <span>{props.card.by}</span>
+        </p>
         <div>
           <h1>{props.card.name}</h1>
           <p class="full">{props.card.fullName}</p>
@@ -113,105 +138,147 @@ const underline = 'M4 9 C 60 3, 140 12, 220 6 S 330 5, 396 10';
     width: 100%;
     height: 100%;
     margin: 0;
-    background: var(--paper);
+    background: var(--bg);
   }
 
   .icon {
-    position: relative;
     display: grid;
     place-items: center;
     width: 100vw;
     height: 100vh;
-    background: var(--paper);
+    background: transparent;
   }
 
-  .icon .s {
-    font-size: 78vmin;
-    font-weight: 700;
-    line-height: 1;
-    color: var(--ink);
-    transform: translateY(-4%);
+  .icon .logo {
+    width: 100vmin;
+    height: 100vmin;
   }
 
-  .icon svg {
-    position: absolute;
-    left: 18%;
-    bottom: 13%;
-    width: 64%;
-    height: 9vmin;
-    overflow: visible;
+  /* Maskable icons get cropped to a circle: keep the logo inside the safe zone. */
+  .icon.padded {
+    background: #ffffff;
   }
 
-  .icon path,
-  .note path {
-    fill: none;
-    stroke: var(--marker);
-    stroke-linecap: round;
-    stroke-width: 7vmin;
-    vector-effect: none;
+  .icon.padded .logo {
+    width: 72vmin;
+    height: 72vmin;
   }
 
-  .card {
+  .icon.apple {
+    background: #ffffff;
+  }
+
+  .icon.apple .logo {
+    width: 86vmin;
+    height: 86vmin;
+  }
+
+  .og-card {
+    position: relative;
     box-sizing: border-box;
     width: 1200px;
     height: 630px;
-    padding: 64px 72px;
-    display: flex;
-    flex-direction: column;
-    background: var(--paper);
+    padding: 56px 64px;
+    background: var(--bg);
     color: var(--ink);
     overflow: hidden;
   }
 
-  .card h1 {
-    font-size: 88px;
+  .og-card::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 10px;
+    background: var(--tone, var(--blue));
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: var(--ink-2);
+    font-size: 26px;
+    font-weight: 600;
+  }
+
+  .home {
+    display: grid;
+    grid-template-columns: 1fr 430px;
+    gap: 40px;
+    align-items: center;
+  }
+
+  .home .text {
+    display: grid;
+    gap: 14px;
+  }
+
+  .home h1 {
+    margin-top: 18px;
+    font-size: 84px;
     letter-spacing: -0.04em;
   }
 
+  .home .role {
+    color: var(--ink-2);
+    font-size: 34px;
+    font-weight: 620;
+  }
+
   .home .line {
-    max-width: 30ch;
-    margin-top: 22px;
-    font-size: 32px;
+    max-width: 24ch;
+    margin-top: 6px;
+    font-size: 30px;
+    font-weight: 560;
     line-height: 1.32;
   }
 
-  .home .og-sketch {
-    margin-top: auto;
+  .home .chips {
+    margin-top: 12px;
+  }
+
+  .home .chip {
+    min-height: 40px;
+    padding: 4px 16px;
+    font-size: 20px;
+  }
+
+  .og-board {
+    padding: 22px 18px;
   }
 
   .work {
+    display: flex;
+    flex-direction: column;
     gap: 18px;
   }
 
-  .work .by {
-    color: var(--ink-2);
-    font-size: 24px;
-  }
-
   .work h1 {
-    margin-top: 30px;
-    font-size: 104px;
+    margin-top: 34px;
+    font-size: 108px;
+    letter-spacing: -0.04em;
   }
 
   .work .full {
     margin-top: 10px;
     color: var(--ink-2);
-    font-size: 30px;
+    font-size: 32px;
+    font-weight: 600;
   }
 
   .work .line {
-    max-width: 34ch;
+    max-width: 36ch;
     margin-top: auto;
-    font-size: 34px;
-    line-height: 1.3;
+    font-size: 32px;
+    line-height: 1.32;
   }
 
   .note {
     position: absolute;
-    right: 72px;
-    top: 64px;
+    right: 64px;
+    top: 66px;
     margin: 0;
-    color: var(--marker);
+    color: var(--tone, var(--blue));
     font-size: 34px;
     font-weight: 700;
   }
@@ -225,6 +292,9 @@ const underline = 'M4 9 C 60 3, 140 12, 220 6 S 330 5, 396 10';
   }
 
   .note path {
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
     stroke-width: 4;
   }
 </style>

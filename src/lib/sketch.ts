@@ -9,10 +9,19 @@
  */
 import rough from 'roughjs';
 
+/** The marker colours. Each project has one, so it keeps its colour across the site. */
+export type Tone = 'blue' | 'green' | 'orange' | 'violet';
+
 export interface SketchStep {
   title: string;
   /** Short handwritten line under the title. Keep it under ~22 characters. */
   sub?: string;
+  /** Draws the box in this marker colour (default: marker black). */
+  tone?: Tone;
+  /** Makes the box a link, e.g. to the project's case study. */
+  href?: string;
+  /** Accessible name for that link. Defaults to the words in the box. */
+  linkLabel?: string;
 }
 
 export interface SketchNote {
@@ -37,6 +46,8 @@ export interface SketchFlow {
    * two rows after that; set it for long flows (e.g. 4 gives three rows for 11 steps).
    */
   perRow?: number;
+  /** Colour of the notes. Defaults to the colour of the step a note points at, else blue. */
+  tone?: Tone;
   seed?: number;
 }
 
@@ -61,6 +72,9 @@ interface Node {
   kind: 'start' | 'step';
   title: string;
   sub?: string;
+  tone?: Tone;
+  href?: string;
+  linkLabel?: string;
   x: number;
   y: number;
   w: number;
@@ -84,14 +98,18 @@ class Canvas {
     }
   }
 
+  raw(markup: string) {
+    this.parts.push(markup);
+  }
+
   private opts(extra: object = {}) {
     return { seed: this.seed++, strokeWidth: 2, fixedDecimalPlaceDigits: 1, ...extra };
   }
 
-  box(x: number, y: number, w: number, h: number, delay: number) {
+  box(x: number, y: number, w: number, h: number, delay: number, cls = 'k') {
     this.stroke(
       this.gen.rectangle(x, y, w, h, this.opts({ roughness: 1.1, bowing: 1.2 })),
-      'k',
+      cls,
       delay,
       0.55,
     );
@@ -154,8 +172,36 @@ class Canvas {
 
 const nodesOf = (flow: SketchFlow): Omit<Node, 'x' | 'y' | 'w' | 'h'>[] => [
   ...(flow.start ? [{ kind: 'start' as const, title: flow.start }] : []),
-  ...flow.steps.map((s) => ({ kind: 'step' as const, title: s.title, sub: s.sub })),
+  ...flow.steps.map((s) => ({ kind: 'step' as const, ...s })),
 ];
+
+/**
+ * Opens a box's wrapper: a link with a generous hit area when the step has an
+ * href, a colour group when it has a tone. Returns the matching close tag.
+ */
+const openNode = (c: Canvas, nd: Node) => {
+  const tone = nd.tone ? ` tone-${nd.tone}` : '';
+  if (nd.href) {
+    // Without a linkLabel, the link is named by the words in the box.
+    const label = nd.linkLabel ? ` aria-label="${esc(nd.linkLabel)}"` : '';
+    c.raw(
+      `<a href="${esc(nd.href)}" class="node-link${tone}"${label}>` +
+        `<rect class="hit" x="${nd.x - 8}" y="${nd.y - 8}" width="${nd.w + 16}" height="${nd.h + 16}" rx="14"/>`,
+    );
+    return '</a>';
+  }
+  if (nd.tone) {
+    c.raw(`<g class="${tone.trim()}">`);
+    return '</g>';
+  }
+  return '';
+};
+
+/** The colour of a note: the flow's, else the colour of the box it points at. */
+const noteTone = (flow: SketchFlow, nd: Node) => flow.tone ?? nd.tone;
+const openNote = (c: Canvas, tone?: Tone) => {
+  c.raw(tone ? `<g class="tone-${tone}">` : '<g>');
+};
 
 /** Wrap text into lines of at most `max` characters, on word boundaries. */
 const wrap = (s: string, max: number) => {
@@ -237,9 +283,11 @@ function renderHorizontal(flow: SketchFlow) {
       c.ellipse(cx, nd.y + nd.h / 2, nd.w - 10, nd.h - 6, d);
       c.text(cx, nd.y + nd.h / 2 + 6, nd.title, 't-start', d + 0.3);
     } else {
-      c.box(nd.x, nd.y, nd.w, nd.h, d);
+      const close = openNode(c, nd);
+      c.box(nd.x, nd.y, nd.w, nd.h, d, nd.tone ? 'm' : 'k');
       c.text(cx, nd.y + (nd.sub ? 35 : 37), nd.title, 't-title', d + 0.3);
       if (nd.sub) c.text(cx, nd.y + 62, nd.sub, 't-sub', d + 0.36);
+      c.raw(close);
     }
 
     const next = nodes[i + 1];
@@ -269,6 +317,7 @@ function renderHorizontal(flow: SketchFlow) {
     const cx = nd.x + nd.w / 2;
     const left = Math.min(Math.max(M, cx - tw / 2 - 14), width - M - tw);
     const textMid = left + tw / 2;
+    openNote(c, noteTone(flow, nd));
     if (note.side === 'above') {
       const y = nd.y - 46;
       c.note(left, y, [note.text], 0, d);
@@ -292,6 +341,7 @@ function renderHorizontal(flow: SketchFlow) {
         d + 0.45,
       );
     }
+    c.raw('</g>');
   });
 
   return { svg: c.parts.join(''), width, height };
@@ -328,9 +378,11 @@ function renderVertical(flow: SketchFlow) {
       c.ellipse(cx, nd.y + nd.h / 2, 150, nd.h - 4, d);
       c.text(cx, nd.y + nd.h / 2 + 6, nd.title, 't-start', d + 0.3);
     } else {
-      c.box(nd.x, nd.y, nd.w, nd.h, d);
+      const close = openNode(c, nd);
+      c.box(nd.x, nd.y, nd.w, nd.h, d, nd.tone ? 'm' : 'k');
       c.text(cx, nd.y + (nd.sub ? 31 : 34), nd.title, 't-title', d + 0.3);
       if (nd.sub) c.text(cx, nd.y + 56, nd.sub, 't-sub', d + 0.36);
+      c.raw(close);
     }
     const next = nodes[i + 1];
     if (!next) return;
@@ -346,6 +398,7 @@ function renderVertical(flow: SketchFlow) {
     const d = tNotes + k * 0.5;
     const lines = wrap(note.text, noteChars);
     const y0 = nd.y + 24;
+    openNote(c, noteTone(flow, nd));
     c.note(noteX, y0, lines, 20, d);
     // Short arrow from the start of the note, left into the box edge.
     c.noteArrow(
@@ -356,6 +409,7 @@ function renderVertical(flow: SketchFlow) {
       ],
       d + 0.45,
     );
+    c.raw('</g>');
   });
 
   return { svg: c.parts.join(''), width, height };

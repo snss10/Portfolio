@@ -1,49 +1,89 @@
 ---
 import Icon from './Icon.astro';
-import { site } from '../data/site';
+import Logo from './Logo.astro';
+import { site, nav } from '../data/site';
+
+// On a case study, highlight the section it belongs to.
+const path = Astro.url.pathname;
+const section = path.startsWith('/work/')
+  ? 'work'
+  : path.startsWith('/projects/')
+    ? 'projects'
+    : '';
 ---
 
-<header class="site-header">
+<header class="site-header" data-header>
   <div class="page bar">
-    <a class="name" href="/">
-      {site.name}
+    <a class="brand" href="/">
+      <Logo size={36} />
+      <span class="brand-text">
+        <span class="brand-name">{site.name}</span>
+        <span class="brand-role">{site.role}</span>
+      </span>
     </a>
-    <nav aria-label="Primary">
+
+    <nav class="nav" id="site-nav" aria-label="Primary" data-nav>
       <ul>
-        <li>
-          <a href="/#work">Work</a>
-        </li>
-        <li>
-          <a href="/#projects">Side projects</a>
-        </li>
-        <li>
-          <a href="/#about">About</a>
-        </li>
-        <li>
-          <a href={site.resume} target="_blank" rel="noopener">
-            Resume
-          </a>
-        </li>
+        {nav.map((item) => (
+          <li>
+            <a
+              href={`/#${item.id}`}
+              data-section={item.id}
+              data-active={section === item.id ? '' : undefined}
+            >
+              {item.label}
+            </a>
+          </li>
+        ))}
       </ul>
+      <a
+        class="btn btn-secondary btn-sm nav-resume"
+        href={site.resume}
+        target="_blank"
+        rel="noopener"
+      >
+        <Icon name="file" />
+        Resume (PDF)
+      </a>
     </nav>
-    <button class="theme" type="button" data-theme-toggle aria-label="Dark theme">
-      <Icon name="moon" class="i-moon" />
-      <Icon name="sun" class="i-sun" />
-    </button>
+
+    <div class="actions">
+      <a class="btn btn-secondary btn-sm resume" href={site.resume} target="_blank" rel="noopener">
+        <Icon name="file" />
+        Resume
+      </a>
+      <button class="square theme" type="button" data-theme-toggle aria-label="Dark theme">
+        <Icon name="moon" class="i-moon" />
+        <Icon name="sun" class="i-sun" />
+      </button>
+      <button
+        class="square menu"
+        type="button"
+        data-menu
+        aria-expanded="false"
+        aria-controls="site-nav"
+        aria-label="Menu"
+      >
+        <Icon name="menu" class="i-menu" />
+        <Icon name="close" class="i-close" />
+      </button>
+    </div>
   </div>
 </header>
 
 <script>
   const root = document.documentElement;
+  const header = document.querySelector<HTMLElement>('[data-header]');
+
+  /* ---------- Theme ---------- */
   const toggle = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-
   const current = () => root.dataset.theme ?? (prefersDark.matches ? 'dark' : 'light');
 
   const sync = () => {
     toggle?.setAttribute('aria-pressed', String(current() === 'dark'));
-    const bg = getComputedStyle(root).getPropertyValue('--paper').trim();
+    const bg = getComputedStyle(root).getPropertyValue('--bg').trim();
     document
       .querySelectorAll('meta[name="theme-color"]')
       .forEach((m) => m.setAttribute('content', bg));
@@ -70,72 +110,201 @@ import { site } from '../data/site';
   });
   prefersDark.addEventListener('change', sync);
   sync();
+
+  /* ---------- Shadow once the page scrolls ---------- */
+  const onScroll = () => header?.toggleAttribute('data-scrolled', window.scrollY > 4);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  /* ---------- Phone menu ---------- */
+  const menu = document.querySelector<HTMLButtonElement>('[data-menu]');
+  const navEl = document.querySelector<HTMLElement>('[data-nav]');
+  const setOpen = (open: boolean, returnFocus = false) => {
+    menu?.setAttribute('aria-expanded', String(open));
+    menu?.setAttribute('aria-label', open ? 'Close menu' : 'Menu');
+    navEl?.toggleAttribute('data-open', open);
+    if (open) navEl?.querySelector('a')?.focus();
+    else if (returnFocus) menu?.focus();
+  };
+  menu?.addEventListener('click', () => setOpen(menu.getAttribute('aria-expanded') !== 'true'));
+  navEl?.addEventListener('click', (e) => {
+    if ((e.target as Element).closest('a')) setOpen(false);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && navEl?.hasAttribute('data-open')) setOpen(false, true);
+  });
+  document.addEventListener('click', (e) => {
+    if (navEl?.hasAttribute('data-open') && !header?.contains(e.target as Node)) setOpen(false);
+  });
+  window.matchMedia('(min-width: 861px)').addEventListener('change', () => setOpen(false));
+
+  /* ---------- Highlight the section in view (home page) ---------- */
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-section]')];
+  const sections = links
+    .map((a) => document.getElementById(a.dataset.section ?? ''))
+    .filter((s): s is HTMLElement => s !== null);
+  if (sections.length) {
+    const seen = new Map<string, boolean>();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => seen.set(entry.target.id, entry.isIntersecting));
+        const active = sections.find((s) => seen.get(s.id))?.id;
+        links.forEach((a) => {
+          const on = a.dataset.section === active;
+          a.toggleAttribute('data-active', on);
+          if (on) a.setAttribute('aria-current', 'true');
+          else a.removeAttribute('aria-current');
+        });
+      },
+      { rootMargin: '-35% 0px -55% 0px' },
+    );
+    sections.forEach((s) => observer.observe(s));
+  }
 </script>
 
 <style>
-  .bar {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    grid-template-areas: 'name nav theme';
-    align-items: center;
-    gap: 8px 28px;
-    padding-block: 26px;
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    border-bottom: 1px solid transparent;
+    background: var(--header-bg);
+    -webkit-backdrop-filter: saturate(1.6) blur(14px);
+    backdrop-filter: saturate(1.6) blur(14px);
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
   }
 
-  .name {
-    grid-area: name;
-    font-weight: 750;
-    letter-spacing: -0.01em;
+  .site-header[data-scrolled] {
+    border-bottom-color: var(--line);
+  }
+
+  .bar {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 12px 28px;
+    min-height: var(--header-h);
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
     text-decoration: none;
   }
 
-  nav {
-    grid-area: nav;
-    justify-self: end;
+  .brand-text {
+    display: grid;
+    line-height: 1.15;
   }
 
-  ul {
+  .brand-name {
+    font-size: 1.0625rem;
+    font-weight: 760;
+    letter-spacing: -0.015em;
+  }
+
+  .brand-role {
+    color: var(--ink-3);
+    font-size: var(--fs-xs);
+    font-weight: 520;
+  }
+
+  .nav {
+    justify-self: center;
+  }
+
+  .nav ul {
     display: flex;
-    flex-wrap: wrap;
-    gap: 4px 26px;
+    gap: 4px;
     list-style: none;
   }
 
-  nav a {
+  .nav a:not(.btn) {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 12px;
+    border-radius: 10px;
     color: var(--ink-2);
-    font-size: 1rem;
+    font-size: var(--fs-small);
+    font-weight: 560;
     text-decoration: none;
-    text-underline-offset: 6px;
-    text-decoration-thickness: 2px;
-    text-decoration-color: var(--marker);
+    transition:
+      color 0.15s,
+      background-color 0.15s;
   }
 
-  nav a:hover {
+  .nav a:not(.btn):hover {
+    background: var(--surface-2);
     color: var(--ink);
-    text-decoration-line: underline;
   }
 
-  .theme {
-    grid-area: theme;
-    display: grid;
+  /* The active section gets a short marker stroke underneath. */
+  .nav a[data-active] {
+    color: var(--ink);
+  }
+
+  .nav a[data-active]::after {
+    content: '';
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 4px;
+    height: 3px;
+    border-radius: 3px;
+    background: var(--blue);
+  }
+
+  .nav-resume {
+    display: none;
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .square {
+    display: inline-grid;
     place-items: center;
     width: 40px;
     height: 40px;
-    margin-right: -10px;
-    border: 0;
-    border-radius: 50%;
-    background: none;
+    border: 1px solid var(--line-2);
+    border-radius: 10px;
+    background: var(--surface);
     color: var(--ink-2);
     cursor: pointer;
+    transition:
+      color 0.15s,
+      border-color 0.15s;
   }
 
-  .theme:hover {
+  .square:hover {
+    border-color: var(--ink);
     color: var(--ink);
-    background: var(--wash);
+  }
+
+  .menu {
+    display: none;
   }
 
   /* The icons render inside the Icon component, so they need :global(). */
-  .theme :global(.i-sun) {
+  .theme :global(.i-sun),
+  .menu :global(.i-close) {
+    display: none;
+  }
+
+  .menu[aria-expanded='true'] :global(.i-close) {
+    display: block;
+  }
+
+  .menu[aria-expanded='true'] :global(.i-menu) {
     display: none;
   }
 
@@ -157,21 +326,78 @@ import { site } from '../data/site';
     }
   }
 
-  @media (max-width: 640px) {
+  @media (max-width: 1060px) {
+    .brand-role {
+      display: none;
+    }
+  }
+
+  /* Phones and small tablets: the links move into a menu. Without JavaScript
+     they stay visible as a row under the name. */
+  @media (max-width: 860px) {
     .bar {
       grid-template-columns: 1fr auto;
-      grid-template-areas:
-        'name theme'
-        'nav nav';
-      padding-block: 18px 6px;
     }
 
-    nav {
+    .resume {
+      display: none;
+    }
+
+    .nav {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      justify-self: stretch;
+      margin-inline: -12px;
+      padding-bottom: 8px;
+      overflow-x: auto;
+    }
+
+    :global(.js) .menu {
+      display: inline-grid;
+    }
+
+    :global(.js) .nav {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      display: none;
+      margin: 0;
+      padding: 10px var(--gutter) 22px;
+      border-bottom: 1px solid var(--line);
+      background: var(--bg);
+      box-shadow: var(--shadow);
+      overflow: visible;
+    }
+
+    :global(.js) .nav[data-open] {
+      display: grid;
+      gap: 14px;
+    }
+
+    :global(.js) .nav ul {
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    :global(.js) .nav a:not(.btn) {
+      min-height: 48px;
+      font-size: 1.0625rem;
+    }
+
+    :global(.js) .nav a[data-active]::after {
+      left: 0;
+      right: auto;
+      top: 14px;
+      bottom: 14px;
+      width: 3px;
+      height: auto;
+    }
+
+    :global(.js) .nav-resume {
+      display: inline-flex;
       justify-self: start;
-    }
-
-    ul {
-      gap: 4px 20px;
+      margin-left: 12px;
     }
   }
 </style>

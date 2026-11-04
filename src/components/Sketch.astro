@@ -1,8 +1,10 @@
 ---
 /**
- * A hand-drawn flow diagram. Renders a wide layout for desktop and a tall one
- * for phones; CSS shows the right one. With `animate`, the strokes draw
- * themselves once when the page opens (skipped for reduced motion).
+ * A hand-drawn flow diagram. By default it renders a wide layout for desktop
+ * and a tall one for phones, and CSS shows the right one; `layout="vertical"`
+ * always uses the tall one (for narrow columns). With `animate`, the strokes
+ * draw themselves once when the page opens (skipped for reduced motion).
+ * Steps with an `href` become links, so a diagram can be navigated.
  */
 import { renderSketch, type SketchFlow } from '../lib/sketch';
 
@@ -10,29 +12,46 @@ interface Props {
   flow: SketchFlow;
   caption?: string;
   animate?: boolean;
+  layout?: 'auto' | 'vertical';
   /** How far the desktop drawing may grow beyond its natural size. */
   maxScale?: number;
   class?: string;
 }
 
-const { flow, caption, animate = false, maxScale = 1, class: className } = Astro.props;
+const {
+  flow,
+  caption,
+  animate = false,
+  layout = 'auto',
+  maxScale = 1,
+  class: className,
+} = Astro.props;
 const { h, v } = renderSketch(flow);
+
+// A drawing with links is a group of links; one without is a single image.
+const interactive = flow.steps.some((s) => s.href);
+const role = interactive ? 'group' : 'img';
 ---
 
-<figure class:list={['sketch', className]} data-animate={animate ? '' : undefined}>
-  <svg
-    class="sk-h"
-    viewBox={`0 0 ${h.width} ${h.height}`}
-    style={`max-width:${Math.round(h.width * maxScale)}px`}
-    role="img"
-    aria-label={flow.label}
-    set:html={h.svg}
-  />
+<figure
+  class:list={['sketch', `sketch-${layout}`, className]}
+  data-animate={animate ? '' : undefined}
+>
+  {layout === 'auto' && (
+    <svg
+      class="sk-h"
+      viewBox={`0 0 ${h.width} ${h.height}`}
+      style={`max-width:${Math.round(h.width * maxScale)}px`}
+      role={role}
+      aria-label={flow.label}
+      set:html={h.svg}
+    />
+  )}
   <svg
     class="sk-v"
     viewBox={`0 0 ${v.width} ${v.height}`}
-    style={`max-width:${v.width}px`}
-    role="img"
+    style={`max-width:${Math.round(v.width * (layout === 'vertical' ? maxScale : 1))}px`}
+    role={role}
     aria-label={flow.label}
     set:html={v.svg}
   />

@@ -11,8 +11,11 @@
  * `sub` is the short handwritten line inside a box (keep it under ~20
  * characters), `edges` label the arrows, and `notes` are the blue marker
  * comments that point at a box.
+ *
+ * `tone` is the project's marker colour. It follows the project everywhere:
+ * the home-page diagram, its card, the experience timeline and its case study.
  */
-import type { SketchNote } from '../lib/sketch';
+import type { SketchNote, Tone } from '../lib/sketch';
 
 export interface Metric {
   value: string;
@@ -28,6 +31,7 @@ export interface FlowStep {
 export interface WorkProject {
   slug: string;
   name: string;
+  tone: Tone;
   fullName: string;
   /** Shown in the work list. */
   period: string;
@@ -50,6 +54,7 @@ export interface WorkProject {
 
 export interface SideProject {
   name: string;
+  tone: Tone;
   kind: string;
   description: string;
   facts: string[];
@@ -60,6 +65,8 @@ export interface SideProject {
   status?: string;
   /** A case study on this site, if there is one. */
   caseStudy?: string;
+  /** Key numbers shown on the card. */
+  stats?: Metric[];
   links: { label: string; href: string }[];
   sketch: {
     label: string;
@@ -72,6 +79,7 @@ export interface SideProject {
 export const workProjects: WorkProject[] = [
   {
     slug: 'apex-mydaylight',
+    tone: 'green',
     name: 'Apex MyDaylight',
     fullName: 'Logistics client portal and document intelligence',
     period: 'Now',
@@ -145,6 +153,7 @@ export const workProjects: WorkProject[] = [
   },
   {
     slug: 'po-agent',
+    tone: 'blue',
     name: 'PO Agent',
     fullName: 'Agentic product-planning platform',
     period: '2025–26',
@@ -205,6 +214,7 @@ export const workProjects: WorkProject[] = [
   },
   {
     slug: 'eco-online',
+    tone: 'orange',
     name: 'Eco Online',
     fullName: 'Agent-driven software delivery platform',
     period: '2025–26',
@@ -277,6 +287,7 @@ export const workProjects: WorkProject[] = [
   },
   {
     slug: 'itaf',
+    tone: 'violet',
     name: 'ITAF',
     fullName: 'Ideyalabs Testing Automation Framework',
     period: '2024',
@@ -367,6 +378,7 @@ export const workProjects: WorkProject[] = [
 export const sideProjects: SideProject[] = [
   {
     name: 'vFABit',
+    tone: 'blue',
     kind: 'Marketplace for custom machined parts',
     status: 'Private code. Not launched yet; running as a hosted test version.',
     description:
@@ -387,6 +399,11 @@ export const sideProjects: SideProject[] = [
       'Kotlin',
     ],
     caseStudy: '/projects/vfabit/',
+    stats: [
+      { value: '915', label: 'automated tests' },
+      { value: '11', label: 'order stages' },
+      { value: '~120', label: 'API routes' },
+    ],
     links: [],
     sketch: {
       label:
@@ -402,6 +419,7 @@ export const sideProjects: SideProject[] = [
   },
   {
     name: 'DBeast',
+    tone: 'green',
     kind: 'PostgreSQL MCP server, Python',
     description:
       'Gives AI assistants like Claude, Cursor and VS Code Copilot 21 focused tools to inspect a PostgreSQL database: schema, slow queries, security, maintenance, replication and data quality. It never runs a write. INSERT, UPDATE and DELETE get an impact preview instead.',
@@ -430,6 +448,7 @@ export const sideProjects: SideProject[] = [
   },
   {
     name: 'TextRecast',
+    tone: 'violet',
     kind: 'Windows app, C# and .NET',
     description:
       'Rewrites the text you select in any Windows app: improve it, shorten it, expand it, summarize it or change its tone. The language model runs on your own CPU, so there is no account, no API key and no cloud text processing.',

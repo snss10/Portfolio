@@ -1,75 +1,114 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
-import WorkList from '../components/WorkList.astro';
+import Glance from '../components/Glance.astro';
+import WorkCards from '../components/WorkCards.astro';
 import SideProjects from '../components/SideProjects.astro';
-import About from '../components/About.astro';
+import Experience from '../components/Experience.astro';
+import Skills from '../components/Skills.astro';
 import Contact from '../components/Contact.astro';
 import { site } from '../data/site';
-import { education } from '../data/experience';
+import { ids } from '../lib/schema';
 
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'ProfilePage',
-  mainEntity: {
-    '@type': 'Person',
-    name: site.name,
-    jobTitle: site.currentTitle,
+const base = Astro.site ?? new URL(Astro.url.origin);
+const { person, website } = ids(base);
+const jsonLd = [
+  {
+    '@type': 'ProfilePage',
+    '@id': new URL('/#profilepage', base).href,
+    url: new URL('/', base).href,
+    name: site.seo.title,
     description: site.seo.description,
-    url: Astro.site?.href,
-    email: `mailto:${site.email}`,
-    address: {
-      '@type': 'PostalAddress',
-      addressLocality: 'Hyderabad',
-      addressRegion: 'Telangana',
-      addressCountry: 'IN',
-    },
-    worksFor: { '@type': 'Organization', name: site.company },
-    alumniOf: { '@type': 'CollegeOrUniversity', name: education.school },
-    knowsAbout: [
-      'Agentic AI',
-      'Multi-agent systems',
-      'LangGraph',
-      'LangChain',
-      'Model Context Protocol',
-      'Retrieval-augmented generation',
-      'FastAPI',
-      'Python',
-      'PostgreSQL',
-      'Playwright',
-    ],
-    sameAs: [site.links.github, site.links.linkedin],
+    inLanguage: 'en',
+    isPartOf: { '@id': website },
+    mainEntity: { '@id': person },
+    about: { '@id': person },
   },
-};
+];
 ---
 
 <BaseLayout jsonLd={jsonLd}>
   <Hero />
+  <Glance />
 
   <section id="work" class="section page" aria-labelledby="work-title">
-    <h2 id="work-title">Work</h2>
-    <p class="section-intro">
-      Four systems I built at Ideyalabs. The code is private, so each case study explains what I
-      built and how it works.
-    </p>
-    <WorkList />
+    <div class="head-row">
+      <header class="section-head">
+        <p class="eyebrow">Work</p>
+        <h2 id="work-title">Systems I’ve built at Ideyalabs</h2>
+        <p class="section-intro">
+          Four systems, newest first. The code is private, so each case study explains what I built
+          and how it works, at the level of detail in my resume.
+        </p>
+      </header>
+      <p class="annot" aria-hidden="true">
+        open any card for the full story
+        <svg viewBox="0 0 34 26">
+          <path d="M3 4c8 2 16 8 20 18m0 0 4-7m-4 7-7-4"></path>
+        </svg>
+      </p>
+    </div>
+    <WorkCards />
   </section>
 
   <section id="projects" class="section page" aria-labelledby="projects-title">
-    <h2 id="projects-title">Side projects</h2>
-    <p class="section-intro">
-      Things I build in my own time. DBeast and TextRecast are open source; vFABit’s code is
-      private.
-    </p>
+    <header class="section-head">
+      <p class="eyebrow tone-green">Side projects</p>
+      <h2 id="projects-title">Things I build in my own time</h2>
+      <p class="section-intro">
+        A marketplace for custom machined parts, and two open-source tools: a PostgreSQL server for
+        AI assistants and an on-device text rewriter for Windows.
+      </p>
+    </header>
     <SideProjects />
   </section>
 
-  <section id="about" class="section page" aria-labelledby="about-title">
-    <h2 id="about-title">About</h2>
-    <About />
+  <section id="experience" class="section page" aria-labelledby="experience-title">
+    <header class="section-head">
+      <p class="eyebrow tone-violet">Experience</p>
+      <h2 id="experience-title">From intern to software engineer</h2>
+      <p class="section-intro">
+        I joined Ideyalabs as an intern in June 2024 and have built agent systems there since: an AI
+        testing platform first, then product-planning and delivery platforms, and now document AI
+        for a logistics client.
+      </p>
+    </header>
+    <Experience />
+  </section>
+
+  <section id="skills" class="section page" aria-labelledby="skills-title">
+    <header class="section-head">
+      <p class="eyebrow tone-orange">Skills</p>
+      <h2 id="skills-title">What I work with</h2>
+      <p class="section-intro">
+        The tools from my resume, grouped by what they’re for, plus what my side projects use.
+      </p>
+    </header>
+    <Skills />
   </section>
 
   <section id="contact" class="section page" aria-labelledby="contact-title">
     <Contact />
   </section>
 </BaseLayout>
+
+<style>
+  .head-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 0 32px;
+  }
+
+  .head-row .annot {
+    margin-bottom: clamp(2.25rem, 1.8rem + 1.8vw, 3.25rem);
+    padding-bottom: 6px;
+  }
+
+  @media (max-width: 760px) {
+    .head-row .annot {
+      display: none;
+    }
+  }
+</style>

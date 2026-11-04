@@ -3,8 +3,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Sketch from '../../components/Sketch.astro';
 import CaseHeader from '../../components/CaseHeader.astro';
 import CasePager from '../../components/CasePager.astro';
+import Toc from '../../components/Toc.astro';
 import { workProjects, type WorkProject } from '../../data/projects';
 import { site } from '../../data/site';
+import { ids, breadcrumbs } from '../../lib/schema';
 
 export function getStaticPaths() {
   const n = workProjects.length;
@@ -27,31 +29,52 @@ interface Props {
 const { project: p, prev, next } = Astro.props;
 
 const title = `${p.name}: ${p.fullName} | ${site.name}`;
-const description = `${p.tagline} A case study by ${site.name}, ${site.role}.`;
+const description = `${p.tagline} A case study by ${site.name}.`;
+const path = `/work/${p.slug}/`;
+const year = p.rolePeriod.match(/\d{4}/)?.[0];
 
 const facts = [
   { label: 'Role', value: p.role },
   { label: 'When', value: p.rolePeriod },
   ...(p.context ? [{ label: 'For', value: p.context }] : []),
-  { label: 'Built with', value: p.stack.join(', '), wide: true },
+  { label: 'At', value: site.company },
+  { label: 'Code', value: 'Private' },
+];
+
+const sections = [
+  { id: 'what', label: 'What it does' },
+  { id: 'how', label: 'How it works' },
+  { id: 'built', label: 'What I built' },
 ];
 
 const flowLabel = `${p.name}, step by step: ${p.flow.map((s) => s.title).join(', then ')}.`;
 
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'BreadcrumbList',
-  itemListElement: [
-    { '@type': 'ListItem', position: 1, name: site.name, item: new URL('/', Astro.site).href },
-    { '@type': 'ListItem', position: 2, name: 'Work', item: new URL('/#work', Astro.site).href },
-    {
-      '@type': 'ListItem',
-      position: 3,
+const base = Astro.site ?? new URL(Astro.url.origin);
+const { person, website } = ids(base);
+const jsonLd = [
+  {
+    '@type': 'WebPage',
+    '@id': new URL(`${path}#webpage`, base).href,
+    url: new URL(path, base).href,
+    name: title,
+    description,
+    inLanguage: 'en',
+    isPartOf: { '@id': website },
+    author: { '@id': person },
+    about: {
+      '@type': 'CreativeWork',
       name: p.name,
-      item: new URL(`/work/${p.slug}/`, Astro.site).href,
+      description: p.tagline,
+      creator: { '@id': person },
+      keywords: p.stack.join(', '),
     },
-  ],
-};
+  },
+  breadcrumbs(base, [
+    [site.name, '/'],
+    ['Work', '/#work'],
+    [p.name, path],
+  ]),
+];
 ---
 
 <BaseLayout
@@ -62,87 +85,143 @@ const jsonLd = {
   type="article"
   jsonLd={jsonLd}
 >
-  <article class="page">
+  <article class={`page tone-${p.tone}`}>
     <CaseHeader
-      back={{ href: '/#work', label: 'All work' }}
+      crumbs={[
+        { label: 'Home', href: '/' },
+        { label: 'Work', href: '/#work' },
+      ]}
+      eyebrow={`Case study${year ? ` · ${year}` : ''}`}
+      tone={p.tone}
       name={p.name}
       fullName={p.fullName}
       tagline={p.tagline}
       facts={facts}
+      stack={p.stack}
     />
 
-    <Sketch
-      class="case-sketch"
-      animate
-      flow={{
-        label: flowLabel,
-        steps: p.flow.map((s) => ({ title: s.title, sub: s.sub })),
-        edges: p.edges,
-        notes: p.notes,
-        seed: p.slug.length * 7,
-      }}
-      caption={`How ${p.name} works. The blue notes are my annotations.`}
-    />
+    <div class="board figure">
+      <Sketch
+        animate
+        flow={{
+          label: flowLabel,
+          steps: p.flow.map((s) => ({ title: s.title, sub: s.sub })),
+          edges: p.edges,
+          notes: p.notes,
+          tone: p.tone,
+          seed: p.slug.length * 7,
+        }}
+        caption={`How ${p.name} works. The coloured notes are my annotations.`}
+      />
+    </div>
 
-    <div class="case-body">
-      <section aria-labelledby="what">
-        <h2 id="what">What it does</h2>
-        {p.overview.map((para) => (
-          <p>{para}</p>
-        ))}
-        {p.metrics.length > 0 && (
-          <ul class="bullets">
-            {p.metrics.map((m) => (
+    <div class="case-layout">
+      <Toc items={sections} />
+
+      <div class="case-body">
+        <section id="what" aria-labelledby="what-h">
+          <h2 id="what-h">What it does</h2>
+          {p.overview.map((para) => (
+            <p>{para}</p>
+          ))}
+          {p.metrics.length > 0 && (
+            <ul class="metrics">
+              {p.metrics.map((m) => (
+                <li class="stat">
+                  <span class="stat-value">{m.value}</span>
+                  <span class="stat-label">{m.label}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <section id="how" aria-labelledby="how-h">
+          <h2 id="how-h">How it works</h2>
+          <ol class="steps">
+            {p.flow.map((s) => (
               <li>
-                <strong>{m.value}</strong> {m.label}
+                <h3>{s.title}</h3>
+                <p>{s.detail}</p>
               </li>
             ))}
+          </ol>
+        </section>
+
+        <section id="built" aria-labelledby="built-h">
+          <h2 id="built-h">What I built</h2>
+          <ul class="bullets">
+            {p.built.map((b) => (
+              <li>{b}</li>
+            ))}
           </ul>
-        )}
-      </section>
-
-      <section aria-labelledby="how">
-        <h2 id="how">How it works</h2>
-        <ol class="steps">
-          {p.flow.map((s) => (
-            <li>
-              <h3>{s.title}</h3>
-              <p>{s.detail}</p>
-            </li>
-          ))}
-        </ol>
-      </section>
-
-      <section aria-labelledby="built">
-        <h2 id="built">What I built</h2>
-        <ul class="bullets">
-          {p.built.map((b) => (
-            <li>{b}</li>
-          ))}
-        </ul>
-      </section>
-
-      <p class="ask">
-        The code is private, so this page stays at the level of detail in my resume.
-        <a
-          class="link"
-          href={`mailto:${site.email}?subject=${encodeURIComponent(`About ${p.name}`)}`}
-        >
-          Email me about {p.name}
-        </a>
-      </p>
+        </section>
+      </div>
     </div>
 
     <CasePager
+      about={p.name}
+      note="The code is private, so this page stays at the level of detail in my resume."
       label="More case studies"
-      start={{ dir: 'Previous', name: prev.name, href: `/work/${prev.slug}/` }}
-      end={{ dir: 'Next', name: next.name, href: `/work/${next.slug}/` }}
+      start={{
+        dir: 'Previous case study',
+        name: prev.name,
+        sub: prev.fullName,
+        href: `/work/${prev.slug}/`,
+        tone: prev.tone,
+      }}
+      end={{
+        dir: 'Next case study',
+        name: next.name,
+        sub: next.fullName,
+        href: `/work/${next.slug}/`,
+        tone: next.tone,
+      }}
     />
   </article>
 </BaseLayout>
 
 <style>
   article {
-    padding-bottom: clamp(3rem, 2rem + 4vw, 5rem);
+    padding-bottom: clamp(2rem, 1.5rem + 2vw, 3rem);
+  }
+
+  .figure {
+    display: grid;
+    justify-items: center;
+    margin-bottom: clamp(2.5rem, 2rem + 3vw, 4.5rem);
+    padding: clamp(20px, 1rem + 2vw, 40px) clamp(14px, 1rem + 1.5vw, 32px);
+  }
+
+  .figure :global(.sketch) {
+    width: 100%;
+  }
+
+  .figure :global(svg) {
+    margin-inline: auto;
+  }
+
+  .figure :global(figcaption) {
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .metrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 40px;
+    margin-top: 8px;
+    padding: 20px 24px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    list-style: none;
+  }
+
+  .metrics .stat {
+    max-width: 22rem;
+  }
+
+  .metrics .stat-value {
+    color: var(--tone);
   }
 </style>

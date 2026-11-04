@@ -3,31 +3,60 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Sketch from '../../components/Sketch.astro';
 import CaseHeader from '../../components/CaseHeader.astro';
 import CasePager from '../../components/CasePager.astro';
+import Toc from '../../components/Toc.astro';
 import { vfabit as v } from '../../data/vfabit';
+import { sideProjects, workProjects } from '../../data/projects';
 import { site } from '../../data/site';
+import { ids, breadcrumbs } from '../../lib/schema';
 
+const card = sideProjects.find((p) => p.name === v.name);
+const tone = card?.tone ?? 'blue';
 const title = `${v.name}: ${v.fullName} | ${site.name}`;
-const description = `${v.tagline} A project by ${site.name}.`;
+const description = `${v.tagline} A side project by ${site.name}.`;
+const path = `/projects/${v.slug}/`;
 
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'BreadcrumbList',
-  itemListElement: [
-    { '@type': 'ListItem', position: 1, name: site.name, item: new URL('/', Astro.site).href },
-    {
-      '@type': 'ListItem',
-      position: 2,
-      name: 'Side projects',
-      item: new URL('/#projects', Astro.site).href,
-    },
-    {
-      '@type': 'ListItem',
-      position: 3,
+// The stack moves into chips in the header; the other facts stay as rows.
+const stackFact = v.facts.find((f) => f.label === 'Built with');
+const facts = v.facts.filter((f) => f !== stackFact).map(({ label, value }) => ({ label, value }));
+const stack = stackFact ? stackFact.value.split(', ') : [];
+
+const sections = [
+  { id: 'what', label: 'What it is' },
+  { id: 'rules', label: 'Rules it enforces' },
+  { id: 'matching', label: 'Matching requests to shops' },
+  { id: 'scan', label: 'Reading 3D models' },
+  { id: 'drawings', label: 'Reading drawings' },
+  { id: 'engineering', label: 'Engineering' },
+  { id: 'stack', label: 'Stack' },
+];
+
+const firstWork = workProjects[0];
+const base = Astro.site ?? new URL(Astro.url.origin);
+const { person, website } = ids(base);
+const jsonLd = [
+  {
+    '@type': 'WebPage',
+    '@id': new URL(`${path}#webpage`, base).href,
+    url: new URL(path, base).href,
+    name: title,
+    description,
+    inLanguage: 'en',
+    isPartOf: { '@id': website },
+    author: { '@id': person },
+    about: {
+      '@type': 'CreativeWork',
       name: v.name,
-      item: new URL(`/projects/${v.slug}/`, Astro.site).href,
+      description: v.tagline,
+      creator: { '@id': person },
+      keywords: stack.join(', '),
     },
-  ],
-};
+  },
+  breadcrumbs(base, [
+    [site.name, '/'],
+    ['Side projects', '/#projects'],
+    [v.name, path],
+  ]),
+];
 ---
 
 <BaseLayout
@@ -38,120 +67,163 @@ const jsonLd = {
   type="article"
   jsonLd={jsonLd}
 >
-  <article class="page">
+  <article class={`page tone-${tone}`}>
     <CaseHeader
-      back={{ href: '/#projects', label: 'All side projects' }}
+      crumbs={[
+        { label: 'Home', href: '/' },
+        { label: 'Side projects', href: '/#projects' },
+      ]}
+      eyebrow="Side project · 2026"
+      tone={tone}
       name={v.name}
       fullName={v.fullName}
       tagline={v.tagline}
-      facts={v.facts}
+      facts={facts}
+      stack={stack}
     />
 
-    <Sketch
-      class="case-sketch"
-      animate
-      flow={v.orderFlow}
-      caption="How an order runs, from request to delivery. The blue notes are rules the platform enforces."
-    />
+    <div class="board figure">
+      <Sketch
+        animate
+        flow={{ ...v.orderFlow, tone }}
+        caption="How an order runs, from request to delivery. The coloured notes are rules the platform enforces."
+      />
+    </div>
 
-    <div class="case-body">
-      <section aria-labelledby="what">
-        <h2 id="what">What it is</h2>
-        {v.overview.map((para) => (
-          <p>{para}</p>
-        ))}
-      </section>
+    <div class="case-layout">
+      <Toc items={sections} />
 
-      <section aria-labelledby="rules">
-        <h2 id="rules">Rules the platform enforces</h2>
-        <ul class="bullets">
-          {v.rules.map((r) => (
-            <li>{r}</li>
+      <div class="case-body">
+        <section id="what" aria-labelledby="what-h">
+          <h2 id="what-h">What it is</h2>
+          {v.overview.map((para) => (
+            <p>{para}</p>
           ))}
-        </ul>
-      </section>
+        </section>
 
-      <section aria-labelledby="matching">
-        <h2 id="matching">Matching a request to shops</h2>
-        <ul class="bullets">
-          {v.matching.map((m) => (
-            <li>{m}</li>
-          ))}
-        </ul>
-      </section>
+        <section id="rules" aria-labelledby="rules-h">
+          <h2 id="rules-h">Rules the platform enforces</h2>
+          <ul class="bullets">
+            {v.rules.map((r) => (
+              <li>{r}</li>
+            ))}
+          </ul>
+        </section>
 
-      <section aria-labelledby="scan">
-        <h2 id="scan">Reading 3D models</h2>
-        <Sketch
-          flow={v.scanFlow}
-          caption="How a STEP file is scanned. The 3D model is ready before measuring finishes."
-        />
-        <ul class="bullets">
-          {v.scan.map((s) => (
-            <li>{s}</li>
-          ))}
-        </ul>
-      </section>
+        <section id="matching" aria-labelledby="matching-h">
+          <h2 id="matching-h">Matching a request to shops</h2>
+          <ul class="bullets">
+            {v.matching.map((m) => (
+              <li>{m}</li>
+            ))}
+          </ul>
+        </section>
 
-      <section aria-labelledby="drawings">
-        <h2 id="drawings">Reading drawings</h2>
-        <p>A beta feature, used by the operations team only.</p>
-        <ul class="bullets">
-          {v.drawings.map((d) => (
-            <li>{d}</li>
-          ))}
-        </ul>
-      </section>
+        <section id="scan" aria-labelledby="scan-h">
+          <h2 id="scan-h">Reading 3D models</h2>
+          <div class="board inline-figure">
+            <Sketch
+              flow={{ ...v.scanFlow, tone }}
+              caption="How a STEP file is scanned. The 3D model is ready before measuring finishes."
+            />
+          </div>
+          <ul class="bullets">
+            {v.scan.map((s) => (
+              <li>{s}</li>
+            ))}
+          </ul>
+        </section>
 
-      <section aria-labelledby="engineering">
-        <h2 id="engineering">Engineering</h2>
-        <div class="groups">
-          {v.engineering.map((g) => (
-            <div>
-              <h3>{g.title}</h3>
-              <ul class="bullets">
-                {g.points.map((pt) => (
-                  <li>{pt}</li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      </section>
+        <section id="drawings" aria-labelledby="drawings-h">
+          <h2 id="drawings-h">Reading drawings</h2>
+          <p>A beta feature, used by the operations team only.</p>
+          <ul class="bullets">
+            {v.drawings.map((d) => (
+              <li>{d}</li>
+            ))}
+          </ul>
+        </section>
 
-      <section aria-labelledby="stack">
-        <h2 id="stack">Stack</h2>
-        <dl class="stack-list">
-          {v.stack.map((s) => (
-            <div>
-              <dt>{s.layer}</dt>
-              <dd>{s.tools}</dd>
-            </div>
-          ))}
-        </dl>
-      </section>
+        <section id="engineering" aria-labelledby="engineering-h">
+          <h2 id="engineering-h">Engineering</h2>
+          <div class="groups">
+            {v.engineering.map((g) => (
+              <div>
+                <h3>{g.title}</h3>
+                <ul class="bullets">
+                  {g.points.map((pt) => (
+                    <li>{pt}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </section>
 
-      <p class="ask">
-        The code is private, so this page covers what the product does and how it is built.
-        <a
-          class="link"
-          href={`mailto:${site.email}?subject=${encodeURIComponent(`About ${v.name}`)}`}
-        >
-          Email me about {v.name}
-        </a>
-      </p>
+        <section id="stack" aria-labelledby="stack-h">
+          <h2 id="stack-h">Stack</h2>
+          <dl class="stack-list">
+            {v.stack.map((s) => (
+              <div>
+                <dt>{s.layer}</dt>
+                <dd>{s.tools}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      </div>
     </div>
 
     <CasePager
+      about={v.name}
+      note="The code is private, so this page covers what the product does and how it is built."
       label="More projects"
-      start={{ dir: 'Back to', name: 'Side projects', href: '/#projects' }}
-      end={{ dir: 'See also', name: 'Work at Ideyalabs', href: '/#work' }}
+      start={{
+        dir: 'Back to',
+        name: 'Side projects',
+        sub: 'DBeast and TextRecast, open source',
+        href: '/#projects',
+        tone: 'green',
+      }}
+      end={{
+        dir: 'Work at Ideyalabs',
+        name: firstWork.name,
+        sub: firstWork.fullName,
+        href: `/work/${firstWork.slug}/`,
+        tone: firstWork.tone,
+      }}
     />
   </article>
 </BaseLayout>
 
 <style>
   article {
-    padding-bottom: clamp(3rem, 2rem + 4vw, 5rem);
+    padding-bottom: clamp(2rem, 1.5rem + 2vw, 3rem);
+  }
+
+  .figure {
+    display: grid;
+    justify-items: center;
+    margin-bottom: clamp(2.5rem, 2rem + 3vw, 4.5rem);
+    padding: clamp(20px, 1rem + 2vw, 40px) clamp(14px, 1rem + 1.5vw, 32px);
+  }
+
+  .figure :global(.sketch),
+  .inline-figure :global(.sketch) {
+    width: 100%;
+  }
+
+  .figure :global(svg),
+  .inline-figure :global(svg) {
+    margin-inline: auto;
+  }
+
+  .figure :global(figcaption) {
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .inline-figure {
+    padding: clamp(16px, 1rem + 1vw, 28px);
   }
 </style>

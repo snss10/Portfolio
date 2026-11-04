@@ -1,0 +1,121 @@
+---
+/**
+ * "On this page": jump links to a case study's sections. It stays in view
+ * beside the text on wide screens and marks the section being read.
+ */
+interface Props {
+  items: { id: string; label: string }[];
+}
+
+const { items } = Astro.props;
+---
+
+<nav class="toc" aria-label="On this page">
+  <p class="toc-title">On this page</p>
+  <ol>
+    {items.map((item) => (
+      <li>
+        <a href={`#${item.id}`} data-toc={item.id}>
+          {item.label}
+        </a>
+      </li>
+    ))}
+  </ol>
+</nav>
+
+<script>
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-toc]')];
+  const targets = links
+    .map((a) => document.getElementById(a.dataset.toc ?? ''))
+    .filter((el): el is HTMLElement => el !== null);
+  if (targets.length && 'IntersectionObserver' in window) {
+    const seen = new Map<string, boolean>();
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => seen.set(e.target.id, e.isIntersecting));
+        const active = targets.find((t) => seen.get(t.id))?.id;
+        if (!active) return;
+        links.forEach((a) => {
+          const on = a.dataset.toc === active;
+          a.toggleAttribute('data-active', on);
+          if (on) a.setAttribute('aria-current', 'true');
+          else a.removeAttribute('aria-current');
+        });
+      },
+      { rootMargin: '-20% 0px -65% 0px' },
+    );
+    targets.forEach((t) => io.observe(t));
+  }
+</script>
+
+<style>
+  .toc {
+    position: sticky;
+    top: calc(var(--header-h) + 28px);
+    display: grid;
+    gap: 12px;
+  }
+
+  .toc-title {
+    color: var(--ink-3);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  ol {
+    display: grid;
+    border-left: 2px solid var(--line);
+    list-style: none;
+  }
+
+  a {
+    display: block;
+    margin-left: -2px;
+    padding: 7px 0 7px 14px;
+    border-left: 2px solid transparent;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    line-height: 1.35;
+    text-decoration: none;
+    transition:
+      color 0.15s,
+      border-color 0.15s;
+  }
+
+  a:hover {
+    color: var(--ink);
+  }
+
+  a[data-active] {
+    border-left-color: var(--tone, var(--blue));
+    color: var(--ink);
+    font-weight: 620;
+  }
+
+  /* Narrow screens: a row of jump links above the text. */
+  @media (max-width: 960px) {
+    .toc {
+      position: static;
+    }
+
+    ol {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      border: 0;
+    }
+
+    a {
+      margin: 0;
+      padding: 6px 12px;
+      border: 1px solid var(--line-2);
+      border-radius: 999px;
+    }
+
+    a[data-active] {
+      border-color: var(--tone, var(--blue));
+    }
+  }
+</style>

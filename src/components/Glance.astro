@@ -1,0 +1,105 @@
+---
+/** Four numbers under the intro. Each one links to where it comes from. */
+import { employer, education, monthsSince } from '../data/experience';
+
+const years = Math.floor(monthsSince(employer.start) / 12);
+const cgpa = education.grade.match(/[\d.]+/)?.[0] ?? '';
+
+const stats = [
+  {
+    value: `${years}+ years`,
+    label: `building agent systems at ${employer.name.split(' ')[0]}`,
+    href: '#experience',
+    tone: 'blue',
+  },
+  {
+    value: '~60%',
+    label: 'less testing effort with ITAF, for two enterprise customers',
+    href: '/work/itaf/',
+    tone: 'violet',
+  },
+  {
+    value: '21',
+    label: 'database tools in DBeast, my open-source MCP server',
+    href: '#dbeast',
+    tone: 'green',
+  },
+  {
+    value: cgpa,
+    label: 'CGPA in B.Tech, Artificial Intelligence & Data Science',
+    href: '#education',
+    tone: 'orange',
+  },
+];
+---
+
+<section class="glance page" aria-label="At a glance">
+  <ul>
+    {stats.map((s) => (
+      <li class={`tone-${s.tone}`}>
+        <a class="stat" href={s.href}>
+          <span class="stat-value">{s.value}</span>
+          <span class="stat-label">{s.label}</span>
+        </a>
+      </li>
+    ))}
+  </ul>
+</section>
+
+<style>
+  .glance {
+    padding-bottom: clamp(3.5rem, 2.5rem + 3vw, 5rem);
+  }
+
+  ul {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    list-style: none;
+    overflow: hidden;
+  }
+
+  li + li {
+    border-left: 1px solid var(--line);
+  }
+
+  .stat {
+    height: 100%;
+    padding: 22px 24px 24px;
+    text-decoration: none;
+    transition: background-color 0.15s;
+  }
+
+  .stat:hover {
+    background: color-mix(in srgb, var(--tone) 6%, var(--surface));
+  }
+
+  .stat:hover .stat-label {
+    color: var(--ink);
+  }
+
+  .stat:focus-visible {
+    outline-offset: -3px;
+  }
+
+  @media (max-width: 860px) {
+    ul {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    li:nth-child(3) {
+      border-left: 0;
+    }
+
+    li:nth-child(n + 3) {
+      border-top: 1px solid var(--line);
+    }
+  }
+
+  @media (max-width: 420px) {
+    .stat {
+      padding: 18px 16px 20px;
+    }
+  }
+</style>

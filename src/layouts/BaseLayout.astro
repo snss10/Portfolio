@@ -8,6 +8,7 @@ import handFont from '@fontsource/kalam/files/kalam-latin-700-normal.woff2?url';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { site } from '../data/site';
+import { baseGraph } from '../lib/schema';
 
 interface Props {
   title?: string;
@@ -16,7 +17,8 @@ interface Props {
   image?: string;
   imageAlt?: string;
   type?: 'website' | 'article';
-  jsonLd?: Record<string, unknown>;
+  /** This page's own structured-data nodes, added to the site-wide graph. */
+  jsonLd?: Record<string, unknown>[];
   /** Pages like 404 should not be indexed. */
   noindex?: boolean;
 }
@@ -27,12 +29,14 @@ const {
   image = '/og/home.png',
   imageAlt = `${site.name}, ${site.role}`,
   type = 'website',
-  jsonLd,
+  jsonLd = [],
   noindex = false,
 } = Astro.props;
 
-const canonical = new URL(Astro.url.pathname, Astro.site);
-const imageUrl = new URL(image, Astro.site);
+const base = Astro.site ?? new URL(Astro.url.origin);
+const canonical = new URL(Astro.url.pathname, base);
+const imageUrl = new URL(image, base);
+const graph = { '@context': 'https://schema.org', '@graph': [...baseGraph(base), ...jsonLd] };
 ---
 
 <!doctype html>
@@ -44,7 +48,14 @@ const imageUrl = new URL(image, Astro.site);
     <meta name="description" content={description} />
     <meta name="author" content={site.name} />
     <meta name="keywords" content={site.seo.keywords.join(', ')} />
-    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
+    {noindex ? (
+      <meta name="robots" content="noindex, follow" />
+    ) : (
+      <>
+        <meta name="robots" content="index, follow, max-image-preview:large" />
+        <link rel="canonical" href={canonical} />
+      </>
+    )}
 
     <meta property="og:type" content={type} />
     <meta property="og:site_name" content={site.name} />
@@ -52,6 +63,7 @@ const imageUrl = new URL(image, Astro.site);
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={imageUrl} />
+    <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content={imageAlt} />
@@ -60,27 +72,31 @@ const imageUrl = new URL(image, Astro.site);
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={imageUrl} />
+    <meta name="twitter:image:alt" content={imageAlt} />
 
-    <meta name="theme-color" content="#f7f7f5" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#1b1d21" media="(prefers-color-scheme: dark)" />
-    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
-    <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0f1114" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <link rel="preload" href={textFont} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={handFont} as="font" type="font/woff2" crossorigin />
 
     <script is:inline>
-      // Apply a saved theme before first paint so the page never flashes.
+      // Before first paint: mark that JavaScript runs, and apply a saved theme so the page never flashes.
+      document.documentElement.classList.add('js');
       try {
         const saved = localStorage.getItem('theme');
         if (saved === 'light' || saved === 'dark') document.documentElement.dataset.theme = saved;
       } catch {}
     </script>
 
-    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+    <script type="application/ld+json" set:html={JSON.stringify(graph)} />
   </head>
-  <body>
+  <body id="top">
     <a class="skip-link" href="#main">
       Skip to content
     </a>
@@ -89,5 +105,24 @@ const imageUrl = new URL(image, Astro.site);
       <slot />
     </main>
     <Footer />
+
+    <script>
+      // Cards fade up as they scroll into view (CSS skips this for reduced motion).
+      const items = document.querySelectorAll<HTMLElement>('[data-reveal]');
+      if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver(
+          (entries) =>
+            entries.forEach((entry) => {
+              if (!entry.isIntersecting) return;
+              entry.target.classList.add('is-in');
+              io.unobserve(entry.target);
+            }),
+          { rootMargin: '0px 0px -6% 0px', threshold: 0.06 },
+        );
+        items.forEach((el) => io.observe(el));
+      } else {
+        items.forEach((el) => el.classList.add('is-in'));
+      }
+    </script>
   </body>
 </html>

@@ -1,38 +1,210 @@
 ---
-import { site } from '../data/site';
+/** Every page on the site, one click away from anywhere. */
+import Icon from './Icon.astro';
+import Logo from './Logo.astro';
+import { site, nav } from '../data/site';
+import { workProjects } from '../data/projects';
+import { vfabit } from '../data/vfabit';
 
 const year = new Date().getFullYear();
+const caseStudies = [
+  ...workProjects.map((p) => ({ name: p.name, href: `/work/${p.slug}/`, tone: p.tone })),
+  { name: vfabit.name, href: `/projects/${vfabit.slug}/`, tone: 'blue' },
+];
 ---
 
-<footer class="page foot">
-  <p>
-    © {year} {site.name}
-  </p>
-  <p>
-    Diagrams drawn with rough.js.
-    <a href={site.links.source} target="_blank" rel="noopener">
-      Site source
+<footer class="site-footer">
+  <div class="page top">
+    <div class="about">
+      <a class="brand" href="/" aria-label={`${site.name}, home`}>
+        <Logo size={40} />
+        <span class="brand-name">{site.name}</span>
+      </a>
+      <p class="muted">
+        {site.role} at {site.companyShort}, {site.location.split(',')[0]}. I build agent systems
+        with LangGraph, MCP, RAG and FastAPI.
+      </p>
+    </div>
+
+    <nav aria-label="Site map" class="cols">
+      <div>
+        <h2>On this site</h2>
+        <ul>
+          {nav.map((item) => (
+            <li>
+              <a href={`/#${item.id}`}>{item.label}</a>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <h2>Case studies</h2>
+        <ul>
+          {caseStudies.map((c) => (
+            <li>
+              <a href={c.href} class={`dot tone-${c.tone}`}>
+                {c.name}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <h2>Elsewhere</h2>
+        <ul>
+          <li>
+            <a href={site.links.linkedin} target="_blank" rel="me noopener">
+              LinkedIn<span class="visually-hidden"> (opens in a new tab)</span>
+              <Icon name="external" size={13} />
+            </a>
+          </li>
+          <li>
+            <a href={site.links.github} target="_blank" rel="me noopener">
+              GitHub<span class="visually-hidden"> (opens in a new tab)</span>
+              <Icon name="external" size={13} />
+            </a>
+          </li>
+          <li>
+            <a href={`mailto:${site.email}`}>Email</a>
+          </li>
+          <li>
+            <a href={site.resume} download>
+              Resume (PDF)
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+
+  <div class="page bottom">
+    <p>
+      © {year} {site.name}
+    </p>
+    <p>
+      Built with Astro. Diagrams drawn with rough.js.
+      <a href={site.links.source} target="_blank" rel="noopener">
+        Site source<span class="visually-hidden"> (opens in a new tab)</span>
+        <Icon name="external" size={13} />
+      </a>
+    </p>
+    <a class="to-top" href="#top">
+      Back to top
+      <Icon name="arrow-up" size={15} />
     </a>
-  </p>
+  </div>
 </footer>
 
 <style>
-  .foot {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 8px 24px;
-    padding-block: 40px 48px;
-    color: var(--ink-2);
+  .site-footer {
+    margin-top: clamp(3rem, 2rem + 3vw, 5rem);
+    border-top: 1px solid var(--line);
     font-size: var(--fs-small);
   }
 
-  a {
-    margin-left: 6px;
+  .top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+    gap: 32px clamp(2rem, 1rem + 4vw, 5rem);
+    padding-block: clamp(2.5rem, 2rem + 2vw, 3.5rem);
+  }
+
+  .about {
+    display: grid;
+    align-content: start;
+    gap: 14px;
+    max-width: 24rem;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    justify-self: start;
+    text-decoration: none;
+  }
+
+  .brand-name {
+    font-size: 1.0625rem;
+    font-weight: 760;
+    letter-spacing: -0.015em;
+  }
+
+  .cols {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+  }
+
+  h2 {
+    margin-bottom: 12px;
+    color: var(--ink);
+    font-size: var(--fs-xs);
+    font-family: var(--font-mono);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  ul {
+    display: grid;
+    gap: 2px;
+    list-style: none;
+  }
+
+  .cols a,
+  .bottom a {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-height: 32px;
+    color: var(--ink-2);
+    text-decoration: none;
+  }
+
+  .cols a:hover,
+  .bottom a:hover {
+    color: var(--ink);
+    text-decoration: underline;
     text-underline-offset: 4px;
   }
 
-  a:hover {
-    color: var(--ink);
+  .dot::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    margin-right: 4px;
+    border-radius: 50%;
+    background: var(--tone);
+  }
+
+  .bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px 24px;
+    padding-block: 18px 28px;
+    border-top: 1px solid var(--line);
+    color: var(--ink-3);
+  }
+
+  .bottom p {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 10px;
+  }
+
+  @media (max-width: 860px) {
+    .top {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 520px) {
+    .cols {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 </style>

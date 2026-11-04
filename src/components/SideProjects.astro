@@ -1,100 +1,250 @@
 ---
+/**
+ * Side projects. vFABit has a case study on this site, so it gets a wide card
+ * that opens it; the open-source tools link to their code and downloads.
+ */
 import Sketch from './Sketch.astro';
+import Icon from './Icon.astro';
 import { sideProjects } from '../data/projects';
+
+const featured = sideProjects.filter((p) => p.caseStudy);
+const others = sideProjects.filter((p) => !p.caseStudy);
+const idOf = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+const iconFor = (label: string) =>
+  /demo/i.test(label) ? 'play' : /download/i.test(label) ? 'download' : 'github';
 ---
 
 <div class="side">
-  {sideProjects.map((p, i) => (
-    <article class="project" aria-labelledby={`side-${i}`}>
+  {featured.map((p, i) => (
+    <article
+      class={`card is-link featured tone-${p.tone}`}
+      id={idOf(p.name)}
+      aria-labelledby={`side-${idOf(p.name)}`}
+      data-reveal
+    >
       <div class="text">
-        <h3 id={`side-${i}`}>{p.name}</h3>
-        <p class="kind">
-          {p.kind}. {p.license ? `${p.license} licence.` : p.status}
+        <p class="badges">
+          <span class="badge plain">
+            <Icon name="lock" size={13} />
+            Private code
+          </span>
+          <span class="badge tone-orange">Not launched yet</span>
         </p>
+        <h3 id={`side-${idOf(p.name)}`}>
+          <a class="stretched" href={p.caseStudy}>
+            {p.name}
+          </a>
+        </h3>
+        <p class="kind">{p.kind}</p>
         <p class="desc">{p.description}</p>
-        <ul class="facts">
+        {p.stats && (
+          <ul class="stats">
+            {p.stats.map((s) => (
+              <li class="stat">
+                <span class="stat-value">{s.value}</span>
+                <span class="stat-label">{s.label}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+        <ul class="chips" aria-label="Built with">
+          {p.stack.map((t) => (
+            <li class="chip">{t}</li>
+          ))}
+        </ul>
+        <span class="go" aria-hidden="true">
+          Read the case study
+          <Icon name="arrow-right" />
+        </span>
+      </div>
+      <div class="board thumb">
+        <Sketch
+          layout="vertical"
+          flow={{
+            label: p.sketch.label,
+            steps: p.sketch.steps,
+            edges: p.sketch.edges,
+            notes: p.sketch.notes,
+            tone: p.tone,
+            seed: 31 + i * 17,
+          }}
+        />
+      </div>
+    </article>
+  ))}
+
+  <div class="pair">
+    {others.map((p, i) => (
+      <article
+        class={`card tone-${p.tone}`}
+        id={idOf(p.name)}
+        aria-labelledby={`side-${idOf(p.name)}`}
+        data-reveal
+        style={`--stagger:${i * 0.08}s`}
+      >
+        <p class="badges">
+          <span class="badge tone-green">Open source</span>
+          {p.license && <span class="badge plain">{p.license} licence</span>}
+        </p>
+        <div class="title">
+          <h3 id={`side-${idOf(p.name)}`}>{p.name}</h3>
+          <p class="kind">{p.kind}</p>
+        </div>
+        <p class="desc">{p.description}</p>
+        <ol class="flow" aria-label={p.sketch.label}>
+          {p.sketch.steps.map((step) => (
+            <li>
+              <span>{step.title}</span>
+            </li>
+          ))}
+        </ol>
+        <ul class="bullets">
           {p.facts.map((f) => (
             <li>{f}</li>
           ))}
         </ul>
-        <p class="stack">Built with {p.stack.join(', ')}.</p>
-        <p class="links">
-          {p.caseStudy && (
-            <a class="link" href={p.caseStudy}>
-              Read the {p.name} case study
-            </a>
-          )}
+        <ul class="chips" aria-label="Built with">
+          {p.stack.map((t) => (
+            <li class="chip">{t}</li>
+          ))}
+        </ul>
+        <div class="links">
           {p.links.map((l) => (
-            <a class="link" href={l.href} target="_blank" rel="noopener">
+            <a class="btn btn-secondary btn-sm" href={l.href} target="_blank" rel="noopener">
+              <Icon name={iconFor(l.label)} />
               {l.label}
+              <span class="visually-hidden">(opens in a new tab)</span>
+              <Icon name="external" class="ext" size={14} />
             </a>
           ))}
-        </p>
-      </div>
-      <Sketch
-        class="side-sketch"
-        flow={{
-          label: p.sketch.label,
-          steps: p.sketch.steps,
-          edges: p.sketch.edges,
-          notes: p.sketch.notes,
-          seed: 31 + i * 17,
-        }}
-      />
-    </article>
-  ))}
+        </div>
+      </article>
+    ))}
+  </div>
 </div>
 
 <style>
   .side {
     display: grid;
-    gap: clamp(3.5rem, 2.5rem + 3vw, 5rem);
-    margin-top: clamp(2.5rem, 2rem + 2vw, 3.5rem);
+    gap: clamp(16px, 1rem + 0.6vw, 24px);
   }
 
-  .project {
-    display: grid;
-    gap: 28px;
+  .featured {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(1.5rem, 1rem + 2vw, 3rem);
+    border-top: 4px solid var(--tone);
   }
 
   .text {
     display: grid;
-    gap: 12px;
-    max-width: 42rem;
+    justify-items: start;
+    gap: 14px;
+  }
+
+  .badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .badge.plain {
+    gap: 6px;
   }
 
   h3 {
-    font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);
-    font-weight: 750;
+    font-size: clamp(1.5rem, 1.3rem + 0.7vw, 1.875rem);
+    font-weight: 780;
     letter-spacing: -0.025em;
   }
 
-  .kind,
-  .stack {
+  h3 a {
+    text-decoration: none;
+  }
+
+  .featured:hover h3 a {
+    color: var(--tone);
+  }
+
+  .title {
+    display: grid;
+    gap: 2px;
+  }
+
+  .kind {
     color: var(--ink-2);
-    font-size: var(--fs-small);
+    font-weight: 560;
   }
 
   .desc {
-    font-size: var(--fs-lead);
-    line-height: 1.5;
-  }
-
-  .facts {
-    display: grid;
-    gap: 6px;
-    padding-left: 1.1em;
     color: var(--ink-2);
   }
 
-  .facts li::marker {
-    color: var(--marker);
+  .stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 32px;
+    list-style: none;
+  }
+
+  .stats .stat-value {
+    color: var(--tone);
+  }
+
+  .thumb {
+    display: grid;
+    place-items: center;
+    align-self: stretch;
+    padding: 24px 20px;
+  }
+
+  .thumb :global(.sketch) {
+    width: 100%;
+  }
+
+  .thumb :global(svg) {
+    margin-inline: auto;
+  }
+
+  .pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(16px, 1rem + 0.6vw, 24px);
+  }
+
+  .pair .card {
+    gap: 16px;
+    border-top: 4px solid var(--tone);
+  }
+
+  .pair .bullets {
+    font-size: var(--fs-small);
   }
 
   .links {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px 28px;
-    margin-top: 4px;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 4px;
+  }
+
+  .links :global(.ext) {
+    width: 14px;
+    height: 14px;
+    margin-left: -2px;
+    color: var(--ink-3);
+  }
+
+  @media (max-width: 900px) {
+    .featured {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 760px) {
+    .pair {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
 </style>

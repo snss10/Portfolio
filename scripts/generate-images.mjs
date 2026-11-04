@@ -1,17 +1,17 @@
 /**
- * Generates social preview images and app icons into /public.
+ * Generates social preview images, app icons and favicon.ico into /public.
  *
  *   npm run images
  *
  * It builds the site with the hidden card routes in src/pages/og/ enabled,
  * serves that build locally, and screenshots each card with Playwright.
- * Run it again whenever you change your headline or a project's details.
+ * Run it again whenever you change your headline, a project or the logo.
  *
  * Needs Playwright once:  npm i -D playwright && npx playwright install chromium
  */
 import { execFileSync } from 'node:child_process';
 import { createServer } from 'node:http';
-import { mkdir, readFile, readdir, rm } from 'node:fs/promises';
+import { mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -74,13 +74,45 @@ await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
 const base = `http://127.0.0.1:${server.address().port}`;
 
 const browser = await chromium.launch();
-const shoot = async (slug, width, height, outFile) => {
+const shoot = async (slug, size, outFile) => {
+  const [width, height] = Array.isArray(size) ? size : [size, size];
   const page = await browser.newPage({ viewport: { width, height }, deviceScaleFactor: 1 });
   await page.goto(`${base}/og/${slug}/`, { waitUntil: 'networkidle' });
   await page.evaluate(() => document.fonts.ready);
-  await page.screenshot({ path: outFile });
+  const png = await page.screenshot({ path: outFile, omitBackground: true });
   await page.close();
-  console.log(`  ✓ ${path.relative(root, outFile)}`);
+  if (outFile) console.log(`  ✓ ${path.relative(root, outFile)}`);
+  return png;
+};
+
+/** favicon.ico holding PNG images (supported by every current browser). */
+const toIco = (pngs) => {
+  const header = Buffer.alloc(6);
+  header.writeUInt16LE(0, 0);
+  header.writeUInt16LE(1, 2);
+  header.writeUInt16LE(pngs.length, 4);
+  let offset = 6 + 16 * pngs.length;
+  const entries = pngs.map(({ size, data }) => {
+    const e = Buffer.alloc(16);
+    e.writeUInt8(size >= 256 ? 0 : size, 0);
+    e.writeUInt8(size >= 256 ? 0 : size, 1);
+    e.writeUInt16LE(1, 4); // colour planes
+    e.writeUInt16LE(32, 6); // bits per pixel
+    e.writeUInt32LE(data.length, 8);
+    e.writeUInt32LE(offset, 12);
+    offset += data.length;
+    return e;
+  });
+  return Buffer.concat([header, ...entries, ...pngs.map((p) => p.data)]);
+};
+
+const icons = {
+  icon: [
+    [192, 'icon-192.png'],
+    [512, 'icon-512.png'],
+  ],
+  'icon-maskable': [[512, 'icon-maskable-512.png']],
+  'icon-apple': [[180, 'apple-touch-icon.png']],
 };
 
 try {
@@ -90,12 +122,16 @@ try {
     .filter((entry) => entry.isDirectory())
     .map((entry) => entry.name);
   for (const slug of slugs) {
-    if (slug === 'icon') {
-      await shoot(slug, 180, 180, path.join(publicDir, 'apple-touch-icon.png'));
-      await shoot(slug, 192, 192, path.join(publicDir, 'icon-192.png'));
-      await shoot(slug, 32, 32, path.join(publicDir, 'favicon-32.png'));
+    if (icons[slug]) {
+      for (const [size, name] of icons[slug]) await shoot(slug, size, path.join(publicDir, name));
+      if (slug === 'icon') {
+        const pngs = [];
+        for (const size of [16, 32, 48]) pngs.push({ size, data: await shoot(slug, size) });
+        await writeFile(path.join(publicDir, 'favicon.ico'), toIco(pngs));
+        console.log('  ✓ public/favicon.ico (16, 32, 48)');
+      }
     } else {
-      await shoot(slug, 1200, 630, path.join(publicDir, 'og', `${slug}.png`));
+      await shoot(slug, [1200, 630], path.join(publicDir, 'og', `${slug}.png`));
     }
   }
 } finally {
