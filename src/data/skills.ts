@@ -1,65 +1,47 @@
-/** Skills, grouped like the resume, plus what the side projects use. */
+/**
+ * Skills, taken from the resume's skills list.
+ *
+ * `coreSkills` are the ones I use most. Each lists the stack names (from
+ * projects.ts) that count as using it, and the site links every project that
+ * did, so each claim comes with its evidence. `otherSkills` is the rest of
+ * the resume's list, shown as one plain line.
+ */
 
-export const skillGroups = [
-  {
-    name: 'Agentic AI & LLMs',
-    skills: [
-      'LangGraph',
-      'LangChain',
-      'MCP (FastMCP)',
-      'Anthropic Claude API',
-      'OpenAI API',
-      'Multi-agent orchestration',
-      'Tool calling',
-      'Multi-turn agent loops',
-      'Prompt engineering',
-      'Prompt caching',
-      'Guardrails',
-      'Local LLMs (LLamaSharp, GGUF)',
-    ],
-  },
-  {
-    name: 'Backend',
-    skills: [
-      'Python',
-      'SQL',
-      'FastAPI',
-      'Async services',
-      'REST APIs',
-      'Pydantic',
-      'SQLAlchemy',
-      'Socket.IO / WebSockets',
-    ],
-  },
-  {
-    name: 'Retrieval & data',
-    skills: ['RAG', 'Pinecone', 'FAISS', 'PostgreSQL', 'MongoDB', 'Supabase'],
-  },
-  {
-    name: 'Frontend',
-    skills: ['React', 'TypeScript', 'Tailwind CSS', 'three.js', 'TanStack Query'],
-  },
-  {
-    name: 'Documents & CAD',
-    skills: ['Azure Document Intelligence', 'OpenCascade (OCP)', 'pdfplumber', 'PDFium'],
-  },
-  {
-    name: 'Automation & testing',
-    skills: ['Playwright', 'Tavily', 'pytest'],
-  },
-  {
-    name: 'Cloud & delivery',
-    skills: [
-      'Docker',
-      'Git',
-      'GitHub Actions (CI/CD)',
-      'Google Cloud Run Jobs',
-      'AWS (RDS, S3, CloudWatch)',
-      'Vercel',
-    ],
-  },
-  {
-    name: 'Mobile & desktop',
-    skills: ['Kotlin (Android)', 'C# / .NET', 'WPF'],
-  },
-] as const;
+export interface CoreSkill {
+  name: string;
+  /** Names in a project's `stack` that mean the project used this skill. */
+  match: string[];
+}
+
+export const coreSkills: CoreSkill[] = [
+  { name: 'Python', match: ['Python'] },
+  { name: 'LangGraph', match: ['LangGraph'] },
+  { name: 'MCP', match: ['MCP', 'FastMCP'] },
+  { name: 'FastAPI', match: ['FastAPI'] },
+  { name: 'RAG', match: ['RAG', 'Pinecone'] },
+  { name: 'Claude and OpenAI APIs', match: ['Anthropic Claude', 'OpenAI'] },
+  { name: 'PostgreSQL', match: ['PostgreSQL', 'asyncpg'] },
+  { name: 'Playwright', match: ['Playwright'] },
+  { name: 'Azure Document Intelligence', match: ['Azure Document Intelligence'] },
+];
+
+export const otherSkills = [
+  'LangChain',
+  'prompt caching',
+  'guardrails',
+  'Pinecone',
+  'FAISS',
+  'MongoDB',
+  'Supabase',
+  'SQL',
+  'Pydantic',
+  'Socket.IO',
+  'Tavily',
+  'pytest',
+  'Docker',
+  'Git',
+  'GitHub Actions',
+  'Google Cloud Run Jobs',
+  'AWS (RDS, S3, CloudWatch)',
+  'React',
+];

@@ -1,40 +1,119 @@
 ---
-/** Skills as a plain list: the group, then what is in it. */
-import { skillGroups } from '../data/skills';
+/**
+ * Skills with their evidence: each core skill links to the projects on this
+ * page that used it, in each project's ink. The rest of the list follows as
+ * one plain line.
+ */
+import { coreSkills, otherSkills } from '../data/skills';
+import { workProjects, sideProjects } from '../data/projects';
+
+const idOf = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+const projects = [
+  ...workProjects.map((p) => ({
+    name: p.name,
+    href: `/work/${p.slug}/`,
+    tone: p.tone,
+    stack: p.stack,
+  })),
+  ...sideProjects.map((p) => ({
+    name: p.name,
+    href: p.caseStudy ?? `#${idOf(p.name)}`,
+    tone: p.tone,
+    stack: p.stack,
+  })),
+];
+
+const rows = coreSkills.map((s) => {
+  const used = projects.filter((p) => p.stack.some((t) => s.match.includes(t)));
+  return { name: s.name, used, everywhere: used.length === projects.length };
+});
 ---
 
-<dl class="skills">
-  {skillGroups.map((g) => (
+<dl class="core">
+  {rows.map((r) => (
     <div>
-      <dt>{g.name}</dt>
-      <dd>{g.skills.join(', ')}</dd>
+      <dt>{r.name}</dt>
+      <dd>
+        {r.everywhere ? (
+          'Every project on this page'
+        ) : (
+          <ul class="uses">
+            {r.used.map((p) => (
+              <li>
+                <a class={`link tone-${p.tone}`} href={p.href}>
+                  {p.name}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </dd>
     </div>
   ))}
 </dl>
 
+<p class="other">
+  <span class="other-label">Also on my resume:</span>
+  {otherSkills.join(', ')}.
+</p>
+
 <style>
-  .skills {
+  .core {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 28px 48px;
+    max-width: 44rem;
+    border-top: 1px solid var(--rule);
   }
 
-  .skills div {
+  .core div {
     display: grid;
-    align-content: start;
-    gap: 6px;
+    grid-template-columns: 15rem minmax(0, 1fr);
+    gap: 4px 24px;
+    padding-block: 12px;
+    border-bottom: 1px solid var(--rule);
   }
 
   dt {
-    font-weight: 740;
+    font-weight: 720;
   }
 
   dd {
     color: var(--ink-2);
   }
 
-  @media (max-width: 640px) {
-    .skills {
+  /* Project names, separated by commas without stray spaces. */
+  .uses {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 0.4em;
+  }
+
+  /* Flex items drop the spaces around each link, so the comma sits flush. */
+  .uses li {
+    display: flex;
+  }
+
+  .uses li:not(:last-child)::after {
+    content: ',';
+    color: var(--ink-2);
+  }
+
+  .uses .link {
+    font-weight: 560;
+  }
+
+  .other {
+    max-width: 44rem;
+    margin-top: 24px;
+    color: var(--ink-2);
+  }
+
+  .other-label {
+    color: var(--ink);
+    font-weight: 720;
+  }
+
+  @media (max-width: 600px) {
+    .core div {
       grid-template-columns: minmax(0, 1fr);
     }
   }

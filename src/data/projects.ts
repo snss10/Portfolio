@@ -388,16 +388,7 @@ export const sideProjects: SideProject[] = [
       'STEP files are measured as exact geometry, and anything the geometry can’t establish is reported as undetermined, never guessed.',
       'A three-pass security audit logged 42 findings, including a sign-in race condition that is now fixed and covered by tests.',
     ],
-    stack: [
-      'Python',
-      'FastAPI',
-      'PostgreSQL',
-      'React',
-      'TypeScript',
-      'three.js',
-      'OpenCascade',
-      'Kotlin',
-    ],
+    stack: ['Python', 'FastAPI', 'PostgreSQL', 'React', 'TypeScript', 'three.js', 'OpenCascade'],
     caseStudy: '/projects/vfabit/',
     stats: [
       { value: '915', label: 'automated tests' },
@@ -444,35 +435,6 @@ export const sideProjects: SideProject[] = [
       ],
       edges: ['MCP (stdio)', 'asyncpg'],
       notes: [{ at: 1, text: 'writes get a preview, never run', side: 'below' }],
-    },
-  },
-  {
-    name: 'TextRecast',
-    tone: 'purple',
-    kind: 'Windows app, C# and .NET',
-    description:
-      'Rewrites the text you select in any Windows app: improve it, shorten it, expand it, summarize it or change its tone. The language model runs on your own CPU, so there is no account, no API key and no cloud text processing.',
-    facts: [
-      'Setup checks your hardware and offers four quantized models (Qwen 2.5, Qwen 3.5, Granite 4.1).',
-      'Model downloads resume after interruptions and are verified by size and SHA-256.',
-      'Re-checks the source window and selection before it replaces anything.',
-    ],
-    stack: ['C#', '.NET 10', 'WPF', 'LLamaSharp', 'UI Automation', 'NSIS'],
-    license: 'Apache-2.0',
-    links: [
-      { label: 'Source on GitHub', href: 'https://github.com/snss10/TextRecast' },
-      { label: 'Download for Windows', href: 'https://github.com/snss10/TextRecast/releases' },
-    ],
-    sketch: {
-      label:
-        'Selected text goes to a model on your own computer, and you review the result before it replaces the original.',
-      steps: [
-        { title: 'Selected text', sub: 'in any app' },
-        { title: 'Local model', sub: 'runs on your CPU' },
-        { title: 'Your review', sub: 'edit, then replace' },
-      ],
-      edges: ['captured', 'revision'],
-      notes: [{ at: 1, text: 'no cloud, no API key', side: 'below' }],
     },
   },
 ];

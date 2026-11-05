@@ -92,9 +92,4 @@ export const certifications: Certification[] = [
     href: 'https://sforce.co/verifycerts',
     note: 'ID 5591179',
   },
-  {
-    name: 'Python',
-    issuer: 'IBM',
-    href: 'https://courses.etrain.skillsnetwork.site/certificates/683ab2e940f74506bb19c97caf78d17f',
-  },
 ];

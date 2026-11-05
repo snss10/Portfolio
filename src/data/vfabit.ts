@@ -19,7 +19,7 @@ export const vfabit = {
     { label: 'For', value: 'Companies ordering parts, fabrication shops and an operations team' },
     {
       label: 'Built with',
-      value: 'Python, FastAPI, PostgreSQL, React, TypeScript, three.js, OpenCascade, Kotlin',
+      value: 'Python, FastAPI, PostgreSQL, React, TypeScript, three.js, OpenCascade',
       wide: true,
     },
   ],
@@ -146,13 +146,6 @@ export const vfabit = {
       ],
     },
     {
-      title: 'Phone',
-      points: [
-        'The site installs as an app, with a service worker and Web Push.',
-        'The Android app (1.3.0) is a 669-line Kotlin WebView that signs in through the browser with PKCE, saves downloads, takes photos for uploads and receives Firebase notifications. It ships as a signed APK from the site.',
-      ],
-    },
-    {
       title: 'Practice',
       points: [
         'Work is driven by a spec: 74 normalized requirements and 116 recorded changes.',
@@ -174,7 +167,6 @@ export const vfabit = {
         'React 19, TypeScript 6, Vite 8, Tailwind CSS 4, React Router 7, TanStack Query 5, React Hook Form, Zod 4, three.js',
     },
     { layer: 'CAD and drawings', tools: 'OCP (OpenCascade), pdfplumber, PDFium, Docker' },
-    { layer: 'Android', tools: 'Kotlin, WebView, Gradle, Firebase Cloud Messaging' },
     { layer: 'Data and files', tools: 'PostgreSQL on Supabase, private Vercel Blob' },
     { layer: 'Services', tools: 'Razorpay, ZeptoMail, Google Maps and Places, Web Push' },
     {
