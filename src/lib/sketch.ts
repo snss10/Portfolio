@@ -9,8 +9,8 @@
  */
 import rough from 'roughjs';
 
-/** The marker colours. Each project has one, so it keeps its colour across the site. */
-export type Tone = 'blue' | 'green' | 'orange' | 'violet';
+/** Dry-erase marker inks. Each project has one, so it keeps its colour across the site. */
+export type Tone = 'blue' | 'red' | 'green' | 'purple';
 
 export interface SketchStep {
   title: string;
@@ -48,6 +48,11 @@ export interface SketchFlow {
   perRow?: number;
   /** Colour of the notes. Defaults to the colour of the step a note points at, else blue. */
   tone?: Tone;
+  /**
+   * A small version for lists: titles only (no handwritten lines or arrow
+   * labels), smaller boxes, always the wide layout.
+   */
+  compact?: boolean;
   seed?: number;
 }
 
@@ -153,19 +158,28 @@ class Canvas {
   }
 
   text(x: number, y: number, s: string, cls: string, delay: number, anchor = 'middle') {
+    // `cls` may hold several classes, e.g. "t-title t-sm".
     this.parts.push(
       `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="${anchor}" class="${cls} reveal" style="--d:${delay.toFixed(2)}s">${esc(s)}</text>`,
     );
   }
 
-  note(x: number, y: number, lines: string[], lineHeight: number, delay: number, anchor = 'start') {
+  note(
+    x: number,
+    y: number,
+    lines: string[],
+    lineHeight: number,
+    delay: number,
+    anchor = 'start',
+    extra = '',
+  ) {
     const spans = lines
       .map(
         (l, i) => `<tspan x="${x.toFixed(1)}" dy="${i === 0 ? 0 : lineHeight}">${esc(l)}</tspan>`,
       )
       .join('');
     this.parts.push(
-      `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="${anchor}" class="t-note write" style="--d:${delay.toFixed(2)}s;--t:0.6s">${spans}</text>`,
+      `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="${anchor}" class="t-note${extra} write" style="--d:${delay.toFixed(2)}s;--t:0.6s">${spans}</text>`,
     );
   }
 }
@@ -225,27 +239,43 @@ const nodeDelay = (i: number, count: number) => T0 + i * stepFor(count);
 
 function renderHorizontal(flow: SketchFlow) {
   const c = new Canvas(flow.seed ?? 7);
-  const base = nodesOf(flow);
+  const compact = !!flow.compact;
+  // Compact sketches keep only the box titles.
+  const base = nodesOf(flow).map((b) => (compact ? { ...b, sub: undefined } : b));
   const offset = flow.start ? 1 : 0;
   const n = base.length;
   const perRow = flow.perRow ?? (n > 4 ? Math.ceil(n / 2) : n);
   const rows = Math.ceil(n / perRow);
-  const hasSub = flow.steps.some((s) => s.sub);
+  const hasSub = base.some((b) => b.sub);
+  const P = compact
+    ? { title: 17, note: 16, minBox: 92, pad: 30, boxH: 50, gap: 46, rowGap: 54, noteSpace: 60 }
+    : {
+        title: SIZE.title,
+        note: SIZE.note,
+        minBox: 132,
+        pad: 40,
+        boxH: hasSub ? 82 : 60,
+        gap: 68,
+        rowGap: 70,
+        noteSpace: 76,
+      };
+  const sm = compact ? ' t-sm' : '';
 
   const M = 16;
   const boxW = Math.max(
-    132,
+    P.minBox,
     ...base.map(
       (b) =>
-        Math.max(
-          textW(b.title, SIZE.title, EM.title),
-          b.sub ? textW(b.sub, SIZE.sub, EM.hand) : 0,
-        ) + 40,
+        Math.max(textW(b.title, P.title, EM.title), b.sub ? textW(b.sub, SIZE.sub, EM.hand) : 0) +
+        P.pad,
     ),
   );
-  const boxH = hasSub ? 82 : 60;
-  const edgeLabels = flow.edges ?? [];
-  const gap = Math.max(68, ...edgeLabels.map((e) => (e ? textW(e, SIZE.edge, EM.hand) + 26 : 0)));
+  const boxH = P.boxH;
+  const edgeLabels = compact ? [] : (flow.edges ?? []);
+  const gap = Math.max(
+    P.gap,
+    ...edgeLabels.map((e) => (e ? textW(e, SIZE.edge, EM.hand) + 26 : 0)),
+  );
 
   const notes = (flow.notes ?? []).map((note) => {
     const i = note.at + offset;
@@ -261,10 +291,9 @@ function renderHorizontal(flow: SketchFlow) {
     const side = rows > 1 ? (row === 0 ? 'above' : 'below') : (note.side ?? 'above');
     return { ...note, i, side };
   });
-  const NOTE_SPACE = 76;
-  const top = notes.some((x) => x.side === 'above') ? NOTE_SPACE : 10;
-  const bottom = notes.some((x) => x.side === 'below') ? NOTE_SPACE : 10;
-  const rowGap = 70;
+  const top = notes.some((x) => x.side === 'above') ? P.noteSpace : 10;
+  const bottom = notes.some((x) => x.side === 'below') ? P.noteSpace : 10;
+  const rowGap = P.rowGap;
   const width = 2 * M + perRow * boxW + (perRow - 1) * gap;
   const rowY = (r: number) => top + r * (boxH + rowGap);
   const height = rowY(rows - 1) + boxH + bottom;
@@ -285,7 +314,8 @@ function renderHorizontal(flow: SketchFlow) {
     } else {
       const close = openNode(c, nd);
       c.box(nd.x, nd.y, nd.w, nd.h, d, nd.tone ? 'm' : 'k');
-      c.text(cx, nd.y + (nd.sub ? 35 : 37), nd.title, 't-title', d + 0.3);
+      const titleY = nd.sub ? 35 : Math.round(nd.h / 2 + P.title * 0.36);
+      c.text(cx, nd.y + titleY, nd.title, `t-title${sm}`, d + 0.3);
       if (nd.sub) c.text(cx, nd.y + 62, nd.sub, 't-sub', d + 0.36);
       c.raw(close);
     }
@@ -313,14 +343,14 @@ function renderHorizontal(flow: SketchFlow) {
   notes.forEach((note, k) => {
     const nd = nodes[note.i];
     const d = tNotes + k * 0.5;
-    const tw = textW(note.text, SIZE.note, EM.hand);
+    const tw = textW(note.text, P.note, EM.hand);
     const cx = nd.x + nd.w / 2;
     const left = Math.min(Math.max(M, cx - tw / 2 - 14), width - M - tw);
     const textMid = left + tw / 2;
     openNote(c, noteTone(flow, nd));
     if (note.side === 'above') {
-      const y = nd.y - 46;
-      c.note(left, y, [note.text], 0, d);
+      const y = nd.y - (compact ? 36 : 46);
+      c.note(left, y, [note.text], 0, d, 'start', sm);
       c.noteArrow(
         [
           [textMid + 8, y + 9],
@@ -330,8 +360,8 @@ function renderHorizontal(flow: SketchFlow) {
         d + 0.45,
       );
     } else {
-      const y = nd.y + nd.h + 58;
-      c.note(left, y, [note.text], 0, d);
+      const y = nd.y + nd.h + (compact ? 48 : 58);
+      c.note(left, y, [note.text], 0, d, 'start', sm);
       c.noteArrow(
         [
           [textMid + 8, y - 22],
@@ -417,4 +447,130 @@ function renderVertical(flow: SketchFlow) {
 
 export function renderSketch(flow: SketchFlow): RenderedSketch {
   return { h: renderHorizontal(flow), v: renderVertical(flow) };
+}
+
+/* --------------------------------------------------------------------------
+   Timeline: each span is a hand-shaded bar on a hand-drawn axis, placed by
+   month. Used for the roles on the home page.
+   -------------------------------------------------------------------------- */
+
+export interface TimelineSpan {
+  /** Short handwritten label above the bar. */
+  label: string;
+  /** First month, YYYY-MM. */
+  start: string;
+  /** Last month, YYYY-MM. Leave out for "now". */
+  end?: string;
+  tone: Tone;
+}
+
+const monthIndex = (ym?: string) => {
+  if (!ym) {
+    const now = new Date();
+    return now.getFullYear() * 12 + now.getMonth();
+  }
+  const [y, m] = ym.split('-').map(Number);
+  return y * 12 + (m - 1);
+};
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+export function renderTimeline(spans: TimelineSpan[], width: number, seed = 5) {
+  const gen = rough.generator();
+  let s = seed;
+  const opts = (extra: object = {}) => ({
+    seed: s++,
+    strokeWidth: 2,
+    fixedDecimalPlaceDigits: 1,
+    ...extra,
+  });
+  const parts: string[] = [];
+  const path = (d: Drawable, cls: (stroke: string) => string) => {
+    for (const p of gen.toPaths(d)) parts.push(`<path d="${p.d}" class="${cls(p.stroke)}"/>`);
+  };
+  const label = (x: number, y: number, t: string, cls: string, anchor = 'start') =>
+    parts.push(
+      `<text x="${x.toFixed(1)}" y="${y}" text-anchor="${anchor}" class="${cls}">${esc(t)}</text>`,
+    );
+
+  const L = 8;
+  const R = width - 8;
+  const first = Math.min(...spans.map((x) => monthIndex(x.start)));
+  const last = monthIndex();
+  const total = last - first + 1;
+  const xOf = (month: number) => L + ((month - first) / total) * (R - L);
+  const labelY = 34;
+  const barY = 46;
+  const barH = 30;
+  const axisY = barY + barH + 10;
+  const size = width < 500 ? 15 : 16;
+
+  // Bars, shaded with hachure like a marker colouring in a box.
+  const placed: { x1: number; x2: number }[] = [];
+  spans.forEach((sp) => {
+    const x1 = xOf(monthIndex(sp.start)) + 2;
+    const x2 = xOf(monthIndex(sp.end) + 1) - 2;
+    const bar = gen.rectangle(
+      x1,
+      barY,
+      x2 - x1,
+      barH,
+      opts({
+        roughness: 1,
+        fill: 'FILL',
+        stroke: 'LINE',
+        fillStyle: 'hachure',
+        hachureAngle: -41,
+        hachureGap: 6,
+        fillWeight: 1.4,
+      }),
+    );
+    parts.push(`<g class="tone-${sp.tone}">`);
+    path(bar, (stroke) => (stroke === 'FILL' ? 'hf' : 'm'));
+    parts.push('</g>');
+
+    // Label above the bar; the last one hangs from the right edge if it would overflow.
+    const w = textW(sp.label, size, EM.hand);
+    let x = x1;
+    let anchor = 'start';
+    if (x + w > R) {
+      x = R;
+      anchor = 'end';
+    }
+    const left = anchor === 'start' ? x : x - w;
+    const clash = placed.some((p) => left < p.x2 + 8 && left + w > p.x1 - 8);
+    placed.push({ x1: left, x2: left + w });
+    parts.push(`<g class="tone-${sp.tone}">`);
+    label(x, clash ? labelY - 18 : labelY, sp.label, `t-span${width < 500 ? ' t-sm' : ''}`, anchor);
+    parts.push('</g>');
+  });
+
+  // Axis, with a tick and a year at each January.
+  path(gen.line(L, axisY, R, axisY, opts({ roughness: 0.8, bowing: 0.6 })), () => 'k');
+  const [fy, fm] = [Math.floor(first / 12), first % 12];
+  label(L, axisY + 24, `${MONTHS[fm]} ${fy}`, 't-axis');
+  for (let y = fy + 1; y * 12 <= last; y++) {
+    const x = xOf(y * 12);
+    path(gen.line(x, axisY - 5, x, axisY + 6, opts({ roughness: 0.5 })), () => 'k');
+    if (x > L + 70 && x < R - 40) label(x, axisY + 24, String(y), 't-axis', 'middle');
+  }
+  label(R, axisY + 24, 'now', 't-axis', 'end');
+
+  return { svg: parts.join(''), width, height: axisY + 34 };
+}
+
+/** A hand-drawn rectangle, for the outline of the main button. */
+export function roughFrame(width: number, height: number, seed = 3) {
+  const gen = rough.generator();
+  const d = gen.rectangle(3, 3, width - 6, height - 6, {
+    seed,
+    roughness: 1.3,
+    bowing: 1.2,
+    strokeWidth: 2,
+    fixedDecimalPlaceDigits: 1,
+  });
+  return gen
+    .toPaths(d)
+    .map((p) => `<path d="${p.d}"/>`)
+    .join('');
 }

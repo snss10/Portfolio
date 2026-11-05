@@ -1,250 +1,112 @@
 ---
 /**
- * Side projects. vFABit has a case study on this site, so it gets a wide card
- * that opens it; the open-source tools link to their code and downloads.
+ * Side projects, in the same form as the work list: what it is, a small
+ * marker sketch of how it fits together, and where to go next.
  */
 import Sketch from './Sketch.astro';
-import Icon from './Icon.astro';
 import { sideProjects } from '../data/projects';
 
-const featured = sideProjects.filter((p) => p.caseStudy);
-const others = sideProjects.filter((p) => !p.caseStudy);
 const idOf = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-const iconFor = (label: string) =>
-  /demo/i.test(label) ? 'play' : /download/i.test(label) ? 'download' : 'github';
 ---
 
-<div class="side">
-  {featured.map((p, i) => (
-    <article
-      class={`card is-link featured tone-${p.tone}`}
-      id={idOf(p.name)}
-      aria-labelledby={`side-${idOf(p.name)}`}
-      data-reveal
-    >
-      <div class="text">
-        <p class="badges">
-          <span class="badge plain">
-            <Icon name="lock" size={13} />
-            Private code
-          </span>
-          <span class="badge tone-orange">Not launched yet</span>
-        </p>
-        <h3 id={`side-${idOf(p.name)}`}>
-          <a class="stretched" href={p.caseStudy}>
-            {p.name}
-          </a>
-        </h3>
-        <p class="kind">{p.kind}</p>
-        <p class="desc">{p.description}</p>
-        {p.stats && (
-          <ul class="stats">
-            {p.stats.map((s) => (
-              <li class="stat">
-                <span class="stat-value">{s.value}</span>
-                <span class="stat-label">{s.label}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-        <ul class="chips" aria-label="Built with">
-          {p.stack.map((t) => (
-            <li class="chip">{t}</li>
-          ))}
-        </ul>
-        <span class="go" aria-hidden="true">
-          Read the case study
-          <Icon name="arrow-right" />
-        </span>
-      </div>
-      <div class="board thumb">
+<ul class="entries">
+  {sideProjects.map((p, i) => (
+    <li class={`entry tone-${p.tone}`} id={idOf(p.name)}>
+      <p class="when">
+        {p.license ? `Open source, ${p.license} licence` : 'Private code, not launched yet'}
+      </p>
+      <h3>{p.name}</h3>
+      <p class="full">{p.kind}</p>
+      <p class="summary">{p.description}</p>
+      <div class="drawing">
         <Sketch
-          layout="vertical"
           flow={{
             label: p.sketch.label,
-            steps: p.sketch.steps,
-            edges: p.sketch.edges,
+            steps: p.sketch.steps.map((s) => ({ title: s.title })),
             notes: p.sketch.notes,
             tone: p.tone,
+            compact: true,
             seed: 31 + i * 17,
           }}
         />
       </div>
-    </article>
+      <ul class="ticks facts">
+        {p.facts.map((f) => (
+          <li>{f}</li>
+        ))}
+      </ul>
+      <p class="meta">Built with {p.stack.join(', ')}.</p>
+      <p class="links">
+        {p.caseStudy && (
+          <a class="link" href={p.caseStudy}>
+            Read the {p.name} case study
+          </a>
+        )}
+        {p.links.map((l) => (
+          <a class="link" href={l.href} target="_blank" rel="noopener">
+            {l.label}
+            <span class="visually-hidden"> (opens in a new tab)</span>
+          </a>
+        ))}
+      </p>
+    </li>
   ))}
-
-  <div class="pair">
-    {others.map((p, i) => (
-      <article
-        class={`card tone-${p.tone}`}
-        id={idOf(p.name)}
-        aria-labelledby={`side-${idOf(p.name)}`}
-        data-reveal
-        style={`--stagger:${i * 0.08}s`}
-      >
-        <p class="badges">
-          <span class="badge tone-green">Open source</span>
-          {p.license && <span class="badge plain">{p.license} licence</span>}
-        </p>
-        <div class="title">
-          <h3 id={`side-${idOf(p.name)}`}>{p.name}</h3>
-          <p class="kind">{p.kind}</p>
-        </div>
-        <p class="desc">{p.description}</p>
-        <ol class="flow" aria-label={p.sketch.label}>
-          {p.sketch.steps.map((step) => (
-            <li>
-              <span>{step.title}</span>
-            </li>
-          ))}
-        </ol>
-        <ul class="bullets">
-          {p.facts.map((f) => (
-            <li>{f}</li>
-          ))}
-        </ul>
-        <ul class="chips" aria-label="Built with">
-          {p.stack.map((t) => (
-            <li class="chip">{t}</li>
-          ))}
-        </ul>
-        <div class="links">
-          {p.links.map((l) => (
-            <a class="btn btn-secondary btn-sm" href={l.href} target="_blank" rel="noopener">
-              <Icon name={iconFor(l.label)} />
-              {l.label}
-              <span class="visually-hidden">(opens in a new tab)</span>
-              <Icon name="external" class="ext" size={14} />
-            </a>
-          ))}
-        </div>
-      </article>
-    ))}
-  </div>
-</div>
+</ul>
 
 <style>
-  .side {
+  .entries {
     display: grid;
-    gap: clamp(16px, 1rem + 0.6vw, 24px);
   }
 
-  .featured {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    align-items: center;
-    gap: clamp(1.5rem, 1rem + 2vw, 3rem);
-    border-top: 4px solid var(--tone);
-  }
-
-  .text {
+  .entry {
     display: grid;
     justify-items: start;
-    gap: 14px;
+    gap: 10px;
+    padding-block: 44px;
+    border-top: 1px solid var(--rule);
   }
 
-  .badges {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+  .entry:first-child {
+    padding-top: 6px;
+    border-top: 0;
   }
 
-  .badge.plain {
-    gap: 6px;
+  .when,
+  .meta {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
 
   h3 {
-    font-size: clamp(1.5rem, 1.3rem + 0.7vw, 1.875rem);
+    font-size: clamp(1.75rem, 1.45rem + 1vw, 2.25rem);
     font-weight: 780;
-    letter-spacing: -0.025em;
+    letter-spacing: -0.03em;
   }
 
-  h3 a {
-    text-decoration: none;
-  }
-
-  .featured:hover h3 a {
-    color: var(--tone);
-  }
-
-  .title {
-    display: grid;
-    gap: 2px;
-  }
-
-  .kind {
+  .full {
     color: var(--ink-2);
-    font-weight: 560;
+    font-weight: 600;
   }
 
-  .desc {
-    color: var(--ink-2);
+  .summary,
+  .facts {
+    max-width: 40rem;
   }
 
-  .stats {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px 32px;
-    list-style: none;
-  }
-
-  .stats .stat-value {
-    color: var(--tone);
-  }
-
-  .thumb {
-    display: grid;
-    place-items: center;
-    align-self: stretch;
-    padding: 24px 20px;
-  }
-
-  .thumb :global(.sketch) {
+  .drawing {
     width: 100%;
+    max-width: 640px;
+    margin-block: 10px 6px;
   }
 
-  .thumb :global(svg) {
-    margin-inline: auto;
-  }
-
-  .pair {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: clamp(16px, 1rem + 0.6vw, 24px);
-  }
-
-  .pair .card {
-    gap: 16px;
-    border-top: 4px solid var(--tone);
-  }
-
-  .pair .bullets {
+  .facts {
     font-size: var(--fs-small);
   }
 
   .links {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
-    margin-top: auto;
-    padding-top: 4px;
-  }
-
-  .links :global(.ext) {
-    width: 14px;
-    height: 14px;
-    margin-left: -2px;
-    color: var(--ink-3);
-  }
-
-  @media (max-width: 900px) {
-    .featured {
-      grid-template-columns: minmax(0, 1fr);
-    }
-  }
-
-  @media (max-width: 760px) {
-    .pair {
-      grid-template-columns: minmax(0, 1fr);
-    }
+    gap: 8px 28px;
+    margin-top: 6px;
   }
 </style>

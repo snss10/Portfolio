@@ -31,7 +31,6 @@ const { project: p, prev, next } = Astro.props;
 const title = `${p.name}: ${p.fullName} | ${site.name}`;
 const description = `${p.tagline} A case study by ${site.name}.`;
 const path = `/work/${p.slug}/`;
-const year = p.rolePeriod.match(/\d{4}/)?.[0];
 
 const facts = [
   { label: 'Role', value: p.role },
@@ -91,7 +90,6 @@ const jsonLd = [
         { label: 'Home', href: '/' },
         { label: 'Work', href: '/#work' },
       ]}
-      eyebrow={`Case study${year ? ` · ${year}` : ''}`}
       tone={p.tone}
       name={p.name}
       fullName={p.fullName}
@@ -100,7 +98,7 @@ const jsonLd = [
       stack={p.stack}
     />
 
-    <div class="board figure">
+    <div class="figure">
       <Sketch
         animate
         flow={{
@@ -111,7 +109,8 @@ const jsonLd = [
           tone: p.tone,
           seed: p.slug.length * 7,
         }}
-        caption={`How ${p.name} works. The coloured notes are my annotations.`}
+        maxScale={1.15}
+        caption={`How ${p.name} works. The handwritten notes are mine.`}
       />
     </div>
 
@@ -125,11 +124,10 @@ const jsonLd = [
             <p>{para}</p>
           ))}
           {p.metrics.length > 0 && (
-            <ul class="metrics">
+            <ul class="ticks results">
               {p.metrics.map((m) => (
-                <li class="stat">
-                  <span class="stat-value">{m.value}</span>
-                  <span class="stat-label">{m.label}</span>
+                <li>
+                  <strong>{m.value}</strong> {m.label}
                 </li>
               ))}
             </ul>
@@ -150,7 +148,7 @@ const jsonLd = [
 
         <section id="built" aria-labelledby="built-h">
           <h2 id="built-h">What I built</h2>
-          <ul class="bullets">
+          <ul class="ticks">
             {p.built.map((b) => (
               <li>{b}</li>
             ))}
@@ -187,14 +185,9 @@ const jsonLd = [
   }
 
   .figure {
-    display: grid;
-    justify-items: center;
     margin-bottom: clamp(2.5rem, 2rem + 3vw, 4.5rem);
-    padding: clamp(20px, 1rem + 2vw, 40px) clamp(14px, 1rem + 1.5vw, 32px);
-  }
-
-  .figure :global(.sketch) {
-    width: 100%;
+    padding-block: clamp(1rem, 0.5rem + 2vw, 2rem);
+    border-block: 1px solid var(--rule);
   }
 
   .figure :global(svg) {
@@ -206,22 +199,7 @@ const jsonLd = [
     text-align: center;
   }
 
-  .metrics {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px 40px;
-    margin-top: 8px;
-    padding: 20px 24px;
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    list-style: none;
-  }
-
-  .metrics .stat {
-    max-width: 22rem;
-  }
-
-  .metrics .stat-value {
-    color: var(--tone);
+  .results {
+    margin-top: 6px;
   }
 </style>

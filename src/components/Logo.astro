@@ -1,7 +1,7 @@
 ---
 /**
  * The logo: a small whiteboard with "NS" written in marker, black N, blue S,
- * and an orange underline. It follows the theme; public/favicon.svg is the
+ * and a red underline. It follows the theme; public/favicon.svg is the
  * same drawing with fixed colours.
  */
 interface Props {
@@ -38,7 +38,7 @@ const { size = 36, class: className } = Astro.props;
   }
 
   .logo-board {
-    fill: var(--surface);
+    fill: var(--board);
     stroke: var(--ink);
     stroke-width: 4;
   }
@@ -57,7 +57,7 @@ const { size = 36, class: className } = Astro.props;
   }
 
   .logo-u {
-    stroke: var(--orange);
+    stroke: var(--red);
     stroke-width: 3.4;
   }
 </style>

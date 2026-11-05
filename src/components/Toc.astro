@@ -10,8 +10,8 @@ interface Props {
 const { items } = Astro.props;
 ---
 
-<nav class="toc" aria-label="On this page">
-  <p class="toc-title">On this page</p>
+<nav class="toc" aria-labelledby="toc-title">
+  <h2 id="toc-title">On this page</h2>
   <ol>
     {items.map((item) => (
       <li>
@@ -53,35 +53,30 @@ const { items } = Astro.props;
     position: sticky;
     top: calc(var(--header-h) + 28px);
     display: grid;
-    gap: 12px;
+    gap: 10px;
   }
 
-  .toc-title {
-    color: var(--ink-3);
-    font-family: var(--font-mono);
-    font-size: var(--fs-xs);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+  h2 {
+    font-size: var(--fs-small);
+    font-weight: 740;
+    letter-spacing: 0;
   }
 
   ol {
     display: grid;
-    border-left: 2px solid var(--line);
-    list-style: none;
+    border-left: 1px solid var(--rule);
   }
 
   a {
     display: block;
-    margin-left: -2px;
-    padding: 7px 0 7px 14px;
-    border-left: 2px solid transparent;
+    margin-left: -1px;
+    padding: 6px 0 6px 14px;
+    border-left: 3px solid transparent;
     color: var(--ink-2);
     font-size: var(--fs-small);
     line-height: 1.35;
     text-decoration: none;
-    transition:
-      color 0.15s,
-      border-color 0.15s;
+    transition: color 0.15s;
   }
 
   a:hover {
@@ -91,11 +86,11 @@ const { items } = Astro.props;
   a[data-active] {
     border-left-color: var(--tone, var(--blue));
     color: var(--ink);
-    font-weight: 620;
+    font-weight: 650;
   }
 
-  /* Narrow screens: a row of jump links above the text. */
-  @media (max-width: 960px) {
+  /* Narrow screens: a short list of jump links above the text. */
+  @media (max-width: 980px) {
     .toc {
       position: static;
     }
@@ -103,19 +98,17 @@ const { items } = Astro.props;
     ol {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 4px 20px;
       border: 0;
     }
 
     a {
       margin: 0;
-      padding: 6px 12px;
-      border: 1px solid var(--line-2);
-      border-radius: 999px;
-    }
-
-    a[data-active] {
-      border-color: var(--tone, var(--blue));
+      padding: 4px 0;
+      border: 0;
+      text-decoration: underline;
+      text-decoration-color: var(--rule);
+      text-underline-offset: 4px;
     }
   }
 </style>

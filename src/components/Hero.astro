@@ -1,178 +1,85 @@
 ---
 import Sketch from './Sketch.astro';
-import Icon from './Icon.astro';
+import MarkerButton from './MarkerButton.astro';
 import { site, intro, lifecycle } from '../data/site';
-
-const [before, after] = intro.headline.split(intro.underline);
-// A hand-drawn marker underline under the key words of the headline.
-const scribble = 'M2 8 C 40 3, 90 10, 140 5 S 230 3, 298 9';
 ---
 
 <section class="hero page" aria-labelledby="hero-title">
-  <div class="hero-text">
-    <p class="status">
-      <span class="badge tone-green">
-        {site.currentTitle} at {site.companyShort}
-      </span>
-      <span class="where">
-        <Icon name="pin" size={16} />
-        {site.location}
-      </span>
-    </p>
-
-    <h1 id="hero-title">{site.name}</h1>
-    <p class="role">{site.role}</p>
-
-    <p class="headline">
-      {before}
-      <span class="mark">
-        {intro.underline}
-        <svg viewBox="0 0 300 12" preserveAspectRatio="none" aria-hidden="true">
-          <path d={scribble} pathLength="1"></path>
-        </svg>
-      </span>
-      {after}
-    </p>
-    <p class="now">{intro.now}</p>
-
-    <ul class="chips stack" aria-label="Main tools">
-      {intro.stack.map((t) => (
-        <li class="chip">{t}</li>
-      ))}
-    </ul>
-
-    <div class="ctas">
-      <a class="btn btn-primary" href="#work">
-        See my work
-        <Icon name="arrow-down" />
-      </a>
-      <a class="btn btn-secondary" href={site.resume} download>
-        <Icon name="download" />
-        Download resume
-      </a>
-      <ul class="socials">
-        <li>
-          <a
-            class="icon-btn"
-            href={site.links.github}
-            target="_blank"
-            rel="me noopener"
-            aria-label="GitHub (opens in a new tab)"
-          >
-            <Icon name="github" />
-          </a>
-        </li>
-        <li>
-          <a
-            class="icon-btn"
-            href={site.links.linkedin}
-            target="_blank"
-            rel="me noopener"
-            aria-label="LinkedIn (opens in a new tab)"
-          >
-            <Icon name="linkedin" />
-          </a>
-        </li>
-        <li>
-          <a class="icon-btn" href={`mailto:${site.email}`} aria-label={`Email ${site.email}`}>
-            <Icon name="mail" />
-          </a>
-        </li>
-      </ul>
+  <div class="top">
+    <div class="who">
+      <h1 id="hero-title">{site.name}</h1>
+      <p class="role">
+        {site.role} in {site.location.split(',')[0]}
+      </p>
+    </div>
+    <div class="what">
+      <p class="statement">{intro.headline}</p>
+      <p class="now">
+        {site.currentTitle} at {site.companyShort}. {intro.now}
+      </p>
+      <div class="actions">
+        <MarkerButton href={site.resume} download>
+          Download resume (PDF)
+        </MarkerButton>
+        <a class="link" href={`mailto:${site.email}`}>
+          Email
+        </a>
+        <a class="link" href={site.links.github} target="_blank" rel="me noopener">
+          GitHub<span class="visually-hidden"> (opens in a new tab)</span>
+        </a>
+        <a class="link" href={site.links.linkedin} target="_blank" rel="me noopener">
+          LinkedIn<span class="visually-hidden"> (opens in a new tab)</span>
+        </a>
+      </div>
     </div>
   </div>
 
-  <div class="hero-board board">
-    <p class="board-title hand" aria-hidden="true">
-      how my work connects
+  <div class="board">
+    <p class="board-note hand" aria-hidden="true">
+      how my work connects (each box opens its case study)
     </p>
-    <Sketch flow={lifecycle} animate layout="vertical" maxScale={1.12} class="hero-sketch" />
-    <p class="board-hint">
-      <Icon name="arrow-up" size={15} />
-      Each box opens its case study
-    </p>
+    <Sketch flow={lifecycle} animate maxScale={1.32} class="board-sketch" />
   </div>
 </section>
 
 <style>
   .hero {
     display: grid;
-    grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
-    align-items: center;
-    gap: clamp(2.5rem, 1rem + 4vw, 4.5rem);
-    padding-block: clamp(2.5rem, 1.5rem + 4vw, 5.5rem) clamp(2.5rem, 1.5rem + 3vw, 4rem);
+    gap: clamp(2.5rem, 1.5rem + 3vw, 4rem);
+    padding-block: clamp(2.5rem, 1.5rem + 4vw, 5rem) clamp(2rem, 1rem + 3vw, 3.5rem);
   }
 
-  .hero-text {
+  .top {
     display: grid;
-    justify-items: start;
-    gap: 18px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    align-items: start;
+    gap: 28px clamp(2rem, 1rem + 4vw, 5rem);
   }
 
-  .status {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px 16px;
-  }
-
-  .where {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-  }
-
-  h1 {
-    margin-top: 6px;
+  .who {
+    display: grid;
+    gap: 14px;
   }
 
   .role {
-    margin-top: -6px;
     color: var(--ink-2);
-    font-size: clamp(1.25rem, 1.05rem + 0.8vw, 1.625rem);
-    font-weight: 620;
-    letter-spacing: -0.015em;
-  }
-
-  .headline {
-    max-width: 32ch;
-    font-size: clamp(1.25rem, 1.05rem + 0.9vw, 1.6875rem);
+    font-size: var(--fs-lead);
     font-weight: 560;
-    line-height: 1.4;
-    letter-spacing: -0.014em;
   }
 
-  .mark {
-    position: relative;
-    white-space: nowrap;
+  .what {
+    display: grid;
+    justify-items: start;
+    gap: 14px;
+    padding-top: 6px;
   }
 
-  .mark svg {
-    position: absolute;
-    left: -2px;
-    right: -2px;
-    bottom: -7px;
-    width: calc(100% + 4px);
-    height: 12px;
-    overflow: visible;
-  }
-
-  .mark path {
-    fill: none;
-    stroke: var(--blue);
-    stroke-width: 3.5;
-    stroke-linecap: round;
-    stroke-dasharray: 1;
-    stroke-dashoffset: 1;
-    animation: underline 0.8s var(--ease) 0.5s forwards;
-  }
-
-  @keyframes underline {
-    to {
-      stroke-dashoffset: 0;
-    }
+  .statement {
+    max-width: 28ch;
+    font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem);
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
   }
 
   .now {
@@ -180,77 +87,37 @@ const scribble = 'M2 8 C 40 3, 90 10, 140 5 S 230 3, 298 9';
     color: var(--ink-2);
   }
 
-  .stack {
-    margin-top: 2px;
-  }
-
-  .ctas {
+  .actions {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 12px;
-    margin-top: 8px;
+    gap: 14px 26px;
+    margin-top: 12px;
   }
 
-  .socials {
-    display: flex;
-    gap: 8px;
-    margin-left: 4px;
-    list-style: none;
+  .actions :global(.mbtn) {
+    margin-left: -4px;
   }
 
-  .hero-board {
+  .board {
     display: grid;
-    justify-items: center;
     gap: 6px;
-    padding: 22px clamp(16px, 2vw, 28px) 20px;
   }
 
-  .board-title {
-    justify-self: start;
+  .board-note {
     color: var(--ink-2);
-    font-size: 1.1875rem;
-    font-weight: 700;
-    transform: rotate(-1.5deg);
+    font-size: 1.125rem;
+    transform: rotate(-1deg);
+    transform-origin: left;
   }
 
-  .hero :global(.hero-sketch) {
-    width: 100%;
-  }
-
-  .hero :global(.hero-sketch svg) {
+  .hero :global(.board-sketch svg) {
     margin-inline: auto;
   }
 
-  .board-hint {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--ink-3);
-    font-size: var(--fs-xs);
-  }
-
-  @media (max-width: 960px) {
-    .hero {
+  @media (max-width: 900px) {
+    .top {
       grid-template-columns: minmax(0, 1fr);
-    }
-
-    .hero-board {
-      max-width: 560px;
-      width: 100%;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .socials {
-      margin-left: 0;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .mark path {
-      stroke-dashoffset: 0;
-      animation: none;
     }
   }
 </style>

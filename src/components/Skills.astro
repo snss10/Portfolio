@@ -1,56 +1,41 @@
 ---
-/** Skills in groups, as cards. The first group (agents and LLMs) is the widest. */
+/** Skills as a plain list: the group, then what is in it. */
 import { skillGroups } from '../data/skills';
 ---
 
-<ul class="skills">
-  {skillGroups.map((g, i) => (
-    <li class:list={['card', { wide: i === 0 }]} data-reveal style={`--stagger:${(i % 3) * 0.06}s`}>
-      <h3>{g.name}</h3>
-      <ul class="chips">
-        {g.skills.map((s) => (
-          <li class="chip">{s}</li>
-        ))}
-      </ul>
-    </li>
+<dl class="skills">
+  {skillGroups.map((g) => (
+    <div>
+      <dt>{g.name}</dt>
+      <dd>{g.skills.join(', ')}</dd>
+    </div>
   ))}
-</ul>
+</dl>
 
 <style>
   .skills {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: clamp(14px, 0.8rem + 0.6vw, 20px);
-    list-style: none;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px 48px;
   }
 
-  .card {
-    gap: 14px;
-    padding: 20px 22px 22px;
+  .skills div {
+    display: grid;
+    align-content: start;
+    gap: 6px;
   }
 
-  .wide {
-    grid-column: span 2;
+  dt {
+    font-weight: 740;
   }
 
-  h3 {
-    font-size: 1.0625rem;
-    font-weight: 720;
+  dd {
+    color: var(--ink-2);
   }
 
-  @media (max-width: 900px) {
-    .skills {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
-  @media (max-width: 600px) {
+  @media (max-width: 640px) {
     .skills {
       grid-template-columns: minmax(0, 1fr);
-    }
-
-    .wide {
-      grid-column: auto;
     }
   }
 </style>

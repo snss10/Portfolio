@@ -76,7 +76,7 @@ const graph = { '@context': 'https://schema.org', '@graph': [...baseGraph(base),
 
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0f1114" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#15171a" media="(prefers-color-scheme: dark)" />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -105,24 +105,5 @@ const graph = { '@context': 'https://schema.org', '@graph': [...baseGraph(base),
       <slot />
     </main>
     <Footer />
-
-    <script>
-      // Cards fade up as they scroll into view (CSS skips this for reduced motion).
-      const items = document.querySelectorAll<HTMLElement>('[data-reveal]');
-      if ('IntersectionObserver' in window) {
-        const io = new IntersectionObserver(
-          (entries) =>
-            entries.forEach((entry) => {
-              if (!entry.isIntersecting) return;
-              entry.target.classList.add('is-in');
-              io.unobserve(entry.target);
-            }),
-          { rootMargin: '0px 0px -6% 0px', threshold: 0.06 },
-        );
-        items.forEach((el) => io.observe(el));
-      } else {
-        items.forEach((el) => el.classList.add('is-in'));
-      }
-    </script>
   </body>
 </html>

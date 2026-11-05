@@ -1,117 +1,90 @@
 /* ==========================================================================
    Whiteboard: an engineer explaining systems on a board.
 
-   A pure white board, marker black for text, and four marker colours, each
-   with a job. Blue is for actions and links. Every project has its own
-   colour (blue, green, orange or violet) and keeps it from the home-page
-   diagram to its card, its timeline entry and its case study. Dark mode is a
-   graphite board with brighter markers.
+   A white board and dry-erase marker inks: black for the words, and blue,
+   red, green and purple for drawings and annotations. Each project is drawn
+   in its own ink, so it keeps that colour from the diagram at the top of
+   the home page to its case study. Two typefaces: a grotesk for what is
+   typed, and a marker hand for what is written on the board.
+   Dark mode is a graphite board with chalkier inks.
    ========================================================================== */
 
 :root {
   color-scheme: light;
 
-  --bg: #ffffff;
-  --surface: #ffffff;
-  --surface-2: #f5f6f8;
-  --ink: #101318;
-  --ink-2: #4a515c;
-  --ink-3: #5f6773;
-  --line: #e3e6eb;
-  --line-2: #cdd2da;
-  --dot: #dde1e7;
+  --board: #ffffff;
+  --ink: #1d1f23;
+  --ink-2: #585e67;
+  --rule: #dfe2e6;
 
-  --blue: #2563eb;
-  --green: #13793a;
-  --orange: #c2410c;
-  --violet: #7c3aed;
-  --on-accent: #ffffff;
+  --blue: #1f4fb8;
+  --red: #c4302b;
+  --green: #1a7046;
+  --purple: #6236a8;
 
-  --shadow-sm: 0 1px 2px rgb(16 19 24 / 0.05);
-  --shadow: 0 1px 2px rgb(16 19 24 / 0.04), 0 12px 32px -16px rgb(16 19 24 / 0.22);
-  --header-bg: rgb(255 255 255 / 0.86);
+  --header-bg: rgb(255 255 255 / 0.9);
 
   --font-text: 'Schibsted Grotesk Variable', ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-hand: 'Kalam', 'Segoe Print', 'Bradley Hand', cursive;
-  --font-mono:
-    ui-monospace, 'SFMono-Regular', 'Cascadia Mono', 'JetBrains Mono', Menlo, Consolas, monospace;
 
-  /* type scale (px): 13 · 15 · 17 · 19–21 · 22 · 30–40 · 44–72 */
-  --fs-xs: 0.8125rem;
+  /* A classical scale (px): 15 · 18 · 21 · 24 · 32 · 44 · 64 */
   --fs-small: 0.9375rem;
-  --fs-body: 1.0625rem;
-  --fs-lead: clamp(1.1875rem, 1.1rem + 0.35vw, 1.3125rem);
-  --fs-h3: 1.375rem;
-  --fs-h2: clamp(1.875rem, 1.45rem + 1.5vw, 2.5rem);
-  --fs-h1: clamp(2.75rem, 1.9rem + 3.6vw, 4.5rem);
+  --fs-body: 1.125rem;
+  --fs-lead: 1.3125rem;
+  --fs-h3: 1.5rem;
+  --fs-h2: clamp(1.75rem, 1.4rem + 1.2vw, 2rem);
+  --fs-h1: clamp(2.75rem, 1.9rem + 3.4vw, 4rem);
 
-  --page: 1180px;
-  --gutter: clamp(16px, 4vw, 40px);
-  --header-h: 68px;
-  --radius: 18px;
+  --page: 1160px;
+  --gutter: clamp(18px, 4vw, 44px);
+  --margin-col: 14rem;
+  --header-h: 64px;
   --ease: cubic-bezier(0.5, 0, 0.3, 1);
-  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     color-scheme: dark;
-    --bg: #0f1114;
-    --surface: #14171b;
-    --surface-2: #1b1f24;
-    --ink: #eceef1;
-    --ink-2: #b2b8c1;
-    --ink-3: #959ca7;
-    --line: #262b32;
-    --line-2: #363c45;
-    --dot: #252a31;
-    --blue: #7ea6ff;
-    --green: #4ade80;
-    --orange: #fb8c4c;
-    --violet: #b69cff;
-    --on-accent: #0b0d10;
-    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
-    --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 16px 36px -18px rgb(0 0 0 / 0.8);
-    --header-bg: rgb(15 17 20 / 0.84);
+    --board: #15171a;
+    --ink: #e8e9eb;
+    --ink-2: #a4aab3;
+    --rule: #2b2f35;
+    --blue: #86a8ff;
+    --red: #ff8a7a;
+    --green: #6fd39b;
+    --purple: #c3a6ff;
+    --header-bg: rgb(21 23 26 / 0.9);
   }
 }
 
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --bg: #0f1114;
-  --surface: #14171b;
-  --surface-2: #1b1f24;
-  --ink: #eceef1;
-  --ink-2: #b2b8c1;
-  --ink-3: #959ca7;
-  --line: #262b32;
-  --line-2: #363c45;
-  --dot: #252a31;
-  --blue: #7ea6ff;
-  --green: #4ade80;
-  --orange: #fb8c4c;
-  --violet: #b69cff;
-  --on-accent: #0b0d10;
-  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
-  --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 16px 36px -18px rgb(0 0 0 / 0.8);
-  --header-bg: rgb(15 17 20 / 0.84);
+  --board: #15171a;
+  --ink: #e8e9eb;
+  --ink-2: #a4aab3;
+  --rule: #2b2f35;
+  --blue: #86a8ff;
+  --red: #ff8a7a;
+  --green: #6fd39b;
+  --purple: #c3a6ff;
+  --header-bg: rgb(21 23 26 / 0.9);
 }
 
-/* One class per marker colour. Components read var(--tone). */
+/* One class per ink. Components read var(--tone). */
 .tone-blue {
   --tone: var(--blue);
+}
+
+.tone-red {
+  --tone: var(--red);
 }
 
 .tone-green {
   --tone: var(--green);
 }
 
-.tone-orange {
-  --tone: var(--orange);
-}
-
-.tone-violet {
-  --tone: var(--violet);
+.tone-purple {
+  --tone: var(--purple);
 }
 
 /* ==========================================================================
@@ -128,12 +101,12 @@ html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   scroll-behavior: smooth;
-  scroll-padding-top: calc(var(--header-h) + 16px);
+  scroll-padding-top: calc(var(--header-h) + 20px);
 }
 
 body {
   margin: 0;
-  background: var(--bg);
+  background: var(--board);
   color: var(--ink);
   font-family: var(--font-text);
   font-size: var(--fs-body);
@@ -161,15 +134,15 @@ h1 {
 h2 {
   font-size: var(--fs-h2);
   font-weight: 760;
-  line-height: 1.12;
-  letter-spacing: -0.028em;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
 }
 
 h3 {
   font-size: var(--fs-h3);
-  font-weight: 720;
-  line-height: 1.25;
-  letter-spacing: -0.018em;
+  font-weight: 740;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 
 p,
@@ -188,6 +161,7 @@ p {
 ul,
 ol {
   padding: 0;
+  list-style: none;
 }
 
 img,
@@ -207,13 +181,13 @@ button {
 
 ::selection {
   background: var(--blue);
-  color: var(--on-accent);
+  color: var(--board);
 }
 
 :focus-visible {
   outline: 2px solid var(--blue);
   outline-offset: 3px;
-  border-radius: 4px;
+  border-radius: 2px;
 }
 
 @view-transition {
@@ -221,7 +195,8 @@ button {
 }
 
 /* ==========================================================================
-   Layout
+   Layout. Each home-page section has its heading in a left margin column
+   that stays in view while the section scrolls past.
    ========================================================================== */
 
 .page {
@@ -231,89 +206,49 @@ button {
   padding-inline: var(--gutter);
 }
 
-.section {
-  padding-block: clamp(4.5rem, 3.4rem + 4.5vw, 7.5rem);
-}
-
-.section + .section {
-  border-top: 1px solid var(--line);
-}
-
-.section-head {
+.sec {
   display: grid;
-  gap: 14px;
-  max-width: 44rem;
-  margin-bottom: clamp(2.25rem, 1.8rem + 1.8vw, 3.25rem);
+  grid-template-columns: var(--margin-col) minmax(0, 1fr);
+  gap: 0 clamp(2rem, 1rem + 3vw, 4rem);
+  padding-block: clamp(4rem, 3rem + 4vw, 7rem);
 }
 
-.section-intro {
-  color: var(--ink-2);
-  font-size: var(--fs-lead);
-  line-height: 1.55;
-}
-
-/* Small label above a heading, with a short marker stroke. */
-.eyebrow {
-  display: inline-flex;
-  align-items: center;
+.sec-head {
+  align-self: start;
+  position: sticky;
+  top: calc(var(--header-h) + 28px);
+  display: grid;
   gap: 10px;
-  color: var(--ink-3);
-  font-family: var(--font-mono);
-  font-size: var(--fs-xs);
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
 }
 
-.eyebrow::before {
-  content: '';
-  width: 22px;
-  height: 3px;
-  border-radius: 3px;
-  background: var(--tone, var(--blue));
+.sec-head p {
+  color: var(--ink-2);
+  font-size: var(--fs-small);
+  line-height: 1.5;
 }
 
-.lead {
-  font-size: var(--fs-lead);
-  line-height: 1.55;
+.sec-body {
+  min-width: 0;
+}
+
+@media (max-width: 980px) {
+  .sec {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+
+  .sec-head {
+    position: static;
+    max-width: 38rem;
+  }
 }
 
 .muted {
   color: var(--ink-2);
 }
 
-.mono {
-  font-family: var(--font-mono);
-  font-size: 0.92em;
-}
-
 .hand {
   font-family: var(--font-hand);
-}
-
-/* A handwritten marker comment beside a heading or a figure. */
-.annot {
-  display: inline-flex;
-  align-items: flex-start;
-  gap: 4px;
-  color: var(--tone, var(--blue));
-  font-family: var(--font-hand);
-  font-size: 1.1875rem;
-  font-weight: 700;
-  line-height: 1.25;
-  transform: rotate(-2deg);
-}
-
-.annot svg {
-  flex: none;
-  width: 34px;
-  height: 26px;
-  margin-top: 6px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2.2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
 }
 
 .visually-hidden {
@@ -333,10 +268,9 @@ button {
   left: var(--gutter);
   top: -100px;
   z-index: 100;
-  padding: 10px 16px;
-  border-radius: 10px;
+  padding: 8px 14px;
   background: var(--ink);
-  color: var(--bg);
+  color: var(--board);
   font-weight: 650;
 }
 
@@ -345,305 +279,92 @@ button {
 }
 
 /* ==========================================================================
-   Links, buttons, chips, badges
+   Links and the one button
    ========================================================================== */
 
-/* Inline text links: blue, with a firm underline. */
+/* Text links: ink text over a marker underline in the link's colour. */
 .link {
-  color: var(--tone, var(--blue));
+  color: var(--ink);
   font-weight: 620;
   text-decoration: underline;
-  text-decoration-thickness: 1.5px;
-  text-underline-offset: 4px;
-  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
-  transition: text-decoration-color 0.15s;
+  text-decoration-color: var(--tone, var(--blue));
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+  transition: color 0.15s;
 }
 
 .link:hover {
-  text-decoration-color: currentColor;
-  text-decoration-thickness: 2px;
-}
-
-/* A link with an arrow that nudges on hover ("Read the case study →"). */
-.go {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
   color: var(--tone, var(--blue));
-  font-weight: 650;
-  text-decoration: none;
 }
 
-.go svg {
-  width: 16px;
-  height: 16px;
-  transition: transform 0.2s var(--ease-out);
-}
-
-.go:hover {
-  text-decoration: underline;
-  text-decoration-thickness: 1.5px;
-  text-underline-offset: 4px;
-}
-
-.go:hover svg,
-.card:hover .go svg {
-  transform: translateX(3px);
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 46px;
-  padding: 0 20px;
-  border: 1px solid transparent;
-  border-radius: 12px;
-  font-size: var(--fs-small);
-  font-weight: 650;
-  line-height: 1.2;
-  text-decoration: none;
-  white-space: nowrap;
-  cursor: pointer;
-  transition:
-    background-color 0.15s,
-    border-color 0.15s,
-    color 0.15s,
-    transform 0.15s var(--ease-out),
-    box-shadow 0.15s;
-}
-
-.btn svg {
-  width: 18px;
-  height: 18px;
-  flex: none;
-}
-
-.btn:active {
-  transform: translateY(1px);
-}
-
-.btn-primary {
-  background: var(--blue);
-  color: var(--on-accent);
-  box-shadow: var(--shadow-sm);
-}
-
-.btn-primary:hover {
-  background: color-mix(in srgb, var(--blue) 86%, var(--ink));
-}
-
-.btn-secondary {
-  border-color: var(--line-2);
-  background: var(--surface);
-  color: var(--ink);
-}
-
-.btn-secondary:hover {
-  border-color: var(--ink);
-}
-
-.btn-sm {
-  min-height: 38px;
-  padding: 0 14px;
-  border-radius: 10px;
-}
-
-/* Narrow phones: long button labels wrap instead of overflowing. */
-@media (max-width: 420px) {
-  .btn {
-    white-space: normal;
-    text-align: center;
-  }
-}
-
-/* Round icon-only links (GitHub, LinkedIn, email). */
-.icon-btn {
+/* The main action, outlined like a box drawn in marker. */
+.mbtn {
+  position: relative;
   display: inline-grid;
   place-items: center;
-  width: 44px;
-  height: 44px;
-  border: 1px solid var(--line-2);
-  border-radius: 12px;
-  background: var(--surface);
-  color: var(--ink-2);
-  transition:
-    color 0.15s,
-    border-color 0.15s;
-}
-
-.icon-btn:hover {
-  border-color: var(--ink);
+  min-height: 52px;
+  padding: 12px 26px;
   color: var(--ink);
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.15s;
 }
 
-.icon-btn svg {
-  width: 20px;
-  height: 20px;
-}
-
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  list-style: none;
-}
-
-.chip {
-  display: inline-flex;
-  align-items: center;
-  min-height: 28px;
-  padding: 2px 10px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--surface-2);
-  color: var(--ink-2);
-  font-size: var(--fs-xs);
-  font-weight: 560;
-  line-height: 1.3;
-}
-
-/* Status labels: "Current role", "Open source", "Private code". */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  min-height: 26px;
-  padding: 2px 10px;
-  border: 1px solid color-mix(in srgb, var(--tone, var(--ink-3)) 35%, transparent);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--tone, var(--ink-3)) 7%, var(--bg));
-  color: var(--tone, var(--ink-2));
-  font-size: var(--fs-xs);
-  font-weight: 650;
-  line-height: 1.3;
-  white-space: nowrap;
-}
-
-.badge::before {
-  content: '';
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: currentColor;
-}
-
-.badge.plain::before {
-  display: none;
-}
-
-/* ==========================================================================
-   Cards and boards
-   ========================================================================== */
-
-.card {
-  position: relative;
-  display: grid;
-  align-content: start;
-  gap: 14px;
-  padding: clamp(20px, 1rem + 1vw, 28px);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--surface);
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s,
-    transform 0.2s var(--ease-out);
-}
-
-.card.is-link:hover {
-  border-color: color-mix(in srgb, var(--tone, var(--ink)) 55%, var(--line));
-  box-shadow: var(--shadow);
-  transform: translateY(-3px);
-}
-
-/* The card's main link covers the whole card; other links sit above it. */
-.card .stretched::after {
-  content: '';
+.mbtn svg {
   position: absolute;
   inset: 0;
-  z-index: 1;
-  border-radius: inherit;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke: var(--ink);
+  stroke-linecap: round;
+  pointer-events: none;
+  transition: stroke 0.15s;
 }
 
-.card .stretched:focus-visible {
-  outline: none;
+.mbtn svg path {
+  vector-effect: non-scaling-stroke;
 }
 
-.card:has(.stretched:focus-visible) {
-  outline: 2px solid var(--tone, var(--blue));
-  outline-offset: 3px;
+.mbtn:hover {
+  color: var(--blue);
 }
 
-.card .above {
-  position: relative;
-  z-index: 2;
+.mbtn:hover svg {
+  stroke: var(--blue);
 }
 
-/* A whiteboard panel: a faint dot grid behind the drawings. */
-.board {
-  position: relative;
-  border: 1px solid var(--line);
-  border-radius: calc(var(--radius) + 4px);
-  background-color: var(--surface);
-  background-image: radial-gradient(circle at 1px 1px, var(--dot) 1.1px, transparent 1.3px);
-  background-size: 22px 22px;
-}
-
-/* Key numbers. */
-.stat {
+/* Lists with short marker dashes in the project's ink. */
+.ticks {
   display: grid;
-  gap: 2px;
-}
-
-.stat-value {
-  color: var(--tone, var(--ink));
-  font-size: clamp(1.75rem, 1.4rem + 1vw, 2.25rem);
-  font-weight: 780;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
-}
-
-.stat-label {
+  gap: 10px;
   color: var(--ink-2);
-  font-size: var(--fs-small);
-  line-height: 1.4;
 }
 
-/* Steps of a flow, written as chips joined by arrows. */
-.flow {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px 4px;
-  list-style: none;
+.ticks li {
+  position: relative;
+  padding-left: 24px;
 }
 
-.flow li {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.flow li + li::before {
+.ticks li::before {
   content: '';
-  width: 14px;
-  height: 2px;
-  margin-right: 2px;
+  position: absolute;
+  left: 2px;
+  top: 0.78em;
+  width: 12px;
+  height: 2.5px;
   border-radius: 2px;
-  background: color-mix(in srgb, var(--tone, var(--ink)) 55%, transparent);
+  background: var(--tone, var(--ink));
+  transform: rotate(-8deg);
 }
 
-.flow span {
-  padding: 2px 9px;
-  border: 1.5px solid color-mix(in srgb, var(--tone, var(--ink)) 45%, transparent);
-  border-radius: 7px;
-  background: color-mix(in srgb, var(--tone, var(--ink)) 6%, var(--surface));
+.ticks strong {
   color: var(--ink);
-  font-size: var(--fs-xs);
-  font-weight: 620;
-  line-height: 1.5;
+  font-weight: 720;
 }
 
 /* ==========================================================================
@@ -671,23 +392,38 @@ button {
 }
 
 .sketch .k,
-.sketch .m {
+.sketch .m,
+.timeline .k,
+.timeline .m,
+.timeline .hf {
   fill: none;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
-.sketch .k {
+.sketch .k,
+.timeline .k {
   stroke: var(--ink);
 }
 
-.sketch .m {
+.sketch .m,
+.timeline .m {
   stroke: var(--tone, var(--blue));
+}
+
+.timeline .hf {
+  stroke: var(--tone, var(--blue));
+  stroke-width: 1.4;
+  opacity: 0.55;
 }
 
 .sketch .t-title {
   font: 700 19px var(--font-text);
   fill: var(--ink);
+}
+
+.sketch .t-title.t-sm {
+  font-size: 17px;
 }
 
 .sketch .t-sub,
@@ -715,11 +451,12 @@ button {
   fill: var(--tone, var(--blue));
 }
 
+.sketch .t-note.t-sm,
 .sketch .sk-v .t-note {
   font-size: 16px;
 }
 
-/* Boxes that link somewhere: a tinted fill on hover, a ring on focus. */
+/* Boxes that link somewhere: a faint wash on hover, a ring on focus. */
 .sketch .hit {
   fill: transparent;
   stroke: none;
@@ -731,11 +468,7 @@ button {
 }
 
 .sketch .node-link:hover .hit {
-  fill: color-mix(in srgb, var(--tone, var(--blue)) 10%, transparent);
-}
-
-.sketch .node-link:hover .t-title {
-  fill: var(--tone, var(--blue));
+  fill: color-mix(in srgb, var(--tone, var(--blue)) 9%, transparent);
 }
 
 .sketch .node-link:focus-visible {
@@ -743,20 +476,35 @@ button {
 }
 
 .sketch .node-link:focus-visible .hit {
-  fill: color-mix(in srgb, var(--tone, var(--blue)) 10%, transparent);
+  fill: color-mix(in srgb, var(--tone, var(--blue)) 9%, transparent);
   stroke: var(--tone, var(--blue));
   stroke-width: 2.5;
   stroke-dasharray: 6 5;
 }
 
 .sketch figcaption {
-  max-width: 42rem;
-  margin-top: 16px;
+  max-width: 40rem;
+  margin-top: 14px;
   color: var(--ink-2);
   font-size: var(--fs-small);
 }
 
-/* Draw-on: only for figures that opt in, and only once, on page load. */
+/* Timeline labels. */
+.timeline .t-span {
+  font: 700 16px var(--font-hand);
+  fill: var(--tone, var(--ink));
+}
+
+.timeline .t-span.t-sm {
+  font-size: 15px;
+}
+
+.timeline .t-axis {
+  font: 15px var(--font-hand);
+  fill: var(--ink-2);
+}
+
+/* Draw-on: the one moving thing. Only for figures that opt in, once, on load. */
 .sketch[data-animate] .draw {
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
@@ -792,37 +540,13 @@ button {
 }
 
 /* ==========================================================================
-   Gentle entrance for cards as they scroll into view. Only with JavaScript
-   (it adds .js to <html>) and only when the visitor allows motion.
-   ========================================================================== */
-
-@media (prefers-reduced-motion: no-preference) {
-  /* Uses `translate`, so a card's own hover `transform` still works. */
-  .js [data-reveal] {
-    opacity: 0;
-    translate: 0 16px;
-    transition:
-      opacity 0.6s var(--ease-out) var(--stagger, 0s),
-      translate 0.6s var(--ease-out) var(--stagger, 0s),
-      border-color 0.2s,
-      box-shadow 0.2s,
-      transform 0.2s var(--ease-out);
-  }
-
-  .js [data-reveal].is-in {
-    opacity: 1;
-    translate: none;
-  }
-}
-
-/* ==========================================================================
    Case studies (work/[slug].astro and projects/vfabit.astro)
    ========================================================================== */
 
 .case-layout {
   display: grid;
-  grid-template-columns: minmax(0, 13rem) minmax(0, 1fr);
-  gap: clamp(2rem, 1rem + 4vw, 5rem);
+  grid-template-columns: var(--margin-col) minmax(0, 1fr);
+  gap: 0 clamp(2rem, 1rem + 3vw, 4rem);
   align-items: start;
 }
 
@@ -841,146 +565,93 @@ button {
 }
 
 .case-body > section > :is(p, ul, ol, dl, h2) {
-  max-width: 46rem;
-}
-
-.case-body h2 {
-  font-size: clamp(1.5rem, 1.3rem + 0.8vw, 1.875rem);
-}
-
-.case-body h3 {
-  font-size: 1.125rem;
+  max-width: 42rem;
 }
 
 .case-body section > p {
   color: var(--ink-2);
 }
 
-.case-body .sketch {
-  margin-block: 8px 4px;
-}
-
-.bullets {
-  display: grid;
-  gap: 12px;
-  list-style: none;
-  color: var(--ink-2);
-}
-
-.bullets li {
-  position: relative;
-  padding-left: 22px;
-}
-
-.bullets li::before {
-  content: '';
-  position: absolute;
-  left: 2px;
-  top: 0.62em;
-  width: 9px;
-  height: 9px;
-  border: 2px solid var(--tone, var(--blue));
-  border-radius: 3px;
-  transform: rotate(45deg) scale(0.85);
-}
-
-.bullets strong {
-  color: var(--ink);
-  font-weight: 720;
-}
-
-/* Numbered steps as small cards. */
+/* Steps of a flow: a real sequence, so they are numbered, in the project's ink. */
 .steps {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
-  gap: 14px;
-  list-style: none;
+  gap: 22px;
   counter-reset: step;
 }
 
 .steps li {
+  position: relative;
   display: grid;
-  align-content: start;
-  gap: 6px;
-  padding: 18px 20px 20px;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: var(--surface);
+  gap: 4px;
+  padding-left: 44px;
   counter-increment: step;
 }
 
 .steps li::before {
-  content: counter(step, decimal-leading-zero);
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: -6px;
   color: var(--tone, var(--blue));
-  font-family: var(--font-mono);
-  font-size: var(--fs-xs);
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  font: 700 1.75rem/1 var(--font-hand);
+}
+
+.steps h3 {
+  font-size: 1.125rem;
 }
 
 .steps p {
   color: var(--ink-2);
-  font-size: var(--fs-small);
-  line-height: 1.55;
 }
 
 .groups {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+  gap: 36px 48px;
 }
 
 .groups > div {
   display: grid;
   align-content: start;
   gap: 12px;
-  padding: 20px 22px 22px;
-  border: 1px solid var(--line);
-  border-radius: 14px;
 }
 
 .groups h3 {
   font-size: 1.125rem;
 }
 
-.groups .bullets {
+.groups .ticks {
   font-size: var(--fs-small);
 }
 
 .stack-list {
   display: grid;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  overflow: hidden;
+  gap: 14px;
 }
 
 .stack-list div {
   display: grid;
-  grid-template-columns: 11rem minmax(0, 1fr);
-  gap: 4px 20px;
-  padding: 14px 20px;
-}
-
-.stack-list div + div {
-  border-top: 1px solid var(--line);
+  grid-template-columns: 10rem minmax(0, 1fr);
+  gap: 4px 24px;
 }
 
 .stack-list dt {
-  font-weight: 680;
+  font-weight: 700;
 }
 
 .stack-list dd {
   color: var(--ink-2);
 }
 
-@media (max-width: 560px) {
-  .stack-list div {
+@media (max-width: 980px) {
+  .case-layout {
     grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
   }
 }
 
-@media (max-width: 960px) {
-  .case-layout {
+@media (max-width: 560px) {
+  .stack-list div {
     grid-template-columns: minmax(0, 1fr);
   }
 }

@@ -48,7 +48,7 @@ export const site = {
 /** Sections of the home page, in order. The header and footer both use this. */
 export const nav = [
   { id: 'work', label: 'Work' },
-  { id: 'projects', label: 'Projects' },
+  { id: 'projects', label: 'Side projects' },
   { id: 'experience', label: 'Experience' },
   { id: 'skills', label: 'Skills' },
   { id: 'contact', label: 'Contact' },
@@ -57,16 +57,12 @@ export const nav = [
 /** The top of the home page. */
 export const intro = {
   headline: 'I build agent systems that plan products, ship code and test it against live apps.',
-  /** Words in the headline that get a hand-drawn marker underline. */
-  underline: 'agent systems',
   now: 'Right now I’m building document AI and the backend of a client portal for a logistics business.',
-  /** The headline stack: what I work with every day. */
-  stack: ['Python', 'FastAPI', 'LangGraph', 'MCP', 'RAG', 'PostgreSQL'],
 };
 
 /**
- * The diagram beside the intro: how the systems I worked on connect. Each box
- * links to its case study and wears its project's colour.
+ * The drawing at the top of the home page: how the systems I worked on
+ * connect. Each box links to its case study and is drawn in its project's ink.
  */
 export const lifecycle: SketchFlow = {
   label:
@@ -81,20 +77,20 @@ export const lifecycle: SketchFlow = {
     {
       title: 'Eco Online',
       sub: 'runs the delivery',
-      tone: 'orange',
+      tone: 'red',
       href: '/work/eco-online/',
     },
     {
       title: 'ITAF',
       sub: 'tests the live app',
-      tone: 'violet',
+      tone: 'purple',
       href: '/work/itaf/',
     },
   ],
   edges: [null, 'after deploy'],
   notes: [
     { at: 0, text: 'I built its LangGraph core' },
-    { at: 1, text: 'I owned this backend' },
+    { at: 1, text: 'I owned this backend', side: 'below' },
     { at: 2, text: 'built this as an intern' },
   ],
   seed: 11,

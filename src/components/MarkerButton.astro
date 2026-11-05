@@ -1,0 +1,24 @@
+---
+/**
+ * The page's main action, outlined with a rectangle drawn in marker
+ * (rough.js, at build time). The outline stretches to fit the label.
+ */
+import { roughFrame } from '../lib/sketch';
+
+interface Props {
+  href: string;
+  download?: boolean;
+  target?: string;
+  rel?: string;
+  seed?: number;
+  class?: string;
+}
+
+const { href, download, target, rel, seed = 3, class: className } = Astro.props;
+const frame = roughFrame(240, 56, seed);
+---
+
+<a class:list={['mbtn', className]} href={href} download={download} target={target} rel={rel}>
+  <slot />
+  <svg viewBox="0 0 240 56" preserveAspectRatio="none" aria-hidden="true" set:html={frame} />
+</a>

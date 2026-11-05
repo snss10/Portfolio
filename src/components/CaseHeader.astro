@@ -1,7 +1,8 @@
 ---
 /**
  * The top of every case study: a breadcrumb trail back to the home page, the
- * name and one-line summary, and a facts card (role, dates, stack).
+ * name and one-line summary, and the facts (role, dates, stack) beside them,
+ * ruled in the project's ink.
  */
 import type { Tone } from '../lib/sketch';
 
@@ -11,9 +12,8 @@ export interface Fact {
 }
 
 interface Props {
-  /** The trail above the title, e.g. Home › Work. The current page is added last. */
+  /** The trail above the title, e.g. Home, Work. The current page is added last. */
   crumbs: { label: string; href: string }[];
-  eyebrow: string;
   tone: Tone;
   name: string;
   fullName: string;
@@ -22,7 +22,7 @@ interface Props {
   stack: string[];
 }
 
-const { crumbs, eyebrow, tone, name, fullName, tagline, facts, stack } = Astro.props;
+const { crumbs, tone, name, fullName, tagline, facts, stack } = Astro.props;
 ---
 
 <header class={`case-head tone-${tone}`}>
@@ -41,30 +41,23 @@ const { crumbs, eyebrow, tone, name, fullName, tagline, facts, stack } = Astro.p
 
   <div class="grid">
     <div class="intro">
-      <p class="eyebrow">{eyebrow}</p>
       <h1>{name}</h1>
       <p class="full">{fullName}</p>
       <p class="tagline">{tagline}</p>
     </div>
 
-    <aside class="spec card" aria-label={`${name} at a glance`}>
-      <dl>
-        {facts.map((f) => (
-          <div>
-            <dt>{f.label}</dt>
-            <dd>{f.value}</dd>
-          </div>
-        ))}
-      </dl>
-      <div class="stack">
-        <p class="label">Built with</p>
-        <ul class="chips">
-          {stack.map((t) => (
-            <li class="chip">{t}</li>
-          ))}
-        </ul>
+    <dl class="facts">
+      {facts.map((f) => (
+        <div>
+          <dt>{f.label}</dt>
+          <dd>{f.value}</dd>
+        </div>
+      ))}
+      <div>
+        <dt>Built with</dt>
+        <dd>{stack.join(', ')}</dd>
       </div>
-    </aside>
+    </dl>
   </div>
 </header>
 
@@ -78,50 +71,43 @@ const { crumbs, eyebrow, tone, name, fullName, tagline, facts, stack } = Astro.p
   .crumbs ol {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
-    gap: 4px 0;
-    color: var(--ink-3);
+    color: var(--ink-2);
     font-size: var(--fs-small);
-    list-style: none;
   }
 
   .crumbs li + li::before {
     content: '/';
     margin-inline: 10px;
-    color: var(--line-2);
+    color: var(--ink-2);
   }
 
   .crumbs a {
     color: var(--ink-2);
-    text-decoration: none;
+    text-decoration: underline;
+    text-decoration-color: var(--rule);
+    text-underline-offset: 4px;
   }
 
   .crumbs a:hover {
     color: var(--ink);
-    text-decoration: underline;
-    text-underline-offset: 4px;
+    text-decoration-color: currentColor;
   }
 
   .crumbs [aria-current] {
     color: var(--ink);
-    font-weight: 600;
+    font-weight: 650;
   }
 
   .grid {
     display: grid;
-    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
     align-items: start;
-    gap: clamp(1.75rem, 1rem + 3vw, 4rem);
+    gap: clamp(1.75rem, 1rem + 3vw, 4.5rem);
   }
 
   .intro {
     display: grid;
-    justify-items: start;
-    gap: 14px;
-  }
-
-  h1 {
-    font-size: clamp(2.5rem, 1.8rem + 3vw, 4rem);
+    gap: 12px;
   }
 
   .full {
@@ -131,48 +117,35 @@ const { crumbs, eyebrow, tone, name, fullName, tagline, facts, stack } = Astro.p
   }
 
   .tagline {
-    max-width: 38ch;
-    margin-top: 6px;
-    font-size: clamp(1.1875rem, 1rem + 0.7vw, 1.5rem);
-    line-height: 1.45;
+    max-width: 36ch;
+    margin-top: 8px;
+    font-size: clamp(1.25rem, 1.05rem + 0.8vw, 1.5rem);
+    font-weight: 560;
+    line-height: 1.4;
     letter-spacing: -0.012em;
   }
 
-  .spec {
-    gap: 18px;
-    border-top: 4px solid var(--tone);
-  }
-
-  dl {
+  .facts {
     display: grid;
     gap: 12px;
+    padding-left: 22px;
+    border-left: 3px solid var(--tone);
   }
 
-  dl div {
+  .facts div {
     display: grid;
     grid-template-columns: 6.5rem minmax(0, 1fr);
     gap: 12px;
   }
 
-  dt,
-  .label {
-    color: var(--ink-3);
-    font-family: var(--font-mono);
-    font-size: var(--fs-xs);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    padding-top: 3px;
+  dt {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    padding-top: 2px;
   }
 
   dd {
     font-weight: 600;
-  }
-
-  .stack {
-    display: grid;
-    gap: 10px;
-    padding-top: 16px;
-    border-top: 1px solid var(--line);
   }
 
   @media (max-width: 860px) {

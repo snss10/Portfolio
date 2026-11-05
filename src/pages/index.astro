@@ -1,8 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
-import Glance from '../components/Glance.astro';
-import WorkCards from '../components/WorkCards.astro';
+import WorkIndex from '../components/WorkIndex.astro';
 import SideProjects from '../components/SideProjects.astro';
 import Experience from '../components/Experience.astro';
 import Skills from '../components/Skills.astro';
@@ -29,86 +28,60 @@ const jsonLd = [
 
 <BaseLayout jsonLd={jsonLd}>
   <Hero />
-  <Glance />
 
-  <section id="work" class="section page" aria-labelledby="work-title">
-    <div class="head-row">
-      <header class="section-head">
-        <p class="eyebrow">Work</p>
-        <h2 id="work-title">Systems I’ve built at Ideyalabs</h2>
-        <p class="section-intro">
-          Four systems, newest first. The code is private, so each case study explains what I built
-          and how it works, at the level of detail in my resume.
-        </p>
-      </header>
-      <p class="annot" aria-hidden="true">
-        open any card for the full story
-        <svg viewBox="0 0 34 26">
-          <path d="M3 4c8 2 16 8 20 18m0 0 4-7m-4 7-7-4"></path>
-        </svg>
-      </p>
-    </div>
-    <WorkCards />
-  </section>
-
-  <section id="projects" class="section page" aria-labelledby="projects-title">
-    <header class="section-head">
-      <p class="eyebrow tone-green">Side projects</p>
-      <h2 id="projects-title">Things I build in my own time</h2>
-      <p class="section-intro">
-        A marketplace for custom machined parts, and two open-source tools: a PostgreSQL server for
-        AI assistants and an on-device text rewriter for Windows.
+  <section id="work" class="sec page" aria-labelledby="work-title">
+    <header class="sec-head">
+      <h2 id="work-title">Work</h2>
+      <p>
+        Systems I built at Ideyalabs, newest first. The code is private, so each case study explains
+        what I built and how it works.
       </p>
     </header>
-    <SideProjects />
+    <div class="sec-body">
+      <WorkIndex />
+    </div>
   </section>
 
-  <section id="experience" class="section page" aria-labelledby="experience-title">
-    <header class="section-head">
-      <p class="eyebrow tone-violet">Experience</p>
-      <h2 id="experience-title">From intern to software engineer</h2>
-      <p class="section-intro">
+  <section id="projects" class="sec page" aria-labelledby="projects-title">
+    <header class="sec-head">
+      <h2 id="projects-title">Side projects</h2>
+      <p>Things I build in my own time.</p>
+    </header>
+    <div class="sec-body">
+      <SideProjects />
+    </div>
+  </section>
+
+  <section id="experience" class="sec page" aria-labelledby="experience-title">
+    <header class="sec-head">
+      <h2 id="experience-title">Experience</h2>
+      <p>
         I joined Ideyalabs as an intern in June 2024 and have built agent systems there since: an AI
         testing platform first, then product-planning and delivery platforms, and now document AI
         for a logistics client.
       </p>
     </header>
-    <Experience />
+    <div class="sec-body">
+      <Experience />
+    </div>
   </section>
 
-  <section id="skills" class="section page" aria-labelledby="skills-title">
-    <header class="section-head">
-      <p class="eyebrow tone-orange">Skills</p>
-      <h2 id="skills-title">What I work with</h2>
-      <p class="section-intro">
-        The tools from my resume, grouped by what they’re for, plus what my side projects use.
-      </p>
+  <section id="skills" class="sec page" aria-labelledby="skills-title">
+    <header class="sec-head">
+      <h2 id="skills-title">Skills</h2>
+      <p>The tools from my resume, grouped by what they’re for, plus what my side projects use.</p>
     </header>
-    <Skills />
+    <div class="sec-body">
+      <Skills />
+    </div>
   </section>
 
-  <section id="contact" class="section page" aria-labelledby="contact-title">
-    <Contact />
+  <section id="contact" class="sec page" aria-labelledby="contact-title">
+    <header class="sec-head">
+      <h2 id="contact-title">Contact</h2>
+    </header>
+    <div class="sec-body">
+      <Contact />
+    </div>
   </section>
 </BaseLayout>
-
-<style>
-  .head-row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 0 32px;
-  }
-
-  .head-row .annot {
-    margin-bottom: clamp(2.25rem, 1.8rem + 1.8vw, 3.25rem);
-    padding-bottom: 6px;
-  }
-
-  @media (max-width: 760px) {
-    .head-row .annot {
-      display: none;
-    }
-  }
-</style>

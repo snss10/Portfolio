@@ -73,7 +73,6 @@ const jsonLd = [
         { label: 'Home', href: '/' },
         { label: 'Side projects', href: '/#projects' },
       ]}
-      eyebrow="Side project · 2026"
       tone={tone}
       name={v.name}
       fullName={v.fullName}
@@ -82,11 +81,11 @@ const jsonLd = [
       stack={stack}
     />
 
-    <div class="board figure">
+    <div class="figure">
       <Sketch
         animate
         flow={{ ...v.orderFlow, tone }}
-        caption="How an order runs, from request to delivery. The coloured notes are rules the platform enforces."
+        caption="How an order runs, from request to delivery. The handwritten notes are rules the platform enforces."
       />
     </div>
 
@@ -103,7 +102,7 @@ const jsonLd = [
 
         <section id="rules" aria-labelledby="rules-h">
           <h2 id="rules-h">Rules the platform enforces</h2>
-          <ul class="bullets">
+          <ul class="ticks">
             {v.rules.map((r) => (
               <li>{r}</li>
             ))}
@@ -112,7 +111,7 @@ const jsonLd = [
 
         <section id="matching" aria-labelledby="matching-h">
           <h2 id="matching-h">Matching a request to shops</h2>
-          <ul class="bullets">
+          <ul class="ticks">
             {v.matching.map((m) => (
               <li>{m}</li>
             ))}
@@ -121,13 +120,13 @@ const jsonLd = [
 
         <section id="scan" aria-labelledby="scan-h">
           <h2 id="scan-h">Reading 3D models</h2>
-          <div class="board inline-figure">
+          <div class="inline-figure">
             <Sketch
               flow={{ ...v.scanFlow, tone }}
               caption="How a STEP file is scanned. The 3D model is ready before measuring finishes."
             />
           </div>
-          <ul class="bullets">
+          <ul class="ticks">
             {v.scan.map((s) => (
               <li>{s}</li>
             ))}
@@ -137,7 +136,7 @@ const jsonLd = [
         <section id="drawings" aria-labelledby="drawings-h">
           <h2 id="drawings-h">Reading drawings</h2>
           <p>A beta feature, used by the operations team only.</p>
-          <ul class="bullets">
+          <ul class="ticks">
             {v.drawings.map((d) => (
               <li>{d}</li>
             ))}
@@ -150,7 +149,7 @@ const jsonLd = [
             {v.engineering.map((g) => (
               <div>
                 <h3>{g.title}</h3>
-                <ul class="bullets">
+                <ul class="ticks">
                   {g.points.map((pt) => (
                     <li>{pt}</li>
                   ))}
@@ -202,15 +201,9 @@ const jsonLd = [
   }
 
   .figure {
-    display: grid;
-    justify-items: center;
     margin-bottom: clamp(2.5rem, 2rem + 3vw, 4.5rem);
-    padding: clamp(20px, 1rem + 2vw, 40px) clamp(14px, 1rem + 1.5vw, 32px);
-  }
-
-  .figure :global(.sketch),
-  .inline-figure :global(.sketch) {
-    width: 100%;
+    padding-block: clamp(1rem, 0.5rem + 2vw, 2rem);
+    border-block: 1px solid var(--rule);
   }
 
   .figure :global(svg),
@@ -224,6 +217,6 @@ const jsonLd = [
   }
 
   .inline-figure {
-    padding: clamp(16px, 1rem + 1vw, 28px);
+    margin-block: 8px;
   }
 </style>

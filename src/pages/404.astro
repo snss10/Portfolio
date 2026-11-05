@@ -1,8 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Icon from '../components/Icon.astro';
 import { site, nav } from '../data/site';
-import { workProjects } from '../data/projects';
+import { workProjects, sideProjects } from '../data/projects';
 import { vfabit } from '../data/vfabit';
 
 const cases = [
@@ -12,39 +11,36 @@ const cases = [
     href: `/work/${p.slug}/`,
     tone: p.tone,
   })),
-  { name: vfabit.name, sub: vfabit.fullName, href: `/projects/${vfabit.slug}/`, tone: 'blue' },
+  {
+    name: vfabit.name,
+    sub: vfabit.fullName,
+    href: `/projects/${vfabit.slug}/`,
+    tone: sideProjects.find((p) => p.name === vfabit.name)?.tone ?? 'blue',
+  },
 ];
 ---
 
 <BaseLayout title={`Page not found | ${site.name}`} noindex>
   <section class="page nf">
-    <div class="board panel">
-      <p class="eyebrow tone-orange">Error 404</p>
-      <h1>Page not found</h1>
-      <p class="lead muted">
-        This address doesn’t match any page. It may have moved, or there may be a typo.
-      </p>
-      <div class="buttons">
-        <a class="btn btn-primary" href="/">
-          <Icon name="arrow-left" />
-          Go to the home page
-        </a>
-        <a class="btn btn-secondary" href="/#contact">
-          <Icon name="mail" />
-          Contact me
-        </a>
-      </div>
-    </div>
+    <h1>Page not found</h1>
+    <p class="lead muted">
+      This address doesn’t match any page on the site. It may have moved, or there may be a typo.
+      Here’s everything that is here:
+    </p>
 
     <div class="where">
       <nav aria-labelledby="sections-h">
-        <h2 id="sections-h">Sections</h2>
+        <h2 id="sections-h">The home page</h2>
         <ul>
+          <li>
+            <a class="link" href="/">
+              Start at the top
+            </a>
+          </li>
           {nav.map((item) => (
             <li>
-              <a class="go" href={`/#${item.id}`}>
+              <a class="link" href={`/#${item.id}`}>
                 {item.label}
-                <Icon name="arrow-right" />
               </a>
             </li>
           ))}
@@ -54,12 +50,11 @@ const cases = [
         <h2 id="cases-h">Case studies</h2>
         <ul>
           {cases.map((c) => (
-            <li>
-              <a class={`go tone-${c.tone}`} href={c.href}>
+            <li class={`tone-${c.tone}`}>
+              <a class="link" href={c.href}>
                 {c.name}
-                <Icon name="arrow-right" />
               </a>
-              <span class="sub">{c.sub}</span>
+              <span class="muted">{c.sub}</span>
             </li>
           ))}
         </ul>
@@ -71,59 +66,40 @@ const cases = [
 <style>
   .nf {
     display: grid;
-    gap: clamp(2rem, 1.5rem + 2vw, 3rem);
-    padding-block: clamp(2.5rem, 1.5rem + 4vw, 5rem);
-  }
-
-  .panel {
-    display: grid;
-    justify-items: start;
-    gap: 16px;
-    padding: clamp(28px, 1rem + 4vw, 64px);
+    gap: 18px;
+    padding-block: clamp(3rem, 2rem + 5vw, 6rem);
   }
 
   .lead {
-    max-width: 36rem;
-  }
-
-  .buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 8px;
+    max-width: 38rem;
+    font-size: var(--fs-lead);
   }
 
   .where {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
     gap: 32px;
+    margin-top: 24px;
   }
 
   h2 {
     margin-bottom: 12px;
-    color: var(--ink-3);
-    font-family: var(--font-mono);
-    font-size: var(--fs-xs);
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    font-size: 1.125rem;
   }
 
   ul {
     display: grid;
     gap: 10px;
-    list-style: none;
   }
 
   li {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
-    gap: 2px 12px;
+    gap: 2px 14px;
   }
 
-  .sub {
-    color: var(--ink-3);
+  li .muted {
     font-size: var(--fs-small);
   }
 

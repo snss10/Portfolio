@@ -1,0 +1,145 @@
+---
+/**
+ * The Ideyalabs systems, newest first. Each one gets a small marker sketch
+ * of how it works, in the project's ink; the name opens the case study.
+ */
+import Sketch from './Sketch.astro';
+import { workProjects } from '../data/projects';
+
+// A hand-drawn underline that draws in under a name on hover.
+const scribble = 'M2 7 C 40 3, 80 10, 122 6 S 200 4, 238 8';
+---
+
+<ol class="entries">
+  {workProjects.map((p, i) => (
+    <li class={`entry tone-${p.tone}`}>
+      <p class="when">
+        {p.rolePeriod}
+        {p.current && <span class="hand now">← current</span>}
+      </p>
+      <h3>
+        <a class="name" href={`/work/${p.slug}/`}>
+          {p.name}
+          <span class="visually-hidden">case study</span>
+          <svg viewBox="0 0 240 12" preserveAspectRatio="none" aria-hidden="true">
+            <path d={scribble} pathLength="1" />
+          </svg>
+        </a>
+      </h3>
+      <p class="full">{p.fullName}</p>
+      <p class="summary">{p.summary}</p>
+      <a class="drawing" href={`/work/${p.slug}/`} tabindex="-1" aria-hidden="true">
+        <Sketch
+          flow={{
+            label: `${p.name}, step by step`,
+            steps: p.flow.map((s) => ({ title: s.title })),
+            notes: p.notes?.slice(0, 1),
+            tone: p.tone,
+            compact: true,
+            seed: 60 + i * 13,
+          }}
+        />
+      </a>
+      <p class="meta">
+        {p.role}. Built with {p.stack.slice(0, 5).join(', ')}.
+      </p>
+    </li>
+  ))}
+</ol>
+
+<style>
+  .entries {
+    display: grid;
+  }
+
+  .entry {
+    display: grid;
+    justify-items: start;
+    gap: 10px;
+    padding-block: 44px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .entry:first-child {
+    padding-top: 6px;
+    border-top: 0;
+  }
+
+  .when {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 14px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+
+  .now {
+    color: var(--green);
+    font-size: 1.0625rem;
+    font-weight: 700;
+  }
+
+  h3 {
+    font-size: clamp(1.75rem, 1.45rem + 1vw, 2.25rem);
+    font-weight: 780;
+    letter-spacing: -0.03em;
+  }
+
+  /* The name is the link: a faint underline in the project's ink, drawn
+     over in full marker on hover. */
+  .name {
+    position: relative;
+    display: inline-block;
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--tone) 40%, transparent);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 8px;
+  }
+
+  .name svg {
+    position: absolute;
+    left: 0;
+    bottom: -9px;
+    width: 100%;
+    height: 12px;
+    overflow: visible;
+  }
+
+  .name path {
+    fill: none;
+    stroke: var(--tone);
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset 0.45s var(--ease);
+  }
+
+  .name:hover path,
+  .name:focus-visible path,
+  .entry:has(.drawing:hover) .name path {
+    stroke-dashoffset: 0;
+  }
+
+  .full {
+    color: var(--ink-2);
+    font-weight: 600;
+  }
+
+  .summary {
+    max-width: 40rem;
+  }
+
+  .drawing {
+    display: block;
+    width: 100%;
+    max-width: 560px;
+    margin-block: 10px 4px;
+  }
+
+  .meta {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+</style>

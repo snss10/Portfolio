@@ -5,13 +5,13 @@ RAG and FastAPI. Live at **https://nagasurya.com**.
 
 ![Preview of the portfolio](public/og/home.png)
 
-- **A whiteboard, in colour:** a pure white board, marker black for text, and four marker colours.
-  Blue is for actions and links, and every project has its own colour that follows it from the
-  home-page diagram to its card, the experience timeline and its case study. Dark mode is a graphite
-  board.
-- **Hand-drawn system diagrams:** each project is explained with a whiteboard-style diagram that draws
-  itself when the page opens. The boxes on the home page are links to the case studies. The drawings
-  are generated at build time with [rough.js](https://roughjs.com), so the site ships no drawing code.
+- **A whiteboard, in marker:** a white board and dry-erase marker inks: black for the words, and
+  blue, red, green and purple for drawings and notes. Every project is drawn in its own ink, from the
+  diagram at the top of the home page to its case study. Dark mode is a graphite board.
+- **Hand-drawn system diagrams:** every project is explained with a whiteboard-style diagram, and
+  the experience timeline is drawn with hand-shaded bars. The boxes at the top of the home page link
+  to the case studies, and the diagrams draw themselves when a page opens. Everything is drawn at
+  build time with [rough.js](https://roughjs.com), so the site ships no drawing code.
 - **Everything connected:** a sticky header with the section in view marked, breadcrumbs and an
   "On this page" index on case studies, previous/next links, and a footer that links every page.
 - **Static and fast:** built with [Astro](https://astro.build), a few KB of JavaScript, no UI
@@ -48,8 +48,8 @@ Everything visitors read lives in `src/data/`. You never need to touch layout co
 | Skills                                 | `src/data/skills.ts`                                        |
 | Resume PDF                             | Replace `public/S-Naga-Surya-Resume.pdf` (keep the name)    |
 
-**Adding a case study:** add an object to `workProjects`, with a `tone` (`blue`, `green`, `orange` or
-`violet`). Its page at `/work/<slug>/` is created automatically, and it appears on the home page, in
+**Adding a case study:** add an object to `workProjects`, with a `tone` (`blue`, `red`, `green` or
+`purple`). Its page at `/work/<slug>/` is created automatically, and it appears on the home page, in
 the footer and in `llms.txt`. Then run `npm run images` to create its preview image.
 
 **Editing a diagram:** a project's diagram is built from its `flow` steps. `title` and the short
@@ -91,13 +91,14 @@ Actions.
 ```text
 src/
   data/        Content: site.ts, projects.ts, vfabit.ts, experience.ts, skills.ts
-  components/  Header, Hero, Glance, WorkCards, SideProjects, Experience, Skills, Contact,
-               Footer, case-study parts (CaseHeader, Toc, CasePager), Logo, Icon, Sketch
-  lib/         sketch.ts (flow → hand-drawn SVG at build time), schema.ts (JSON-LD)
+  components/  Header, Hero, WorkIndex, SideProjects, Experience, Skills, Contact, Footer,
+               case-study parts (CaseHeader, Toc, CasePager), MarkerButton, Logo, Icon, Sketch
+  lib/         sketch.ts (diagrams, timeline and button outline as hand-drawn SVG at build time),
+               schema.ts (JSON-LD)
   layouts/     BaseLayout.astro: <head>, SEO tags, header and footer
   pages/       index.astro, work/[slug].astro, projects/vfabit.astro, 404.astro,
                robots.txt.ts, llms.txt.ts, og/[slug].astro (preview cards, built by `npm run images`)
-  styles/      global.css: colours, type scale, shared components and diagram animation
+  styles/      global.css: marker inks, type scale, layout and diagram animation
 public/        Resume PDF, favicons, app icons, web manifest, preview images
 scripts/       generate-images.mjs
 ```

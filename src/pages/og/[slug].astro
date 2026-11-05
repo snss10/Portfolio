@@ -96,13 +96,11 @@ const host = new URL(Astro.site ?? 'https://nagasurya.com').hostname;
           <h1>{site.name}</h1>
           <p class="role">{site.role}</p>
           <p class="line">{intro.headline}</p>
-          <ul class="chips">
-            {intro.stack.map((t) => (
-              <li class="chip">{t}</li>
-            ))}
-          </ul>
+          <p class="now-line">
+            {site.currentTitle} at {site.companyShort}
+          </p>
         </div>
-        <div class="board og-board">
+        <div class="og-board">
           <Sketch flow={lifecycle} layout="vertical" class="og-sketch" />
         </div>
       </main>
@@ -138,7 +136,7 @@ const host = new URL(Astro.site ?? 'https://nagasurya.com').hostname;
     width: 100%;
     height: 100%;
     margin: 0;
-    background: var(--bg);
+    background: var(--board);
   }
 
   .icon {
@@ -179,7 +177,7 @@ const host = new URL(Astro.site ?? 'https://nagasurya.com').hostname;
     width: 1200px;
     height: 630px;
     padding: 56px 64px;
-    background: var(--bg);
+    background: var(--board);
     color: var(--ink);
     overflow: hidden;
   }
@@ -233,14 +231,10 @@ const host = new URL(Astro.site ?? 'https://nagasurya.com').hostname;
     line-height: 1.32;
   }
 
-  .home .chips {
-    margin-top: 12px;
-  }
-
-  .home .chip {
-    min-height: 40px;
-    padding: 4px 16px;
-    font-size: 20px;
+  .home .now-line {
+    margin-top: 10px;
+    color: var(--ink-2);
+    font-size: 24px;
   }
 
   .og-board {

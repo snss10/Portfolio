@@ -3,7 +3,7 @@ import Icon from './Icon.astro';
 import Logo from './Logo.astro';
 import { site, nav } from '../data/site';
 
-// On a case study, highlight the section it belongs to.
+// On a case study, mark the section it belongs to.
 const path = Astro.url.pathname;
 const section = path.startsWith('/work/')
   ? 'work'
@@ -15,11 +15,8 @@ const section = path.startsWith('/work/')
 <header class="site-header" data-header>
   <div class="page bar">
     <a class="brand" href="/">
-      <Logo size={36} />
-      <span class="brand-text">
-        <span class="brand-name">{site.name}</span>
-        <span class="brand-role">{site.role}</span>
-      </span>
+      <Logo size={30} />
+      <span>{site.name}</span>
     </a>
 
     <nav class="nav" id="site-nav" aria-label="Primary" data-nav>
@@ -35,37 +32,22 @@ const section = path.startsWith('/work/')
             </a>
           </li>
         ))}
+        <li>
+          <a class="resume" href={site.resume} target="_blank" rel="noopener">
+            Resume<span class="visually-hidden"> (PDF, opens in a new tab)</span>
+          </a>
+        </li>
       </ul>
-      <a
-        class="btn btn-secondary btn-sm nav-resume"
-        href={site.resume}
-        target="_blank"
-        rel="noopener"
-      >
-        <Icon name="file" />
-        Resume (PDF)
-      </a>
     </nav>
 
     <div class="actions">
-      <a class="btn btn-secondary btn-sm resume" href={site.resume} target="_blank" rel="noopener">
-        <Icon name="file" />
-        Resume
-      </a>
-      <button class="square theme" type="button" data-theme-toggle aria-label="Dark theme">
+      <button class="theme" type="button" data-theme-toggle aria-label="Dark theme">
         <Icon name="moon" class="i-moon" />
         <Icon name="sun" class="i-sun" />
       </button>
-      <button
-        class="square menu"
-        type="button"
-        data-menu
-        aria-expanded="false"
-        aria-controls="site-nav"
-        aria-label="Menu"
-      >
-        <Icon name="menu" class="i-menu" />
-        <Icon name="close" class="i-close" />
+      <button class="menu" type="button" data-menu aria-expanded="false" aria-controls="site-nav">
+        <span class="menu-open">Menu</span>
+        <span class="menu-close">Close</span>
       </button>
     </div>
   </div>
@@ -83,7 +65,7 @@ const section = path.startsWith('/work/')
 
   const sync = () => {
     toggle?.setAttribute('aria-pressed', String(current() === 'dark'));
-    const bg = getComputedStyle(root).getPropertyValue('--bg').trim();
+    const bg = getComputedStyle(root).getPropertyValue('--board').trim();
     document
       .querySelectorAll('meta[name="theme-color"]')
       .forEach((m) => m.setAttribute('content', bg));
@@ -111,7 +93,7 @@ const section = path.startsWith('/work/')
   prefersDark.addEventListener('change', sync);
   sync();
 
-  /* ---------- Shadow once the page scrolls ---------- */
+  /* ---------- A line under the header once the page scrolls ---------- */
   const onScroll = () => header?.toggleAttribute('data-scrolled', window.scrollY > 4);
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
@@ -121,7 +103,6 @@ const section = path.startsWith('/work/')
   const navEl = document.querySelector<HTMLElement>('[data-nav]');
   const setOpen = (open: boolean, returnFocus = false) => {
     menu?.setAttribute('aria-expanded', String(open));
-    menu?.setAttribute('aria-label', open ? 'Close menu' : 'Menu');
     navEl?.toggleAttribute('data-open', open);
     if (open) navEl?.querySelector('a')?.focus();
     else if (returnFocus) menu?.focus();
@@ -138,7 +119,7 @@ const section = path.startsWith('/work/')
   });
   window.matchMedia('(min-width: 861px)').addEventListener('change', () => setOpen(false));
 
-  /* ---------- Highlight the section in view (home page) ---------- */
+  /* ---------- Mark the section in view (home page) ---------- */
   const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-section]')];
   const sections = links
     .map((a) => document.getElementById(a.dataset.section ?? ''))
@@ -169,142 +150,119 @@ const section = path.startsWith('/work/')
     z-index: 50;
     border-bottom: 1px solid transparent;
     background: var(--header-bg);
-    -webkit-backdrop-filter: saturate(1.6) blur(14px);
-    backdrop-filter: saturate(1.6) blur(14px);
-    transition:
-      border-color 0.2s,
-      box-shadow 0.2s;
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    transition: border-color 0.2s;
   }
 
   .site-header[data-scrolled] {
-    border-bottom-color: var(--line);
+    border-bottom-color: var(--rule);
   }
 
   .bar {
     position: relative;
-    display: grid;
-    grid-template-columns: auto 1fr auto;
+    display: flex;
     align-items: center;
-    gap: 12px 28px;
+    gap: 16px 32px;
     min-height: var(--header-h);
   }
 
   .brand {
     display: inline-flex;
     align-items: center;
-    gap: 12px;
-    text-decoration: none;
-  }
-
-  .brand-text {
-    display: grid;
-    line-height: 1.15;
-  }
-
-  .brand-name {
-    font-size: 1.0625rem;
+    gap: 10px;
+    margin-right: auto;
     font-weight: 760;
     letter-spacing: -0.015em;
-  }
-
-  .brand-role {
-    color: var(--ink-3);
-    font-size: var(--fs-xs);
-    font-weight: 520;
-  }
-
-  .nav {
-    justify-self: center;
+    text-decoration: none;
   }
 
   .nav ul {
     display: flex;
-    gap: 4px;
-    list-style: none;
+    align-items: center;
+    gap: 2px 26px;
   }
 
-  .nav a:not(.btn) {
+  .nav a {
     position: relative;
-    display: inline-flex;
-    align-items: center;
-    min-height: 40px;
-    padding: 0 12px;
-    border-radius: 10px;
+    display: inline-block;
+    padding-block: 8px;
     color: var(--ink-2);
     font-size: var(--fs-small);
     font-weight: 560;
     text-decoration: none;
-    transition:
-      color 0.15s,
-      background-color 0.15s;
+    transition: color 0.15s;
   }
 
-  .nav a:not(.btn):hover {
-    background: var(--surface-2);
-    color: var(--ink);
-  }
-
-  /* The active section gets a short marker stroke underneath. */
+  .nav a:hover,
   .nav a[data-active] {
     color: var(--ink);
   }
 
+  /* The section in view gets a short marker stroke under it. */
   .nav a[data-active]::after {
     content: '';
     position: absolute;
-    left: 12px;
-    right: 12px;
-    bottom: 4px;
-    height: 3px;
-    border-radius: 3px;
+    left: -3px;
+    right: -3px;
+    bottom: 1px;
+    height: 8px;
     background: var(--blue);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 8' preserveAspectRatio='none'%3E%3Cpath d='M2 5 C 25 2, 55 7, 98 3' fill='none' stroke='black' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E")
+      center / 100% 100% no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 8' preserveAspectRatio='none'%3E%3Cpath d='M2 5 C 25 2, 55 7, 98 3' fill='none' stroke='black' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E")
+      center / 100% 100% no-repeat;
   }
 
-  .nav-resume {
-    display: none;
+  .nav .resume {
+    color: var(--ink);
+    font-weight: 650;
+    text-decoration: underline;
+    text-decoration-color: var(--red);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 5px;
   }
 
   .actions {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
   }
 
-  .square {
+  .theme,
+  .menu {
     display: inline-grid;
     place-items: center;
-    width: 40px;
+    min-width: 40px;
     height: 40px;
-    border: 1px solid var(--line-2);
-    border-radius: 10px;
-    background: var(--surface);
+    padding: 0 6px;
+    border: 0;
+    background: none;
     color: var(--ink-2);
     cursor: pointer;
-    transition:
-      color 0.15s,
-      border-color 0.15s;
   }
 
-  .square:hover {
-    border-color: var(--ink);
+  .theme:hover,
+  .menu:hover {
     color: var(--ink);
   }
 
   .menu {
     display: none;
+    font-weight: 650;
   }
 
-  /* The icons render inside the Icon component, so they need :global(). */
-  .theme :global(.i-sun),
-  .menu :global(.i-close) {
+  .menu-close,
+  .menu[aria-expanded='true'] .menu-open {
     display: none;
   }
 
-  .menu[aria-expanded='true'] :global(.i-close) {
-    display: block;
+  .menu[aria-expanded='true'] .menu-close {
+    display: inline;
   }
 
-  .menu[aria-expanded='true'] :global(.i-menu) {
+  /* The icons render inside the Icon component, so they need :global(). */
+  .theme :global(.i-sun) {
     display: none;
   }
 
@@ -326,28 +284,16 @@ const section = path.startsWith('/work/')
     }
   }
 
-  @media (max-width: 1060px) {
-    .brand-role {
-      display: none;
-    }
-  }
-
-  /* Phones and small tablets: the links move into a menu. Without JavaScript
-     they stay visible as a row under the name. */
+  /* Phones and small tablets: the links fold into a menu. Without
+     JavaScript they stay visible as a row under the name. */
   @media (max-width: 860px) {
     .bar {
-      grid-template-columns: 1fr auto;
-    }
-
-    .resume {
-      display: none;
+      flex-wrap: wrap;
     }
 
     .nav {
-      grid-column: 1 / -1;
-      grid-row: 2;
-      justify-self: stretch;
-      margin-inline: -12px;
+      order: 3;
+      width: 100%;
       padding-bottom: 8px;
       overflow-x: auto;
     }
@@ -362,42 +308,25 @@ const section = path.startsWith('/work/')
       left: 0;
       right: 0;
       display: none;
-      margin: 0;
-      padding: 10px var(--gutter) 22px;
-      border-bottom: 1px solid var(--line);
-      background: var(--bg);
-      box-shadow: var(--shadow);
+      padding: 8px var(--gutter) 24px;
+      border-bottom: 1px solid var(--rule);
+      background: var(--board);
       overflow: visible;
     }
 
     :global(.js) .nav[data-open] {
-      display: grid;
-      gap: 14px;
+      display: block;
     }
 
     :global(.js) .nav ul {
       flex-direction: column;
-      gap: 2px;
+      align-items: flex-start;
+      gap: 0;
     }
 
-    :global(.js) .nav a:not(.btn) {
-      min-height: 48px;
-      font-size: 1.0625rem;
-    }
-
-    :global(.js) .nav a[data-active]::after {
-      left: 0;
-      right: auto;
-      top: 14px;
-      bottom: 14px;
-      width: 3px;
-      height: auto;
-    }
-
-    :global(.js) .nav-resume {
-      display: inline-flex;
-      justify-self: start;
-      margin-left: 12px;
+    :global(.js) .nav a {
+      padding-block: 12px;
+      font-size: 1.25rem;
     }
   }
 </style>

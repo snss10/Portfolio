@@ -1,235 +1,160 @@
 ---
 /**
- * Roles at Ideyalabs on a timeline (drawn to scale, like a trace of spans),
- * then education and certifications. Each role links to the case studies of
- * the systems built in it, in their colours.
+ * Roles at Ideyalabs, drawn as hand-shaded bars on a timeline (to scale, by
+ * month), then listed with the systems built in each. Education and
+ * certifications follow.
  */
-import Icon from './Icon.astro';
-import { employer, roles, education, certifications, monthsSince } from '../data/experience';
+import { employer, roles, education, certifications } from '../data/experience';
 import { getWorkProject } from '../data/projects';
+import { renderTimeline, type TimelineSpan } from '../lib/sketch';
 
-const total = monthsSince(employer.start);
-const pct = (months: number) => `${((months / total) * 100).toFixed(2)}%`;
-const spans = [...roles].reverse().map((r) => ({
-  ...r,
-  left: pct(monthsSince(employer.start, r.start) - 1),
-  width: pct(monthsSince(r.start, r.end)),
+const short: Record<string, string> = {
+  'Software Engineering Intern': 'intern',
+  'Associate Software Engineer': 'associate engineer',
+  'Software Engineer': 'software engineer',
+};
+const spans: TimelineSpan[] = [...roles].reverse().map((r) => ({
+  label: short[r.title] ?? r.title.toLowerCase(),
+  start: r.start,
+  end: r.end,
+  tone: r.tone,
 }));
-
-const firstYear = Number(employer.start.slice(0, 4));
-const ticks = [];
-for (let y = firstYear + 1; y <= new Date().getFullYear(); y++) {
-  ticks.push({ label: String(y), left: pct(monthsSince(employer.start, `${y}-01`) - 1) });
-}
-const startLabel = employer.period.split(' – ')[0];
+const wide = renderTimeline(spans, 760, 7);
+const narrow = renderTimeline(spans, 360, 9);
+const label = `Timeline of my roles at ${employer.name}: ${roles
+  .slice()
+  .reverse()
+  .map((r) => `${r.title}, ${r.period}`)
+  .join('; ')}.`;
 ---
 
 <div class="exp">
-  <article class="card org" aria-labelledby="org-name">
-    <header class="org-head">
-      <div>
-        <h3 id="org-name">{employer.name}</h3>
-        <p class="org-meta">
-          {employer.location} · {employer.period}
+  <figure class="timeline">
+    <svg
+      class="t-wide"
+      viewBox={`0 0 ${wide.width} ${wide.height}`}
+      role="img"
+      aria-label={label}
+      set:html={wide.svg}
+    />
+    <svg
+      class="t-narrow"
+      viewBox={`0 0 ${narrow.width} ${narrow.height}`}
+      role="img"
+      aria-label={label}
+      set:html={narrow.svg}
+    />
+  </figure>
+
+  <div class="org">
+    <h3>{employer.name}</h3>
+    <p class="muted">
+      {employer.location}, {employer.period}
+    </p>
+  </div>
+
+  <ol class="roles">
+    {roles.map((r) => (
+      <li class={`tone-${r.tone}`}>
+        <div class="r-head">
+          <h4>{r.title}</h4>
+          <p class="r-when">{r.period}</p>
+        </div>
+        <p class="r-what">{r.summary}</p>
+        <p class="r-links">
+          {r.projects.map((slug) => {
+            const p = getWorkProject(slug);
+            return p ? (
+              <a class={`link tone-${p.tone}`} href={`/work/${p.slug}/`}>
+                {p.name} case study
+              </a>
+            ) : null;
+          })}
         </p>
-      </div>
-      <span class="badge tone-green">Current employer</span>
-    </header>
+      </li>
+    ))}
+  </ol>
 
-    <div class="trace" aria-hidden="true">
-      <div class="track">
-        {spans.map((s) => (
-          <span class={`seg tone-${s.tone}`} style={`left:${s.left};width:${s.width}`} />
-        ))}
-      </div>
-      <div class="ticks">
-        <span class="tick start">{startLabel}</span>
-        {ticks.map((t) => (
-          <span class="tick" style={`left:${t.left}`}>
-            {t.label}
-          </span>
-        ))}
-        <span class="tick end">Now</span>
-      </div>
-    </div>
-
-    <ol class="roles">
-      {roles.map((r) => (
-        <li class={`tone-${r.tone}`}>
-          <div class="r-head">
-            <h4>{r.title}</h4>
-            <span class="r-when mono">{r.period}</span>
-          </div>
-          <p class="r-what">{r.summary}</p>
-          <p class="r-links">
-            {r.projects.map((slug) => {
-              const p = getWorkProject(slug);
-              return p ? (
-                <a class={`go tone-${p.tone}`} href={`/work/${p.slug}/`}>
-                  {p.name}
-                  <span class="visually-hidden">: case study</span>
-                  <Icon name="arrow-right" />
-                </a>
-              ) : null;
-            })}
-          </p>
-        </li>
-      ))}
-    </ol>
-  </article>
-
-  <div class="side-col">
-    <article class="card edu" id="education" aria-labelledby="edu-title">
-      <p class="eyebrow tone-orange">Education</p>
-      <h3 id="edu-title">{education.degree}</h3>
+  <div class="more">
+    <section id="education" aria-labelledby="education-title">
+      <h3 id="education-title">Education</h3>
+      <p class="degree">{education.degree}</p>
       <p class="muted">
-        {education.school}, {education.location} · <span class="mono">{education.period}</span>
+        {education.school}, {education.location}, {education.period}
       </p>
-      <p class="stat tone-orange">
-        <span class="stat-value">{education.grade.replace('CGPA ', '')}</span>
-        <span class="stat-label">CGPA</span>
-      </p>
-    </article>
+      <p class="grade">{education.grade}</p>
+    </section>
 
-    <article class="card certs" aria-labelledby="certs-title">
-      <h3 id="certs-title" class="eyebrow tone-violet">
-        Certifications
-      </h3>
-      <ul>
+    <section aria-labelledby="certs-title">
+      <h3 id="certs-title">Certifications</h3>
+      <ul class="certs">
         {certifications.map((c) => (
           <li>
-            <span class="c-icon">
-              <Icon name="award" size={18} />
+            <span>
+              {c.name}, {c.issuer}
+              {c.note && <span class="muted"> ({c.note})</span>}
             </span>
-            <span class="c-text">
-              <span class="c-name">{c.name}</span>
-              <span class="c-issuer">
-                {c.issuer}
-                {c.note && <span> · {c.note}</span>}
-              </span>
-            </span>
-            <a class="go c-verify" href={c.href} target="_blank" rel="noopener">
-              Verify
-              <span class="visually-hidden">{c.name} (opens in a new tab)</span>
-              <Icon name="external" size={14} />
+            <a class="link" href={c.href} target="_blank" rel="noopener">
+              Verify<span class="visually-hidden"> {c.name} (opens in a new tab)</span>
             </a>
           </li>
         ))}
       </ul>
-    </article>
+    </section>
   </div>
 </div>
 
 <style>
   .exp {
     display: grid;
-    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
-    gap: clamp(16px, 1rem + 0.6vw, 24px);
-    align-items: start;
+    gap: 28px;
+  }
+
+  .timeline {
+    max-width: 760px;
+    margin-bottom: 8px;
+  }
+
+  .timeline svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .t-narrow {
+    display: none;
+  }
+
+  @media (max-width: 600px) {
+    .t-wide {
+      display: none;
+    }
+
+    .t-narrow {
+      display: block;
+    }
   }
 
   .org {
-    gap: 24px;
-  }
-
-  .org-head {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 10px 16px;
-  }
-
-  .org-head h3 {
-    font-size: 1.375rem;
-  }
-
-  .org-meta {
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-  }
-
-  /* The timeline: one bar per role, placed by month. */
-  .trace {
     display: grid;
-    gap: 8px;
+    gap: 2px;
   }
 
-  .track {
-    position: relative;
-    height: 14px;
-    border-radius: 999px;
-    background: var(--surface-2);
-  }
-
-  .seg {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    border-radius: 999px;
-    border: 2px solid var(--bg);
-    background: var(--tone);
-  }
-
-  .ticks {
-    position: relative;
-    height: 18px;
-    color: var(--ink-3);
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-  }
-
-  .tick {
-    position: absolute;
-    top: 0;
-    transform: translateX(-50%);
-    white-space: nowrap;
-  }
-
-  .tick.start {
-    left: 0;
-    transform: none;
-  }
-
-  .tick.end {
-    right: 0;
-    transform: none;
+  .org h3 {
+    font-size: 1.25rem;
   }
 
   .roles {
     display: grid;
-    gap: 22px;
-    list-style: none;
+    gap: 30px;
+    max-width: 42rem;
   }
 
   .roles li {
-    position: relative;
     display: grid;
     gap: 6px;
-    padding-left: 26px;
-  }
-
-  /* A dot in the role's colour, on a thin line that joins the roles. */
-  .roles li::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0.45em;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--tone);
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--tone) 16%, transparent);
-  }
-
-  .roles li:not(:last-child)::after {
-    content: '';
-    position: absolute;
-    left: 5px;
-    top: calc(0.45em + 20px);
-    bottom: -18px;
-    width: 2px;
-    background: var(--line);
+    padding-left: 18px;
+    border-left: 3px solid var(--tone);
   }
 
   .r-head {
@@ -237,17 +162,17 @@ const startLabel = employer.period.split(' – ')[0];
     flex-wrap: wrap;
     align-items: baseline;
     justify-content: space-between;
-    gap: 2px 16px;
+    gap: 2px 18px;
   }
 
   h4 {
     font-size: 1.125rem;
-    font-weight: 720;
+    font-weight: 740;
   }
 
   .r-when {
-    color: var(--ink-3);
-    font-size: var(--fs-xs);
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
 
   .r-what {
@@ -257,72 +182,55 @@ const startLabel = employer.period.split(' – ')[0];
   .r-links {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px 20px;
+    gap: 4px 24px;
     font-size: var(--fs-small);
   }
 
-  .side-col {
+  .more {
     display: grid;
-    gap: clamp(16px, 1rem + 0.6vw, 24px);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 32px 56px;
+    margin-top: 26px;
+    padding-top: 36px;
+    border-top: 1px solid var(--rule);
   }
 
-  .edu h3 {
+  .more section {
+    display: grid;
+    align-content: start;
+    gap: 6px;
+  }
+
+  .more h3 {
+    margin-bottom: 6px;
     font-size: 1.25rem;
   }
 
-  .edu .stat {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
+  .degree {
+    font-weight: 650;
   }
 
-  .certs ul {
+  .grade {
+    color: var(--red);
+    font-family: var(--font-hand);
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+
+  .certs {
     display: grid;
-    list-style: none;
+    gap: 10px;
   }
 
   .certs li {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 12px;
-    padding-block: 12px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: 2px 16px;
   }
 
-  .certs li + li {
-    border-top: 1px solid var(--line);
-  }
-
-  .c-icon {
-    display: grid;
-    place-items: center;
-    width: 34px;
-    height: 34px;
-    border-radius: 10px;
-    background: color-mix(in srgb, var(--violet) 9%, var(--surface));
-    color: var(--violet);
-  }
-
-  .c-text {
-    display: grid;
-    line-height: 1.35;
-  }
-
-  .c-name {
-    font-weight: 650;
-  }
-
-  .c-issuer {
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-  }
-
-  .c-verify {
-    font-size: var(--fs-small);
-  }
-
-  @media (max-width: 960px) {
-    .exp {
+  @media (max-width: 760px) {
+    .more {
       grid-template-columns: minmax(0, 1fr);
     }
   }

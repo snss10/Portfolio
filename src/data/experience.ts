@@ -58,7 +58,7 @@ export const roles: Role[] = [
     period: 'Jun 2024 – Dec 2024',
     start: '2024-06',
     end: '2024-12',
-    tone: 'violet',
+    tone: 'purple',
     summary:
       'Built an AI testing platform for two enterprise customers that cut manual and automation testing effort by about 60%.',
     projects: ['itaf'],

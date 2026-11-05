@@ -1,34 +1,37 @@
 ---
 /** Every page on the site, one click away from anywhere. */
-import Icon from './Icon.astro';
 import Logo from './Logo.astro';
 import { site, nav } from '../data/site';
-import { workProjects } from '../data/projects';
+import { workProjects, sideProjects } from '../data/projects';
 import { vfabit } from '../data/vfabit';
 
 const year = new Date().getFullYear();
 const caseStudies = [
   ...workProjects.map((p) => ({ name: p.name, href: `/work/${p.slug}/`, tone: p.tone })),
-  { name: vfabit.name, href: `/projects/${vfabit.slug}/`, tone: 'blue' },
+  {
+    name: vfabit.name,
+    href: `/projects/${vfabit.slug}/`,
+    tone: sideProjects.find((p) => p.name === vfabit.name)?.tone ?? 'blue',
+  },
 ];
 ---
 
 <footer class="site-footer">
   <div class="page top">
     <div class="about">
-      <a class="brand" href="/" aria-label={`${site.name}, home`}>
-        <Logo size={40} />
-        <span class="brand-name">{site.name}</span>
+      <a class="brand" href="/">
+        <Logo size={30} />
+        <span>{site.name}</span>
       </a>
       <p class="muted">
-        {site.role} at {site.companyShort}, {site.location.split(',')[0]}. I build agent systems
-        with LangGraph, MCP, RAG and FastAPI.
+        {site.role} in {site.location.split(',')[0]}, building agent systems with LangGraph, MCP,
+        RAG and FastAPI.
       </p>
     </div>
 
     <nav aria-label="Site map" class="cols">
       <div>
-        <h2>On this site</h2>
+        <h2>This page</h2>
         <ul>
           {nav.map((item) => (
             <li>
@@ -41,10 +44,8 @@ const caseStudies = [
         <h2>Case studies</h2>
         <ul>
           {caseStudies.map((c) => (
-            <li>
-              <a href={c.href} class={`dot tone-${c.tone}`}>
-                {c.name}
-              </a>
+            <li class={`tone-${c.tone}`}>
+              <a href={c.href}>{c.name}</a>
             </li>
           ))}
         </ul>
@@ -55,13 +56,11 @@ const caseStudies = [
           <li>
             <a href={site.links.linkedin} target="_blank" rel="me noopener">
               LinkedIn<span class="visually-hidden"> (opens in a new tab)</span>
-              <Icon name="external" size={13} />
             </a>
           </li>
           <li>
             <a href={site.links.github} target="_blank" rel="me noopener">
               GitHub<span class="visually-hidden"> (opens in a new tab)</span>
-              <Icon name="external" size={13} />
             </a>
           </li>
           <li>
@@ -85,20 +84,15 @@ const caseStudies = [
       Built with Astro. Diagrams drawn with rough.js.
       <a href={site.links.source} target="_blank" rel="noopener">
         Site source<span class="visually-hidden"> (opens in a new tab)</span>
-        <Icon name="external" size={13} />
       </a>
     </p>
-    <a class="to-top" href="#top">
-      Back to top
-      <Icon name="arrow-up" size={15} />
-    </a>
+    <a href="#top">Back to top</a>
   </div>
 </footer>
 
 <style>
   .site-footer {
-    margin-top: clamp(3rem, 2rem + 3vw, 5rem);
-    border-top: 1px solid var(--line);
+    border-top: 1px solid var(--rule);
     font-size: var(--fs-small);
   }
 
@@ -112,22 +106,19 @@ const caseStudies = [
   .about {
     display: grid;
     align-content: start;
-    gap: 14px;
+    gap: 12px;
     max-width: 24rem;
   }
 
   .brand {
     display: inline-flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     justify-self: start;
-    text-decoration: none;
-  }
-
-  .brand-name {
-    font-size: 1.0625rem;
+    font-size: var(--fs-body);
     font-weight: 760;
     letter-spacing: -0.015em;
+    text-decoration: none;
   }
 
   .cols {
@@ -137,27 +128,21 @@ const caseStudies = [
   }
 
   h2 {
-    margin-bottom: 12px;
-    color: var(--ink);
-    font-size: var(--fs-xs);
-    font-family: var(--font-mono);
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    margin-bottom: 8px;
+    font-size: var(--fs-small);
+    font-weight: 740;
+    letter-spacing: 0;
   }
 
   ul {
     display: grid;
     gap: 2px;
-    list-style: none;
   }
 
   .cols a,
   .bottom a {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    min-height: 32px;
+    display: inline-block;
+    padding-block: 4px;
     color: var(--ink-2);
     text-decoration: none;
   }
@@ -166,16 +151,9 @@ const caseStudies = [
   .bottom a:hover {
     color: var(--ink);
     text-decoration: underline;
+    text-decoration-color: var(--tone, var(--blue));
+    text-decoration-thickness: 2px;
     text-underline-offset: 4px;
-  }
-
-  .dot::before {
-    content: '';
-    width: 8px;
-    height: 8px;
-    margin-right: 4px;
-    border-radius: 50%;
-    background: var(--tone);
   }
 
   .bottom {
@@ -185,15 +163,12 @@ const caseStudies = [
     justify-content: space-between;
     gap: 6px 24px;
     padding-block: 18px 28px;
-    border-top: 1px solid var(--line);
-    color: var(--ink-3);
+    border-top: 1px solid var(--rule);
+    color: var(--ink-2);
   }
 
-  .bottom p {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 4px 10px;
+  .bottom p a {
+    margin-left: 6px;
   }
 
   @media (max-width: 860px) {

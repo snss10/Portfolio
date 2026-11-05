@@ -214,7 +214,7 @@ export const workProjects: WorkProject[] = [
   },
   {
     slug: 'eco-online',
-    tone: 'orange',
+    tone: 'red',
     name: 'Eco Online',
     fullName: 'Agent-driven software delivery platform',
     period: '2025–26',
@@ -287,7 +287,7 @@ export const workProjects: WorkProject[] = [
   },
   {
     slug: 'itaf',
-    tone: 'violet',
+    tone: 'purple',
     name: 'ITAF',
     fullName: 'Ideyalabs Testing Automation Framework',
     period: '2024',
@@ -448,7 +448,7 @@ export const sideProjects: SideProject[] = [
   },
   {
     name: 'TextRecast',
-    tone: 'violet',
+    tone: 'purple',
     kind: 'Windows app, C# and .NET',
     description:
       'Rewrites the text you select in any Windows app: improve it, shorten it, expand it, summarize it or change its tone. The language model runs on your own CPU, so there is no account, no API key and no cloud text processing.',

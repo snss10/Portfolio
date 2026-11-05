@@ -1,80 +1,55 @@
 ---
-import Icon from './Icon.astro';
+import MarkerButton from './MarkerButton.astro';
 import { site } from '../data/site';
 ---
 
-<div class="contact board">
-  <div class="text">
-    <p class="eyebrow">Contact</p>
-    <h2 id="contact-title">Get in touch</h2>
-    <p class="section-intro">
-      Email is the best way to reach me. You can also find me on LinkedIn and GitHub, or download my
-      resume.
-    </p>
+<div class="contact">
+  <p class="lead">Email is the best way to reach me.</p>
+  <div class="email-row">
+    <a class="email" href={`mailto:${site.email}`}>
+      {site.email}
+    </a>
+    <button class="copy" type="button" data-copy={site.email}>
+      Copy address
+    </button>
+    <span class="status hand" role="status" aria-live="polite"></span>
   </div>
-
-  <div class="reach">
-    <div class="email-row">
-      <a class="email" href={`mailto:${site.email}`}>
-        {site.email}
-      </a>
-      <button class="btn btn-secondary btn-sm copy" type="button" data-copy={site.email}>
-        <Icon name="copy" class="i-copy" />
-        <Icon name="check" class="i-check" />
-        <span class="copy-label">Copy</span>
-      </button>
-      <span class="status hand" role="status" aria-live="polite"></span>
-    </div>
-
-    <div class="buttons">
-      <a class="btn btn-primary" href={`mailto:${site.email}`}>
-        <Icon name="mail" />
-        Email me
-      </a>
-      <a class="btn btn-secondary" href={site.links.linkedin} target="_blank" rel="me noopener">
-        <Icon name="linkedin" />
-        LinkedIn
-        <span class="visually-hidden">(opens in a new tab)</span>
-      </a>
-      <a class="btn btn-secondary" href={site.links.github} target="_blank" rel="me noopener">
-        <Icon name="github" />
-        GitHub
-        <span class="visually-hidden">(opens in a new tab)</span>
-      </a>
-      <a class="btn btn-secondary" href={site.resume} download>
-        <Icon name="download" />
-        Resume (PDF)
-      </a>
-    </div>
-  </div>
+  <p class="elsewhere">
+    <a class="link" href={site.links.linkedin} target="_blank" rel="me noopener">
+      LinkedIn<span class="visually-hidden"> (opens in a new tab)</span>
+    </a>
+    <a class="link" href={site.links.github} target="_blank" rel="me noopener">
+      GitHub<span class="visually-hidden"> (opens in a new tab)</span>
+    </a>
+  </p>
+  <MarkerButton href={site.resume} download seed={9}>
+    Download resume (PDF)
+  </MarkerButton>
 </div>
 
 <script>
   document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((button) => {
-    const box = button.closest('.reach');
-    const status = box?.querySelector<HTMLElement>('.status');
-    const label = button.querySelector<HTMLElement>('.copy-label');
+    const row = button.closest('.email-row');
+    const status = row?.querySelector<HTMLElement>('.status');
     let timer: number | undefined;
 
     const show = (message: string, copied: boolean) => {
       if (status) status.textContent = message;
-      if (label) label.textContent = copied ? 'Copied' : 'Copy';
-      button.toggleAttribute('data-copied', copied);
+      button.textContent = copied ? 'Copied' : 'Copy address';
       window.clearTimeout(timer);
       timer = window.setTimeout(() => {
         if (status) status.textContent = '';
-        if (label) label.textContent = 'Copy';
-        button.removeAttribute('data-copied');
+        button.textContent = 'Copy address';
       }, 2400);
     };
 
     button.addEventListener('click', async () => {
       try {
         await navigator.clipboard.writeText(button.dataset.copy ?? '');
-        show('copied to your clipboard', true);
+        show('copied', true);
       } catch {
         // Clipboard blocked: select the address so the visitor can copy it themselves.
-        const email = box?.querySelector('.email');
+        const email = row?.querySelector('.email');
         if (email) {
           const range = document.createRange();
           range.selectNodeContents(email);
@@ -90,76 +65,64 @@ import { site } from '../data/site';
 <style>
   .contact {
     display: grid;
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-    align-items: center;
-    gap: clamp(1.75rem, 1rem + 3vw, 4rem);
-    padding: clamp(28px, 1.2rem + 3vw, 56px);
-  }
-
-  .text {
-    display: grid;
     justify-items: start;
-    gap: 14px;
+    gap: 18px;
   }
 
-  .reach {
-    display: grid;
-    gap: 22px;
-    padding: clamp(20px, 1rem + 1.2vw, 28px);
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    background: var(--surface);
+  .lead {
+    color: var(--ink-2);
+    font-size: var(--fs-lead);
   }
 
   .email-row {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
-    gap: 10px 16px;
+    align-items: baseline;
+    gap: 10px 22px;
   }
 
   .email {
-    font-size: clamp(1.25rem, 0.95rem + 1.3vw, 1.875rem);
-    font-weight: 760;
-    letter-spacing: -0.02em;
+    font-size: clamp(1.625rem, 1rem + 2.4vw, 2.75rem);
+    font-weight: 780;
+    letter-spacing: -0.03em;
     text-decoration: underline;
     text-decoration-color: var(--blue);
     text-decoration-thickness: 3px;
-    text-underline-offset: 7px;
+    text-underline-offset: 9px;
     overflow-wrap: anywhere;
   }
 
-  .copy :global(.i-check),
-  .copy[data-copied] :global(.i-copy) {
-    display: none;
+  .copy {
+    padding: 4px 0;
+    border: 0;
+    background: none;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    font-weight: 650;
+    text-decoration: underline;
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 4px;
+    cursor: pointer;
   }
 
-  .copy[data-copied] :global(.i-check) {
-    display: block;
-    color: var(--green);
+  .copy:hover {
+    color: var(--ink);
   }
 
   .status {
     color: var(--green);
-    font-size: 1.125rem;
+    font-size: 1.1875rem;
     font-weight: 700;
   }
 
-  .buttons {
+  .elsewhere {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 8px 26px;
   }
 
-  @media (max-width: 900px) {
-    .contact {
-      grid-template-columns: minmax(0, 1fr);
-    }
-  }
-
-  @media (max-width: 420px) {
-    .buttons .btn {
-      flex: 1 1 100%;
-    }
+  .contact :global(.mbtn) {
+    margin-top: 10px;
+    margin-left: -4px;
   }
 </style>
