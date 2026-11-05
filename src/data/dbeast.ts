@@ -32,6 +32,31 @@ export const dbeast = {
     { label: 'Watch the demo', href: 'https://youtu.be/NGfHWBe2CGA' },
   ],
 
+  /** MCP directories with a page for DBeast, checked by hand. */
+  listings: [
+    { name: 'Glama', href: 'https://glama.ai/mcp/servers/snss10/DBeast' },
+    { name: 'PulseMCP', href: 'https://www.pulsemcp.com/servers/snss10-dbeast' },
+    { name: 'MCP Servers', href: 'https://mcpservers.org/servers/snss10/dbeast' },
+    { name: 'Claude Marketplaces', href: 'https://claudemarketplaces.com/mcp/snss10/dbeast' },
+    { name: 'Claude Plugin Hub', href: 'https://www.claudepluginhub.com/plugins/snss10-dbeast' },
+  ],
+
+  /** My write-ups about DBeast on DEV Community. */
+  writing: [
+    {
+      title: 'I built DBeast: a PostgreSQL MCP server that gives AI assistants DBA-level tools',
+      href: 'https://dev.to/snss5312/i-built-dbeast-a-postgresql-mcp-server-that-gives-ai-assistants-dba-level-tools-229d',
+    },
+    {
+      title: 'Preventing context bloat and agent loops in database MCP servers',
+      href: 'https://dev.to/snss5312/preventing-context-bloat-and-agent-loops-in-database-mcp-servers-3o43',
+    },
+    {
+      title: 'SQL access gives AI the data. DBeast gives it the investigation.',
+      href: 'https://dev.to/snss5312/sql-access-gives-ai-the-data-dbeast-gives-it-the-investigation-gip',
+    },
+  ],
+
   overview: [
     'DBeast connects AI assistants such as Claude, Cursor, Windsurf and VS Code Copilot to PostgreSQL through the Model Context Protocol. Instead of one broad “execute SQL” escape hatch, it gives them 21 focused tools for schema discovery, safe queries, impact analysis, performance, security, maintenance, replication and data quality.',
     'It runs as a local stdio MCP server: the assistant starts it as a subprocess and passes the database credentials through environment variables. There is no HTTP service and nothing extra to host.',

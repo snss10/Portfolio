@@ -415,7 +415,7 @@ export const sideProjects: SideProject[] = [
     description:
       'Gives AI assistants like Claude, Cursor and VS Code Copilot 21 focused tools to inspect a PostgreSQL database: schema, slow queries, security, maintenance, replication and data quality. It never runs a write. INSERT, UPDATE and DELETE get an impact preview instead.',
     facts: [
-      'Listed on the official MCP Registry, with a Docker image on GHCR.',
+      'Listed on the official MCP Registry, Glama and PulseMCP, with a Docker image on GHCR.',
       'Works with local PostgreSQL, AWS RDS and Aurora, Supabase and Neon.',
       'Keeps an audit log of tool calls, with parameters masked.',
     ],

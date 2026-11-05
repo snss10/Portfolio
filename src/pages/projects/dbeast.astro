@@ -29,6 +29,8 @@ const sections = [
   { id: 'audit', label: 'Audit log' },
   { id: 'connecting', label: 'Connecting' },
   { id: 'engineering', label: 'Engineering' },
+  { id: 'listed', label: 'Where it’s listed' },
+  { id: 'writing', label: 'Writing about it' },
   { id: 'stack', label: 'Stack' },
 ];
 
@@ -177,6 +179,36 @@ const jsonLd = [
           <ul class="ticks">
             {d.engineering.map((s) => (
               <li>{s}</li>
+            ))}
+          </ul>
+        </section>
+
+        <section id="listed" aria-labelledby="listed-h">
+          <h2 id="listed-h">Where it’s listed</h2>
+          <p>Besides the official MCP Registry, these MCP directories have a page for DBeast:</p>
+          <ul class="ticks">
+            {d.listings.map((l) => (
+              <li>
+                <a class="link" href={l.href} target="_blank" rel="noopener">
+                  {l.name}
+                  <span class="visually-hidden"> (opens in a new tab)</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section id="writing" aria-labelledby="writing-h">
+          <h2 id="writing-h">Writing about it</h2>
+          <p>Posts I wrote on DEV Community about building DBeast and the choices behind it.</p>
+          <ul class="ticks">
+            {d.writing.map((w) => (
+              <li>
+                <a class="link" href={w.href} target="_blank" rel="noopener">
+                  {w.title}
+                  <span class="visually-hidden"> (opens in a new tab)</span>
+                </a>
+              </li>
             ))}
           </ul>
         </section>
