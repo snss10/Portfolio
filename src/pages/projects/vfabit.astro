@@ -24,8 +24,8 @@ const sections = [
   { id: 'what', label: 'What it is' },
   { id: 'rules', label: 'Rules it enforces' },
   { id: 'matching', label: 'Matching requests to shops' },
-  { id: 'scan', label: 'Reading 3D models' },
-  { id: 'drawings', label: 'Reading drawings' },
+  { id: 'decisions', label: 'Design decisions' },
+  { id: 'cad', label: '3D models and drawings' },
   { id: 'engineering', label: 'Engineering' },
   { id: 'stack', label: 'Stack' },
 ];
@@ -118,27 +118,29 @@ const jsonLd = [
           </ul>
         </section>
 
-        <section id="scan" aria-labelledby="scan-h">
-          <h2 id="scan-h">Reading 3D models</h2>
+        <section id="decisions" aria-labelledby="decisions-h">
+          <h2 id="decisions-h">Design decisions</h2>
+          <dl class="decisions">
+            {v.decisions.map((d) => (
+              <div>
+                <dt>{d.title}</dt>
+                <dd>{d.why}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+
+        <section id="cad" aria-labelledby="cad-h">
+          <h2 id="cad-h">3D models and drawings</h2>
           <div class="inline-figure">
             <Sketch
               flow={{ ...v.scanFlow, tone }}
-              caption="How a STEP file is scanned. The 3D model is ready before measuring finishes."
+              caption="How a STEP file is analysed. The 3D model is ready before measuring finishes."
             />
           </div>
           <ul class="ticks">
-            {v.scan.map((s) => (
-              <li>{s}</li>
-            ))}
-          </ul>
-        </section>
-
-        <section id="drawings" aria-labelledby="drawings-h">
-          <h2 id="drawings-h">Reading drawings</h2>
-          <p>A beta feature, used by the operations team only.</p>
-          <ul class="ticks">
-            {v.drawings.map((d) => (
-              <li>{d}</li>
+            {v.cad.map((c) => (
+              <li>{c}</li>
             ))}
           </ul>
         </section>
@@ -214,6 +216,27 @@ const jsonLd = [
   .figure :global(figcaption) {
     margin-inline: auto;
     text-align: center;
+  }
+
+  .decisions {
+    display: grid;
+    gap: 20px;
+    max-width: 42rem;
+  }
+
+  .decisions div {
+    display: grid;
+    gap: 4px;
+    padding-left: 18px;
+    border-left: 3px solid var(--tone);
+  }
+
+  .decisions dt {
+    font-weight: 720;
+  }
+
+  .decisions dd {
+    color: var(--ink-2);
   }
 
   .inline-figure {

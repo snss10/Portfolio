@@ -382,19 +382,14 @@ export const sideProjects: SideProject[] = [
     kind: 'Marketplace for custom machined parts',
     status: 'Private code. Not launched yet; running as a hosted test version.',
     description:
-      'Customers upload drawings and 3D models, an operations team routes each request to shops that can make the part, and payment is split 30/70 around a customer audit of the finished job. It includes an OpenCascade STEP analyser, a rule-based PDF drawing reader, a three.js viewer and an Android app.',
+      'Customers upload drawings and 3D models, an operations team routes each request to shops that can make the part, and payment is split 30/70 around a customer audit of the finished job. It includes a 3D-model analyser, a rule-based drawing reader and a 3D viewer.',
     facts: [
-      'An 11-stage order flow for customers, shops and an operations team, covered by 915 automated tests.',
+      'I designed the architecture and the order flow: eleven stages shared by customers, shops and an operations team.',
       'STEP files are measured as exact geometry, and anything the geometry can’t establish is reported as undetermined, never guessed.',
-      'A three-pass security audit logged 42 findings, including a sign-in race condition that is now fixed and covered by tests.',
+      'A security audit found a sign-in race condition, now fixed and covered by a test.',
     ],
     stack: ['Python', 'FastAPI', 'PostgreSQL', 'React', 'TypeScript', 'three.js', 'OpenCascade'],
     caseStudy: '/projects/vfabit/',
-    stats: [
-      { value: '915', label: 'automated tests' },
-      { value: '11', label: 'order stages' },
-      { value: '~120', label: 'API routes' },
-    ],
     links: [],
     sketch: {
       label:

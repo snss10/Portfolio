@@ -3,6 +3,8 @@
  *
  * Every line here comes from the vFABit project reference. The product has not
  * launched, so the page says so plainly and claims no customers, orders or revenue.
+ * It stays at the level of architecture and decisions: no build dates, route or
+ * test counts, or micro-benchmarks.
  */
 import type { SketchFlow } from '../lib/sketch';
 
@@ -14,19 +16,18 @@ export const vfabit = {
     'Customers upload drawings and 3D models, a team routes each request to shops that can make the part, and payment is split 30/70 around the customer’s audit of the finished job.',
 
   facts: [
-    { label: 'When', value: '8 Sep – 27 Oct 2026, about seven weeks' },
     { label: 'Status', value: 'Not launched; running as a hosted test version' },
     { label: 'For', value: 'Companies ordering parts, fabrication shops and an operations team' },
+    { label: 'My part', value: 'The architecture and the order flow' },
     {
       label: 'Built with',
       value: 'Python, FastAPI, PostgreSQL, React, TypeScript, three.js, OpenCascade',
-      wide: true,
     },
   ],
 
   overview: [
     'vFABit connects companies that need custom machined parts with fabrication shops that can make them. A customer uploads PDF drawings and optional STEP models, the operations team sends the request to shops it picks from those that fit, the shops quote, and the customer pays in two parts, checking the finished job before paying the balance.',
-    'It is a React and TypeScript site, a FastAPI API with about 120 routes, a CAD analysis service and an Android app, covered by 915 automated tests.',
+    'I designed its architecture and the order flow. It is made of three services: a FastAPI API, a React site and a separate CAD analysis service, all covered by automated tests.',
     'The first version’s screens and workflows are built and running as a hosted test version. It has not launched, so there are no real customers, orders or money yet, and payments on the test version run through a built-in simulator.',
   ],
 
@@ -66,7 +67,30 @@ export const vfabit = {
   matching: [
     'Process and precision must match exactly. Minor operations, material, heat treatment and finishing narrow the list only when the request asks for them.',
     'Matching suggests the shops that fit, and the team decides who receives the request.',
-    'The catalogue has 11 processes, 3 precision bands, 35 size bands, 56 materials and 7 heat-treatment methods.',
+  ],
+
+  /** The design decisions, each with the reason behind it. */
+  decisions: [
+    {
+      title: 'A separate service for CAD analysis',
+      why: 'The geometry libraries are too large and slow to live inside the API, so analysis runs as its own Cloud Run Job. It shares only the database and the file store with the API, and no code.',
+    },
+    {
+      title: 'Uploads go straight to storage',
+      why: 'Drawings and 3D models can be far larger than Vercel accepts in one request, so the browser uploads directly to private storage with a short-lived token the API signs for one file name. The server checks each file afterwards.',
+    },
+    {
+      title: 'A lock on every order action',
+      why: 'A double tap, a second tab or a second shop acting on the same order waits for the lock, then is decided on the new state, so an order can’t move twice.',
+    },
+    {
+      title: 'One way to mark an order paid',
+      why: 'Only a signed payment webhook can settle an order, with duplicate-safe handling, amount checks and reconciliation. Nothing else can mark it paid.',
+    },
+    {
+      title: 'Business rules in a pure domain package',
+      why: 'The rules import no framework, database or settings code, so they can be tested on their own. The payment gateway, email, storage and notifications are swappable drivers chosen in one place.',
+    },
   ],
 
   scanFlow: {
@@ -74,7 +98,7 @@ export const vfabit = {
       'A STEP file becomes a 3D model first; the exact geometry is then analysed, and every result carries its unit, source and status.',
     steps: [
       { title: 'STEP upload', sub: 'exact geometry' },
-      { title: '3D model first', sub: 'GLB in seconds' },
+      { title: '3D model first', sub: 'ready to view' },
       { title: 'Analyse', sub: 'size, holes, pockets' },
       { title: 'Results', sub: 'unit, source, status' },
     ],
@@ -85,70 +109,53 @@ export const vfabit = {
     seed: 41,
   } satisfies SketchFlow,
 
-  scan: [
-    'Reads STEP files as exact geometry with OpenCascade and reports bounding box, volume, surface area, validity and assembly structure.',
-    'Finds through and blind holes, closed pockets, sheet thickness and bends, plus tolerance data when the file carries it (AP242 PMI).',
-    'Every value carries its unit, source and status. What the geometry can’t establish is reported as undetermined, never guessed.',
-    'The 3D model (GLB) is made first, in seconds, so people can turn it while measuring continues. Scans have taken over an hour.',
-    'The geometry libraries come to about 575 MB, so the scan runs as a separate Cloud Run Job that shares only database tables and the file store with the API, and no code.',
-    'A database queue handles recovery: a lost start is picked up again, and a stuck scan is failed with its reason. Results carry an engine version, so older ones can be redone.',
-    'In the three.js viewer, a clicked triangle finds its CAD face by binary search.',
-  ],
-
-  drawings: [
-    'Reads engineering drawings by rules, with no outside AI or OCR service.',
-    'Sorts each page as real text, AutoCAD’s hidden text, a scanned picture or text drawn as lines. This version reads the first two kinds.',
-    'Extracts title blocks, numbered notes, tables and callouts: sizes, tolerances, fits, threads, holes, radii, chamfers, angles, roughness and feature control frames.',
-    'Works out limits from ISO 286 (fits), ISO 2768 (general tolerances) and ISO 965 (threads).',
-    'Shows numbered balloons on the page beside a filterable list. It has been tested on sample drawings, not yet on real customers’ drawings.',
+  cad: [
+    'STEP files are read as exact geometry with OpenCascade: size, volume, holes, pockets, sheet thickness, and tolerance data when the file carries it.',
+    'The 3D model is made first, so people can turn it while measuring continues. Every result carries its unit, source and status, and what the geometry can’t establish is reported as undetermined, never guessed.',
+    'A database queue handles recovery: a lost start is picked up again, and a stuck scan is failed with its reason.',
+    'PDF drawings are read by rules, with no outside AI or OCR service: title blocks, notes, tables and callouts appear as numbered balloons beside the drawing. This is a beta for the operations team, tested on sample drawings so far.',
   ],
 
   engineering: [
     {
       title: 'Architecture',
       points: [
-        'Three services in three repositories (a JSON API, a React site and a CAD analysis service), plus an Android app.',
-        'Business rules live in a pure domain package (2,607 lines, strict typing) that imports no framework, database or settings code.',
-        'The payment gateway, email, storage and notifications are swappable drivers, chosen in one place. Site types are generated from the API’s OpenAPI schema.',
+        'Three services in three repositories: a JSON API, a React site and the CAD analysis service.',
+        'The site’s types are generated from the API’s OpenAPI schema, so the two can’t drift apart.',
       ],
     },
     {
       title: 'Payments and concurrency',
       points: [
-        'A signed webhook is the only way to settle an order, with duplicate-safe handling, amount checks and reconciliation.',
-        'Every action on an order holds a row lock. A double tap, a second tab or a second shop waits, then is decided on the new state.',
         'An order can’t be placed twice and its emails can’t go out twice. Tests send these actions at the same moment.',
       ],
     },
     {
       title: 'Files',
       points: [
-        'Files run to 50 MB but Vercel allows 4.5 MB per request, so the browser uploads directly to private storage with a short-lived token the API signs for one file name.',
-        'The server then refuses any file that isn’t the format its name claims or is incomplete, checking PDF and STEP end markers and PNG checksums, for example.',
-        'Downloads go through an access check, then a signed link that lasts an hour.',
+        'The server refuses any file that isn’t the format its name claims or is incomplete, checking PDF and STEP end markers and PNG checksums, for example.',
+        'Downloads go through an access check, then a signed link that expires.',
       ],
     },
     {
       title: 'Security',
       points: [
-        'A three-pass audit in October 2026 covered all three codebases, dependencies, git history, database exposure, the hosted site and DNS: 42 findings, 3 of them high.',
-        'One was a race: 12 wrong passwords sent at once were all checked against a limit of 5. Postgres advisory locks now count each guess before the next is read, and the tests fail if the fix is removed.',
+        'A three-pass security audit covered all three codebases, dependencies, git history, database exposure, the hosted site and DNS.',
+        'It found a sign-in race: wrong passwords sent at the same moment could all be checked before the attempt limit counted any of them. Postgres advisory locks now count each attempt before the next is read, and a test fails if the fix is removed.',
         'Argon2 password hashing, authenticator apps for staff, row-level security on every table, a __Host- session cookie, a Content-Security-Policy, and cross-site writes refused using Sec-Fetch-Site.',
       ],
     },
     {
       title: 'Performance',
       points: [
-        'First load is about 132 kB of gzipped JavaScript and 15 kB of CSS. three.js (156 kB) loads only when there is a 3D model.',
-        'The 3D view draws 69,000 triangles at 2200×1120 in 1.4 to 2.2 ms a frame on an Intel Iris Xe.',
-        'A part’s drawing reads in about 1 s, and a 33-sheet set in about 75 s. Memoizing took hover on a 2,171-callout drawing from over 100 ms to about 23 ms.',
-        'SQL statement counts are pinned in tests: the order tracker runs 10 to 12 statements depending on role.',
+        'three.js loads only when there is a 3D model to show, so most pages stay light.',
+        'The number of SQL statements per request is pinned in tests, so a change that adds queries fails the build.',
       ],
     },
     {
       title: 'Practice',
       points: [
-        'Work is driven by a spec: 74 normalized requirements and 116 recorded changes.',
+        'Work is driven by a written spec, with every requirement and change recorded.',
         'Undefined requirements fail loudly. Tax invoicing refuses to run until GST is settled, and a test asserts that refusal.',
         'Test-data scripts run through the real API routes, checks and emails, and /health reports a hash of the loaded source to catch a stale server.',
       ],
@@ -158,21 +165,19 @@ export const vfabit = {
   stack: [
     {
       layer: 'API',
-      tools:
-        'Python 3.13, FastAPI, Pydantic 2, async SQLAlchemy 2, psycopg 3, Alembic, Argon2, structlog',
+      tools: 'Python, FastAPI, Pydantic, async SQLAlchemy, psycopg, Alembic, Argon2, structlog',
     },
     {
       layer: 'Site',
-      tools:
-        'React 19, TypeScript 6, Vite 8, Tailwind CSS 4, React Router 7, TanStack Query 5, React Hook Form, Zod 4, three.js',
+      tools: 'React, TypeScript, Vite, Tailwind CSS, React Router, TanStack Query, Zod, three.js',
     },
-    { layer: 'CAD and drawings', tools: 'OCP (OpenCascade), pdfplumber, PDFium, Docker' },
+    { layer: 'CAD and drawings', tools: 'OpenCascade (OCP), pdfplumber, PDFium, Docker' },
     { layer: 'Data and files', tools: 'PostgreSQL on Supabase, private Vercel Blob' },
     { layer: 'Services', tools: 'Razorpay, ZeptoMail, Google Maps and Places, Web Push' },
     {
       layer: 'Hosting',
       tools:
-        'Vercel and Google Cloud Run Jobs (both in Mumbai), Artifact Registry, Secret Manager, keyless OIDC with Workload Identity Federation',
+        'Vercel and Google Cloud Run Jobs, Artifact Registry, Secret Manager, keyless OIDC with Workload Identity Federation',
     },
     {
       layer: 'Quality',
