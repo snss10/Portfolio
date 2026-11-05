@@ -3,7 +3,7 @@
  * Side projects, in the same form as the work list: what it is, a small
  * marker sketch of how it fits together, and where to go next.
  */
-import Sketch from './Sketch.astro';
+import Route from './Route.astro';
 import { sideProjects } from '../data/projects';
 
 const idOf = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
@@ -19,13 +19,11 @@ const idOf = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
       <p class="full">{p.kind}</p>
       <p class="summary">{p.description}</p>
       <div class="drawing">
-        <Sketch
-          flow={{
-            label: p.sketch.label,
-            steps: p.sketch.steps.map((s) => ({ title: s.title })),
-            notes: p.sketch.notes,
-            tone: p.tone,
-            compact: true,
+        <Route
+          label={p.sketch.label}
+          route={{
+            steps: p.sketch.steps.map((s) => s.title),
+            notes: p.sketch.notes.map((n) => ({ at: n.at, text: n.text })),
             seed: 31 + i * 17,
           }}
         />

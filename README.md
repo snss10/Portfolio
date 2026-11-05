@@ -8,8 +8,8 @@ RAG and FastAPI. Live at **https://nagasurya.com**.
 - **A whiteboard, in marker:** a white board and dry-erase marker inks: black for the words, and
   blue, red, green and purple for drawings and notes. Every project is drawn in its own ink, from the
   diagram at the top of the home page to its case study. Dark mode is a graphite board.
-- **Hand-drawn system diagrams:** every project is explained with a whiteboard-style diagram, and
-  the experience timeline is drawn with hand-shaded bars. The boxes at the top of the home page link
+- **Hand-drawn diagrams, one kind per job:** boxes and arrows map how systems connect, a wavy
+  marker route shows each project's pipeline, and hand-shaded bars draw the experience timeline. The boxes at the top of the home page link
   to the case studies, and the diagrams draw themselves when a page opens. Everything is drawn at
   build time with [rough.js](https://roughjs.com), so the site ships no drawing code.
 - **Everything connected:** a sticky header with the section in view marked, breadcrumbs and an

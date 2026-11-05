@@ -400,7 +400,7 @@ export const sideProjects: SideProject[] = [
         { title: 'Shops', sub: 'quote, make, inspect' },
       ],
       edges: ['request', 'RFQ'],
-      notes: [{ at: 0, text: 'pays 30%, audits, then 70%', side: 'below' }],
+      notes: [],
     },
   },
   {

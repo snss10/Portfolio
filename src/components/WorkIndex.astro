@@ -3,7 +3,7 @@
  * The Ideyalabs systems, newest first. Each one gets a small marker sketch
  * of how it works, in the project's ink; the name opens the case study.
  */
-import Sketch from './Sketch.astro';
+import Route from './Route.astro';
 import { workProjects } from '../data/projects';
 
 // A hand-drawn underline that draws in under a name on hover.
@@ -29,13 +29,11 @@ const scribble = 'M2 7 C 40 3, 80 10, 122 6 S 200 4, 238 8';
       <p class="full">{p.fullName}</p>
       <p class="summary">{p.summary}</p>
       <a class="drawing" href={`/work/${p.slug}/`} tabindex="-1" aria-hidden="true">
-        <Sketch
-          flow={{
-            label: `${p.name}, step by step`,
-            steps: p.flow.map((s) => ({ title: s.title })),
-            notes: p.notes?.slice(0, 1),
-            tone: p.tone,
-            compact: true,
+        <Route
+          label={`${p.name}, step by step: ${p.flow.map((s) => s.title).join(', then ')}.`}
+          route={{
+            steps: p.flow.map((s) => s.title),
+            notes: p.notes?.slice(0, 1).map((n) => ({ at: n.at, text: n.text })),
             seed: 60 + i * 13,
           }}
         />
@@ -134,8 +132,8 @@ const scribble = 'M2 7 C 40 3, 80 10, 122 6 S 200 4, 238 8';
   .drawing {
     display: block;
     width: 100%;
-    max-width: 560px;
-    margin-block: 10px 4px;
+    max-width: 640px;
+    margin-block: 14px 8px;
   }
 
   .meta {

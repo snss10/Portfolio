@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Sketch from '../../components/Sketch.astro';
+import Route from '../../components/Route.astro';
 import CaseHeader from '../../components/CaseHeader.astro';
 import CasePager from '../../components/CasePager.astro';
 import Toc from '../../components/Toc.astro';
@@ -133,8 +134,13 @@ const jsonLd = [
         <section id="cad" aria-labelledby="cad-h">
           <h2 id="cad-h">3D models and drawings</h2>
           <div class="inline-figure">
-            <Sketch
-              flow={{ ...v.scanFlow, tone }}
+            <Route
+              label={v.scanFlow.label}
+              route={{
+                steps: v.scanFlow.steps.map((s) => s.title),
+                notes: v.scanFlow.notes,
+                seed: 41,
+              }}
               caption="How a STEP file is analysed. The 3D model is ready before measuring finishes."
             />
           </div>
@@ -208,8 +214,7 @@ const jsonLd = [
     border-block: 1px solid var(--rule);
   }
 
-  .figure :global(svg),
-  .inline-figure :global(svg) {
+  .figure :global(svg) {
     margin-inline: auto;
   }
 

@@ -1,0 +1,38 @@
+---
+/**
+ * A pipeline drawn as a hand-drawn route: one wavy marker line in the
+ * project's ink, with a stop for each step. Wide on desktop, tall on phones.
+ */
+import { renderRoute, type RouteSpec } from '../lib/sketch';
+
+interface Props {
+  route: RouteSpec;
+  label: string;
+  caption?: string;
+  class?: string;
+}
+
+const { route, label, caption, class: className } = Astro.props;
+const h = renderRoute(route, 'h');
+const v = renderRoute(route, 'v');
+---
+
+<figure class:list={['route', className]}>
+  <svg
+    class="r-h"
+    viewBox={`0 0 ${h.width} ${h.height}`}
+    style={`max-width:${h.width}px`}
+    role="img"
+    aria-label={label}
+    set:html={h.svg}
+  />
+  <svg
+    class="r-v"
+    viewBox={`0 0 ${v.width} ${v.height}`}
+    style={`max-width:${v.width}px`}
+    role="img"
+    aria-label={label}
+    set:html={v.svg}
+  />
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>

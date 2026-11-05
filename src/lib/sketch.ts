@@ -574,3 +574,129 @@ export function roughFrame(width: number, height: number, seed = 3) {
     .map((p) => `<path d="${p.d}"/>`)
     .join('');
 }
+
+/* --------------------------------------------------------------------------
+   Route: a pipeline drawn as one wavy marker line with a stop for each step,
+   like a route sketched on a board. Used where a box diagram would repeat:
+   the project lists on the home page and second diagrams on a page.
+   -------------------------------------------------------------------------- */
+
+export interface RouteSpec {
+  steps: string[];
+  /** Handwritten notes pointing at a stop. */
+  notes?: { at: number; text: string; side?: 'above' | 'below' }[];
+  seed?: number;
+}
+
+const WOBBLE = [0, -5, 3, -3, 5, -2, 4, -4];
+
+export function renderRoute(spec: RouteSpec, layout: 'h' | 'v') {
+  const gen = rough.generator();
+  let s = spec.seed ?? 3;
+  const opts = (extra: object = {}) => ({
+    seed: s++,
+    strokeWidth: 2.4,
+    fixedDecimalPlaceDigits: 1,
+    ...extra,
+  });
+  const parts: string[] = [];
+  const draw = (d: Drawable) => {
+    for (const p of gen.toPaths(d)) {
+      const filled = p.fill && p.fill !== 'none';
+      parts.push(`<path d="${p.d}" class="${filled ? 'dot' : 'm'}"/>`);
+    }
+  };
+  const text = (x: number, y: number, t: string, cls: string, anchor = 'middle') =>
+    parts.push(
+      `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="${anchor}" class="${cls}">${esc(t)}</text>`,
+    );
+  const stop = (x: number, y: number) =>
+    draw(
+      gen.circle(
+        x,
+        y,
+        16,
+        opts({ fill: 'FILL', fillStyle: 'solid', roughness: 0.7, strokeWidth: 2.3 }),
+      ),
+    );
+  const head = (x: number, y: number, angle: number, size = 10) => {
+    for (const turn of [Math.PI - 0.5, Math.PI + 0.5]) {
+      const a = angle + turn;
+      draw(
+        gen.line(
+          x,
+          y,
+          x + size * Math.cos(a),
+          y + size * Math.sin(a),
+          opts({ roughness: 0.5, disableMultiStroke: true }),
+        ),
+      );
+    }
+  };
+  const notes = spec.notes ?? [];
+  const n = spec.steps.length;
+  const LABEL = 15;
+  const NOTE = 16;
+
+  if (layout === 'h') {
+    const labelW = spec.steps.map((t) => textW(t, LABEL, EM.title));
+    const pad = Math.max(labelW[0], labelW[n - 1]) / 2 + 10;
+    const width = Math.max(460, Math.ceil(2 * pad + (n - 1) * (Math.max(...labelW) + 34)));
+    const step = (width - 2 * pad - 24) / (n - 1);
+    const above = notes.some((x) => (x.side ?? 'above') === 'above');
+    const below = notes.some((x) => x.side === 'below');
+    const lineY = above ? 52 : 18;
+    const labelY = lineY + 34;
+    const pts = spec.steps.map((_, i) => [pad + i * step, lineY + WOBBLE[i % WOBBLE.length]]);
+    const end: [number, number] = [pts[n - 1][0] + 30, pts[n - 1][1] + 2];
+    draw(gen.curve([...pts, end] as [number, number][], opts({ roughness: 0.8, bowing: 0.6 })));
+    head(end[0], end[1], Math.atan2(end[1] - pts[n - 1][1], end[0] - pts[n - 1][0]));
+    pts.forEach(([x, y], i) => {
+      stop(x, y);
+      text(x, labelY, spec.steps[i], 't-stop');
+    });
+    notes.forEach((note) => {
+      const [x, y] = pts[note.at];
+      const w = textW(note.text, NOTE, EM.hand);
+      const cx = Math.min(Math.max(x, 8 + w / 2), width - 8 - w / 2);
+      if ((note.side ?? 'above') === 'above') {
+        text(cx, y - 32, note.text, 't-rnote');
+        draw(gen.line(x + 4, y - 26, x + 1, y - 12, opts({ roughness: 0.5, strokeWidth: 1.8 })));
+        head(x + 1, y - 12, Math.PI / 2, 7);
+      } else {
+        text(cx, labelY + 30, note.text, 't-rnote');
+        draw(
+          gen.line(
+            x + 4,
+            labelY + 14,
+            x + 1,
+            labelY + 5,
+            opts({ roughness: 0.5, strokeWidth: 1.8 }),
+          ),
+        );
+      }
+    });
+    return { svg: parts.join(''), width, height: labelY + (below ? 42 : 12) };
+  }
+
+  // Vertical, for phones: stops down the left, names beside them, notes under the names.
+  const width = 340;
+  const x0 = 22;
+  let y = 16;
+  const pts: [number, number][] = [];
+  const ys: number[] = [];
+  spec.steps.forEach((_, i) => {
+    pts.push([x0 + WOBBLE[i % WOBBLE.length] * 0.6, y]);
+    ys.push(y);
+    y += notes.some((x) => x.at === i) ? 54 : 34;
+  });
+  const end: [number, number] = [pts[n - 1][0] + 1, pts[n - 1][1] + 28];
+  draw(gen.curve([...pts, end], opts({ roughness: 0.8, bowing: 0.6 })));
+  head(end[0], end[1], Math.PI / 2);
+  pts.forEach(([x, py], i) => {
+    stop(x, py);
+    text(x0 + 24, py + 5, spec.steps[i], 't-stop', 'start');
+  });
+  notes.forEach((note) => text(x0 + 24, ys[note.at] + 25, note.text, 't-rnote', 'start'));
+  return { svg: parts.join(''), width, height: end[1] + 12 };
+}

@@ -489,6 +489,56 @@ button {
   font-size: var(--fs-small);
 }
 
+/* Routes: a pipeline as one marker line with stops (see renderRoute). */
+.route svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.route .r-v {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .route .r-h {
+    display: none;
+  }
+
+  .route .r-v {
+    display: block;
+  }
+}
+
+.route .m {
+  fill: none;
+  stroke: var(--tone, var(--blue));
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.route .dot {
+  fill: var(--board);
+  stroke: none;
+}
+
+.route .t-stop {
+  font: 650 15px var(--font-text);
+  fill: var(--ink);
+}
+
+.route .t-rnote {
+  font: 700 16px var(--font-hand);
+  fill: var(--tone, var(--blue));
+}
+
+.route figcaption {
+  max-width: 40rem;
+  margin-top: 12px;
+  color: var(--ink-2);
+  font-size: var(--fs-small);
+}
+
 /* Timeline labels. */
 .timeline .t-span {
   font: 700 16px var(--font-hand);
