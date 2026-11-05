@@ -13,6 +13,7 @@ import Logo from '../../components/Logo.astro';
 import { site, intro, lifecycle } from '../../data/site';
 import { workProjects, sideProjects } from '../../data/projects';
 import { vfabit } from '../../data/vfabit';
+import { dbeast } from '../../data/dbeast';
 import type { Tone } from '../../lib/sketch';
 
 interface CaseCard {
@@ -60,6 +61,20 @@ export function getStaticPaths() {
           tagline: vfabit.tagline,
           tone: vfabitTone,
           note: 'nothing ships unpaid',
+        },
+      },
+    },
+    {
+      params: { slug: `project-${dbeast.slug}` },
+      props: {
+        kind: 'case' as const,
+        card: {
+          by: `Open source · ${site.name}`,
+          name: dbeast.name,
+          fullName: dbeast.fullName,
+          tagline: dbeast.tagline,
+          tone: sideProjects.find((p) => p.name === dbeast.name)?.tone ?? 'green',
+          note: 'writes get a preview, never run',
         },
       },
     },

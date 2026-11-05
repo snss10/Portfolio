@@ -421,6 +421,7 @@ export const sideProjects: SideProject[] = [
     ],
     stack: ['Python', 'MCP', 'asyncpg', 'Pydantic', 'sqlglot', 'Docker'],
     license: 'MIT',
+    caseStudy: '/projects/dbeast/',
     links: [
       { label: 'Source on GitHub', href: 'https://github.com/snss10/DBeast' },
       { label: 'Watch the demo', href: 'https://youtu.be/NGfHWBe2CGA' },

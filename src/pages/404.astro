@@ -2,7 +2,6 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { site, nav } from '../data/site';
 import { workProjects, sideProjects } from '../data/projects';
-import { vfabit } from '../data/vfabit';
 
 const cases = [
   ...workProjects.map((p) => ({
@@ -11,12 +10,9 @@ const cases = [
     href: `/work/${p.slug}/`,
     tone: p.tone,
   })),
-  {
-    name: vfabit.name,
-    sub: vfabit.fullName,
-    href: `/projects/${vfabit.slug}/`,
-    tone: sideProjects.find((p) => p.name === vfabit.name)?.tone ?? 'blue',
-  },
+  ...sideProjects
+    .filter((p) => p.caseStudy)
+    .map((p) => ({ name: p.name, sub: p.kind, href: p.caseStudy as string, tone: p.tone })),
 ];
 ---
 

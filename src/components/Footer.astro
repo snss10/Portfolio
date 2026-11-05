@@ -3,16 +3,13 @@
 import Logo from './Logo.astro';
 import { site, nav } from '../data/site';
 import { workProjects, sideProjects } from '../data/projects';
-import { vfabit } from '../data/vfabit';
 
 const year = new Date().getFullYear();
 const caseStudies = [
   ...workProjects.map((p) => ({ name: p.name, href: `/work/${p.slug}/`, tone: p.tone })),
-  {
-    name: vfabit.name,
-    href: `/projects/${vfabit.slug}/`,
-    tone: sideProjects.find((p) => p.name === vfabit.name)?.tone ?? 'blue',
-  },
+  ...sideProjects
+    .filter((p) => p.caseStudy)
+    .map((p) => ({ name: p.name, href: p.caseStudy as string, tone: p.tone })),
 ];
 ---
 

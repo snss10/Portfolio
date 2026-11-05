@@ -44,6 +44,7 @@ Everything visitors read lives in `src/data/`. You never need to touch layout co
 | Work case studies (Ideyalabs projects) | `workProjects` in `src/data/projects.ts`                    |
 | Side projects (vFABit, DBeast, ...)    | `sideProjects` in `src/data/projects.ts`                    |
 | vFABit case study                      | `src/data/vfabit.ts`                                        |
+| DBeast case study                      | `src/data/dbeast.ts`                                        |
 | Roles, education, certifications       | `src/data/experience.ts` (the timeline reads `start`/`end`) |
 | Skills                                 | `src/data/skills.ts`                                        |
 | Resume PDF                             | Replace `public/S-Naga-Surya-Resume.pdf` (keep the name)    |
@@ -96,7 +97,7 @@ src/
   lib/         sketch.ts (diagrams, timeline and button outline as hand-drawn SVG at build time),
                schema.ts (JSON-LD)
   layouts/     BaseLayout.astro: <head>, SEO tags, header and footer
-  pages/       index.astro, work/[slug].astro, projects/vfabit.astro, 404.astro,
+  pages/       index.astro, work/[slug].astro, projects/vfabit.astro, projects/dbeast.astro, 404.astro,
                robots.txt.ts, llms.txt.ts, og/[slug].astro (preview cards, built by `npm run images`)
   styles/      global.css: marker inks, type scale, layout and diagram animation
 public/        Resume PDF, favicons, app icons, web manifest, preview images

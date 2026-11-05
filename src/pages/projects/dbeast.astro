@@ -1,0 +1,287 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Sketch from '../../components/Sketch.astro';
+import CaseHeader from '../../components/CaseHeader.astro';
+import CasePager from '../../components/CasePager.astro';
+import Toc from '../../components/Toc.astro';
+import { dbeast as d } from '../../data/dbeast';
+import { vfabit } from '../../data/vfabit';
+import { sideProjects } from '../../data/projects';
+import { site } from '../../data/site';
+import { ids, breadcrumbs } from '../../lib/schema';
+
+const tone = sideProjects.find((p) => p.name === d.name)?.tone ?? 'green';
+const vfabitTone = sideProjects.find((p) => p.name === vfabit.name)?.tone ?? 'blue';
+const title = `${d.name}: ${d.fullName} | ${site.name}`;
+const description = `${d.tagline} An open-source project by ${site.name}.`;
+const path = `/projects/${d.slug}/`;
+
+// The stack is listed under the facts; the other facts stay as rows.
+const stackFact = d.facts.find((f) => f.label === 'Built with');
+const facts = d.facts.filter((f) => f !== stackFact);
+const stack = stackFact ? stackFact.value.split(', ') : [];
+
+const sections = [
+  { id: 'what', label: 'What it is' },
+  { id: 'tools', label: 'The 21 tools' },
+  { id: 'safety', label: 'Safety' },
+  { id: 'impact', label: 'Impact previews' },
+  { id: 'audit', label: 'Audit log' },
+  { id: 'connecting', label: 'Connecting' },
+  { id: 'engineering', label: 'Engineering' },
+  { id: 'stack', label: 'Stack' },
+];
+
+const base = Astro.site ?? new URL(Astro.url.origin);
+const { person, website } = ids(base);
+const jsonLd = [
+  {
+    '@type': 'WebPage',
+    '@id': new URL(`${path}#webpage`, base).href,
+    url: new URL(path, base).href,
+    name: title,
+    description,
+    inLanguage: 'en',
+    isPartOf: { '@id': website },
+    author: { '@id': person },
+    about: {
+      '@type': 'SoftwareSourceCode',
+      name: d.name,
+      description: d.tagline,
+      codeRepository: d.links[0].href,
+      programmingLanguage: 'Python',
+      license: 'https://opensource.org/licenses/MIT',
+      author: { '@id': person },
+    },
+  },
+  breadcrumbs(base, [
+    [site.name, '/'],
+    ['Side projects', '/#projects'],
+    [d.name, path],
+  ]),
+];
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  image={`/og/project-${d.slug}.png`}
+  imageAlt={`${d.name}: ${d.fullName}`}
+  type="article"
+  jsonLd={jsonLd}
+>
+  <article class={`page tone-${tone}`}>
+    <CaseHeader
+      crumbs={[
+        { label: 'Home', href: '/' },
+        { label: 'Side projects', href: '/#projects' },
+      ]}
+      tone={tone}
+      name={d.name}
+      fullName={d.fullName}
+      tagline={d.tagline}
+      facts={facts}
+      stack={stack}
+    />
+
+    <div class="figure">
+      <Sketch
+        animate
+        flow={{ ...d.flow, tone }}
+        caption="How a request travels from the assistant to the database. The handwritten notes are mine."
+      />
+    </div>
+
+    <div class="case-layout">
+      <Toc items={sections} />
+
+      <div class="case-body">
+        <section id="what" aria-labelledby="what-h">
+          <h2 id="what-h">What it is</h2>
+          {d.overview.map((para) => (
+            <p>{para}</p>
+          ))}
+          <p class="links">
+            {d.links.map((l) => (
+              <a class="link" href={l.href} target="_blank" rel="noopener">
+                {l.label}
+                <span class="visually-hidden"> (opens in a new tab)</span>
+              </a>
+            ))}
+          </p>
+        </section>
+
+        <section id="tools" aria-labelledby="tools-h">
+          <h2 id="tools-h">The 21 tools</h2>
+          <p>Ten groups, each tool doing one job, so the assistant picks the right one.</p>
+          <div class="tool-groups">
+            {d.tools.map((g) => (
+              <div>
+                <h3>{g.group}</h3>
+                <dl class="tools">
+                  {g.items.map(([name, what]) => (
+                    <div>
+                      <dt>
+                        <code>{name}</code>
+                      </dt>
+                      <dd>{what}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section id="safety" aria-labelledby="safety-h">
+          <h2 id="safety-h">Safety</h2>
+          <ul class="ticks">
+            {d.safety.map((s) => (
+              <li>{s}</li>
+            ))}
+          </ul>
+        </section>
+
+        <section id="impact" aria-labelledby="impact-h">
+          <h2 id="impact-h">Impact previews</h2>
+          <p>
+            What <code>analyze_impact</code> returns for a write, instead of running it:
+          </p>
+          <ul class="ticks">
+            {d.impact.map((s) => (
+              <li>{s}</li>
+            ))}
+          </ul>
+        </section>
+
+        <section id="audit" aria-labelledby="audit-h">
+          <h2 id="audit-h">Audit log</h2>
+          <ul class="ticks">
+            {d.audit.map((s) => (
+              <li>{s}</li>
+            ))}
+          </ul>
+        </section>
+
+        <section id="connecting" aria-labelledby="connecting-h">
+          <h2 id="connecting-h">Connecting</h2>
+          <ul class="ticks">
+            {d.connecting.map((s) => (
+              <li>{s}</li>
+            ))}
+          </ul>
+        </section>
+
+        <section id="engineering" aria-labelledby="engineering-h">
+          <h2 id="engineering-h">Engineering</h2>
+          <ul class="ticks">
+            {d.engineering.map((s) => (
+              <li>{s}</li>
+            ))}
+          </ul>
+        </section>
+
+        <section id="stack" aria-labelledby="stack-h">
+          <h2 id="stack-h">Stack</h2>
+          <dl class="stack-list">
+            {d.stack.map((s) => (
+              <div>
+                <dt>{s.layer}</dt>
+                <dd>{s.tools}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      </div>
+    </div>
+
+    <CasePager
+      about={d.name}
+      note="The code is open source, so you can read all of it on GitHub."
+      label="More projects"
+      start={{
+        dir: 'Back to',
+        name: 'Side projects',
+        sub: 'Everything I build in my own time',
+        href: '/#projects',
+        tone,
+      }}
+      end={{
+        dir: 'Other side project',
+        name: vfabit.name,
+        sub: vfabit.fullName,
+        href: `/projects/${vfabit.slug}/`,
+        tone: vfabitTone,
+      }}
+    />
+  </article>
+</BaseLayout>
+
+<style>
+  article {
+    padding-bottom: clamp(2rem, 1.5rem + 2vw, 3rem);
+  }
+
+  .figure {
+    margin-bottom: clamp(2.5rem, 2rem + 3vw, 4.5rem);
+    padding-block: clamp(1rem, 0.5rem + 2vw, 2rem);
+    border-block: 1px solid var(--rule);
+  }
+
+  .figure :global(svg) {
+    margin-inline: auto;
+  }
+
+  .figure :global(figcaption) {
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 28px;
+  }
+
+  code {
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+    font-size: 0.9em;
+  }
+
+  .tool-groups {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+    gap: 32px 44px;
+    margin-top: 8px;
+  }
+
+  .tool-groups > div {
+    display: grid;
+    align-content: start;
+    gap: 10px;
+  }
+
+  .tool-groups h3 {
+    font-size: 1.125rem;
+  }
+
+  .tools {
+    display: grid;
+    gap: 10px;
+  }
+
+  .tools div {
+    display: grid;
+    gap: 2px;
+  }
+
+  .tools dt code {
+    color: var(--tone);
+    font-weight: 600;
+  }
+
+  .tools dd {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+</style>
