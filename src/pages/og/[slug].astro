@@ -30,8 +30,8 @@ export function getStaticPaths() {
   const vfabitTone = sideProjects.find((p) => p.name === vfabit.name)?.tone ?? 'blue';
   return [
     { params: { slug: 'home' }, props: { kind: 'home' as const } },
-    // App icons: the logo on its own (favicons, "any"), on white with a safe
-    // margin for Android's masks (maskable), and on white for iOS (no transparency).
+    // App icons: the bare logo (favicon.ico), on white with a wide margin for
+    // Android's masks (maskable), and on white for phones and launchers.
     { params: { slug: 'icon' }, props: { kind: 'icon' as const, pad: 0 } },
     { params: { slug: 'icon-maskable' }, props: { kind: 'icon' as const, pad: 1 } },
     { params: { slug: 'icon-apple' }, props: { kind: 'icon' as const, pad: 2 } },
@@ -82,7 +82,7 @@ const host = new URL(Astro.site ?? 'https://nagasurya.com').hostname;
   <body>
     {props.kind === 'icon' && (
       <div class:list={['icon', { padded: props.pad === 1, apple: props.pad === 2 }]}>
-        <Logo size={512} />
+        <Logo size={512} square />
       </div>
     )}
 
@@ -90,7 +90,7 @@ const host = new URL(Astro.site ?? 'https://nagasurya.com').hostname;
       <main class="og-card home">
         <div class="text">
           <p class="brand">
-            <Logo size={52} />
+            <Logo size={40} />
             <span>{host}</span>
           </p>
           <h1>{site.name}</h1>
@@ -109,7 +109,7 @@ const host = new URL(Astro.site ?? 'https://nagasurya.com').hostname;
     {props.kind === 'case' && (
       <main class={`og-card work tone-${props.card.tone}`}>
         <p class="brand">
-          <Logo size={52} />
+          <Logo size={40} />
           <span>{props.card.by}</span>
         </p>
         <div>

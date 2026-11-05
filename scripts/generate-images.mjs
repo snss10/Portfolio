@@ -106,13 +106,16 @@ const toIco = (pngs) => {
   return Buffer.concat([header, ...entries, ...pngs.map((p) => p.data)]);
 };
 
+// The bare logo goes into favicon.ico; app icons sit on white, since phones
+// and launchers need a solid background.
 const icons = {
-  icon: [
+  icon: [],
+  'icon-maskable': [[512, 'icon-maskable-512.png']],
+  'icon-apple': [
+    [180, 'apple-touch-icon.png'],
     [192, 'icon-192.png'],
     [512, 'icon-512.png'],
   ],
-  'icon-maskable': [[512, 'icon-maskable-512.png']],
-  'icon-apple': [[180, 'apple-touch-icon.png']],
 };
 
 try {
