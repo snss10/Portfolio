@@ -84,12 +84,8 @@ export const vfabit = {
       why: 'A double tap, a second tab or a second shop acting on the same order waits for the lock, then is decided on the new state, so an order can’t move twice.',
     },
     {
-      title: 'One way to mark an order paid',
-      why: 'Only a signed payment webhook can settle an order, with duplicate-safe handling, amount checks and reconciliation. Nothing else can mark it paid.',
-    },
-    {
       title: 'Business rules in a pure domain package',
-      why: 'The rules import no framework, database or settings code, so they can be tested on their own. The payment gateway, email, storage and notifications are swappable drivers chosen in one place.',
+      why: 'The rules import no framework, database or settings code, so they can be tested on their own. Email, storage, notifications and the other outside services are swappable drivers chosen in one place.',
     },
   ],
 
@@ -122,12 +118,6 @@ export const vfabit = {
       points: [
         'Three services in three repositories: a JSON API, a React site and the CAD analysis service.',
         'The site’s types are generated from the API’s OpenAPI schema, so the two can’t drift apart.',
-      ],
-    },
-    {
-      title: 'Payments and concurrency',
-      points: [
-        'An order can’t be placed twice and its emails can’t go out twice. Tests send these actions at the same moment.',
       ],
     },
     {
@@ -173,7 +163,7 @@ export const vfabit = {
     },
     { layer: 'CAD and drawings', tools: 'OpenCascade (OCP), pdfplumber, PDFium, Docker' },
     { layer: 'Data and files', tools: 'PostgreSQL on Supabase, private Vercel Blob' },
-    { layer: 'Services', tools: 'Razorpay, ZeptoMail, Google Maps and Places, Web Push' },
+    { layer: 'Services', tools: 'ZeptoMail, Google Maps and Places, Web Push' },
     {
       layer: 'Hosting',
       tools:

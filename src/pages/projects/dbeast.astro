@@ -23,7 +23,6 @@ const stack = stackFact ? stackFact.value.split(', ') : [];
 
 const sections = [
   { id: 'what', label: 'What it is' },
-  { id: 'tools', label: 'The 21 tools' },
   { id: 'safety', label: 'Safety' },
   { id: 'impact', label: 'Impact previews' },
   { id: 'audit', label: 'Audit log' },
@@ -111,28 +110,6 @@ const jsonLd = [
               </a>
             ))}
           </p>
-        </section>
-
-        <section id="tools" aria-labelledby="tools-h">
-          <h2 id="tools-h">The 21 tools</h2>
-          <p>Ten groups, each tool doing one job, so the assistant picks the right one.</p>
-          <div class="tool-groups">
-            {d.tools.map((g) => (
-              <div>
-                <h3>{g.group}</h3>
-                <dl class="tools">
-                  {g.items.map(([name, what]) => (
-                    <div>
-                      <dt>
-                        <code>{name}</code>
-                      </dt>
-                      <dd>{what}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </div>
-            ))}
-          </div>
         </section>
 
         <section id="safety" aria-labelledby="safety-h">
@@ -278,42 +255,5 @@ const jsonLd = [
   code {
     font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
     font-size: 0.9em;
-  }
-
-  .tool-groups {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
-    gap: 32px 44px;
-    margin-top: 8px;
-  }
-
-  .tool-groups > div {
-    display: grid;
-    align-content: start;
-    gap: 10px;
-  }
-
-  .tool-groups h3 {
-    font-size: 1.125rem;
-  }
-
-  .tools {
-    display: grid;
-    gap: 10px;
-  }
-
-  .tools div {
-    display: grid;
-    gap: 2px;
-  }
-
-  .tools dt code {
-    color: var(--tone);
-    font-weight: 600;
-  }
-
-  .tools dd {
-    color: var(--ink-2);
-    font-size: var(--fs-small);
   }
 </style>
