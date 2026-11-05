@@ -23,14 +23,8 @@ const stack = stackFact ? stackFact.value.split(', ') : [];
 
 const sections = [
   { id: 'what', label: 'What it is' },
-  { id: 'safety', label: 'Safety' },
-  { id: 'impact', label: 'Impact previews' },
-  { id: 'audit', label: 'Audit log' },
-  { id: 'connecting', label: 'Connecting' },
-  { id: 'engineering', label: 'Engineering' },
-  { id: 'listed', label: 'Where it’s listed' },
+  { id: 'how', label: 'How it works' },
   { id: 'writing', label: 'Writing about it' },
-  { id: 'stack', label: 'Stack' },
 ];
 
 const base = Astro.site ?? new URL(Astro.url.origin);
@@ -99,11 +93,16 @@ const jsonLd = [
       <div class="case-body">
         <section id="what" aria-labelledby="what-h">
           <h2 id="what-h">What it is</h2>
-          {d.overview.map((para) => (
-            <p>{para}</p>
-          ))}
+          <p>{d.overview}</p>
+          <p>
+            It runs locally, so there is nothing to host. It is listed on the official MCP Registry,
+            Glama, PulseMCP and other MCP directories.
+          </p>
           <p class="links">
-            {d.links.map((l) => (
+            {[
+              ...d.links,
+              ...d.listings.map((l) => ({ label: `${l.name} listing`, href: l.href })),
+            ].map((l) => (
               <a class="link" href={l.href} target="_blank" rel="noopener">
                 {l.label}
                 <span class="visually-hidden"> (opens in a new tab)</span>
@@ -112,72 +111,20 @@ const jsonLd = [
           </p>
         </section>
 
-        <section id="safety" aria-labelledby="safety-h">
-          <h2 id="safety-h">Safety</h2>
-          <ul class="ticks">
-            {d.safety.map((s) => (
-              <li>{s}</li>
-            ))}
-          </ul>
-        </section>
-
-        <section id="impact" aria-labelledby="impact-h">
-          <h2 id="impact-h">Impact previews</h2>
-          <p>
-            What <code>analyze_impact</code> returns for a write, instead of running it:
-          </p>
-          <ul class="ticks">
-            {d.impact.map((s) => (
-              <li>{s}</li>
-            ))}
-          </ul>
-        </section>
-
-        <section id="audit" aria-labelledby="audit-h">
-          <h2 id="audit-h">Audit log</h2>
-          <ul class="ticks">
-            {d.audit.map((s) => (
-              <li>{s}</li>
-            ))}
-          </ul>
-        </section>
-
-        <section id="connecting" aria-labelledby="connecting-h">
-          <h2 id="connecting-h">Connecting</h2>
-          <ul class="ticks">
-            {d.connecting.map((s) => (
-              <li>{s}</li>
-            ))}
-          </ul>
-        </section>
-
-        <section id="engineering" aria-labelledby="engineering-h">
-          <h2 id="engineering-h">Engineering</h2>
-          <ul class="ticks">
-            {d.engineering.map((s) => (
-              <li>{s}</li>
-            ))}
-          </ul>
-        </section>
-
-        <section id="listed" aria-labelledby="listed-h">
-          <h2 id="listed-h">Where it’s listed</h2>
-          <p>Besides the official MCP Registry, these MCP directories have a page for DBeast:</p>
-          <ul class="ticks">
-            {d.listings.map((l) => (
+        <section id="how" aria-labelledby="how-h">
+          <h2 id="how-h">How it works</h2>
+          <ol class="steps">
+            {d.steps.map((s) => (
               <li>
-                <a class="link" href={l.href} target="_blank" rel="noopener">
-                  {l.name}
-                  <span class="visually-hidden"> (opens in a new tab)</span>
-                </a>
+                <h3>{s.title}</h3>
+                <p>{s.detail}</p>
               </li>
             ))}
-          </ul>
+          </ol>
         </section>
 
         <section id="writing" aria-labelledby="writing-h">
           <h2 id="writing-h">Writing about it</h2>
-          <p>Posts I wrote on DEV Community about building DBeast and the choices behind it.</p>
           <ul class="ticks">
             {d.writing.map((w) => (
               <li>
@@ -188,18 +135,6 @@ const jsonLd = [
               </li>
             ))}
           </ul>
-        </section>
-
-        <section id="stack" aria-labelledby="stack-h">
-          <h2 id="stack-h">Stack</h2>
-          <dl class="stack-list">
-            {d.stack.map((s) => (
-              <div>
-                <dt>{s.layer}</dt>
-                <dd>{s.tools}</dd>
-              </div>
-            ))}
-          </dl>
         </section>
       </div>
     </div>
@@ -250,10 +185,5 @@ const jsonLd = [
     display: flex;
     flex-wrap: wrap;
     gap: 8px 28px;
-  }
-
-  code {
-    font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
-    font-size: 0.9em;
   }
 </style>

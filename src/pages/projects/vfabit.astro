@@ -1,7 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Sketch from '../../components/Sketch.astro';
-import Route from '../../components/Route.astro';
 import CaseHeader from '../../components/CaseHeader.astro';
 import CasePager from '../../components/CasePager.astro';
 import Toc from '../../components/Toc.astro';
@@ -10,25 +9,20 @@ import { sideProjects, workProjects } from '../../data/projects';
 import { site } from '../../data/site';
 import { ids, breadcrumbs } from '../../lib/schema';
 
-const card = sideProjects.find((p) => p.name === v.name);
-const tone = card?.tone ?? 'blue';
+const tone = sideProjects.find((p) => p.name === v.name)?.tone ?? 'blue';
 const title = `${v.name}: ${v.fullName} | ${site.name}`;
 const description = `${v.tagline} A side project by ${site.name}.`;
 const path = `/projects/${v.slug}/`;
 
-// The stack moves into chips in the header; the other facts stay as rows.
+// The stack is listed under the facts; the other facts stay as rows.
 const stackFact = v.facts.find((f) => f.label === 'Built with');
-const facts = v.facts.filter((f) => f !== stackFact).map(({ label, value }) => ({ label, value }));
+const facts = v.facts.filter((f) => f !== stackFact);
 const stack = stackFact ? stackFact.value.split(', ') : [];
 
 const sections = [
   { id: 'what', label: 'What it is' },
-  { id: 'rules', label: 'Rules it enforces' },
-  { id: 'matching', label: 'Matching requests to shops' },
+  { id: 'how', label: 'How it works' },
   { id: 'decisions', label: 'Design decisions' },
-  { id: 'cad', label: '3D models and drawings' },
-  { id: 'engineering', label: 'Engineering' },
-  { id: 'stack', label: 'Stack' },
 ];
 
 const firstWork = workProjects[0];
@@ -101,22 +95,16 @@ const jsonLd = [
           ))}
         </section>
 
-        <section id="rules" aria-labelledby="rules-h">
-          <h2 id="rules-h">Rules the platform enforces</h2>
-          <ul class="ticks">
-            {v.rules.map((r) => (
-              <li>{r}</li>
+        <section id="how" aria-labelledby="how-h">
+          <h2 id="how-h">How it works</h2>
+          <ol class="steps">
+            {v.steps.map((s) => (
+              <li>
+                <h3>{s.title}</h3>
+                <p>{s.detail}</p>
+              </li>
             ))}
-          </ul>
-        </section>
-
-        <section id="matching" aria-labelledby="matching-h">
-          <h2 id="matching-h">Matching a request to shops</h2>
-          <ul class="ticks">
-            {v.matching.map((m) => (
-              <li>{m}</li>
-            ))}
-          </ul>
+          </ol>
         </section>
 
         <section id="decisions" aria-labelledby="decisions-h">
@@ -130,60 +118,12 @@ const jsonLd = [
             ))}
           </dl>
         </section>
-
-        <section id="cad" aria-labelledby="cad-h">
-          <h2 id="cad-h">3D models and drawings</h2>
-          <div class="inline-figure">
-            <Route
-              label={v.scanFlow.label}
-              route={{
-                steps: v.scanFlow.steps.map((s) => s.title),
-                notes: v.scanFlow.notes,
-                seed: 41,
-              }}
-              caption="How a STEP file is analysed. The 3D model is ready before measuring finishes."
-            />
-          </div>
-          <ul class="ticks">
-            {v.cad.map((c) => (
-              <li>{c}</li>
-            ))}
-          </ul>
-        </section>
-
-        <section id="engineering" aria-labelledby="engineering-h">
-          <h2 id="engineering-h">Engineering</h2>
-          <div class="groups">
-            {v.engineering.map((g) => (
-              <div>
-                <h3>{g.title}</h3>
-                <ul class="ticks">
-                  {g.points.map((pt) => (
-                    <li>{pt}</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section id="stack" aria-labelledby="stack-h">
-          <h2 id="stack-h">Stack</h2>
-          <dl class="stack-list">
-            {v.stack.map((s) => (
-              <div>
-                <dt>{s.layer}</dt>
-                <dd>{s.tools}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
       </div>
     </div>
 
     <CasePager
       about={v.name}
-      note="The code is private, so this page covers what the product does and how it is built."
+      note="The code is private, so this page covers what the product does and how it is designed."
       label="More projects"
       start={{
         dir: 'Other side project',
@@ -242,9 +182,5 @@ const jsonLd = [
 
   .decisions dd {
     color: var(--ink-2);
-  }
-
-  .inline-figure {
-    margin-block: 8px;
   }
 </style>
